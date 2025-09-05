@@ -2,27 +2,25 @@
 using System.IO;
 using CsvHelper;
 using CsvHelper.Configuration;
+using SimpleDB;
 
 namespace Chirp {
     class Program
     {
-
         private static string path = "chirp_cli_db.csv";
+        
         static void Main(string[] args)
         {
-            if (args.Length == 1 && args[0] == "read") Read();
+            CsvDataBase<Cheep> DataBase = new CsvDataBase<Cheep>(path);
+            if (args.Length == 1 && args[0] == "read") Read(DataBase);
             else if (args.Length == 2 && args[0] == "cheep") Write(args[1]);
         }
-        private static void Read()
+        private static void Read(CsvDataBase<Cheep> DataBase)
         {
-            using (var reader = new StreamReader(path))
-            using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
+            var records = DataBase.Read();
+            foreach (var record in records)
             {
-                var records = csv.GetRecords<Cheep>();
-                foreach (var record in records)
-                {
-                    Console.WriteLine(record);
-                }
+                Console.WriteLine(record);
             }
         }
 
