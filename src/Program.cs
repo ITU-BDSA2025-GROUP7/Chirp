@@ -18,10 +18,7 @@ namespace Chirp {
         private static void Read(CsvDataBase<Cheep> DataBase)
         {
             var records = DataBase.Read();
-            foreach (var record in records)
-            {
-                Console.WriteLine(record);
-            }
+            UserInterface.PrintCheeps(records);
         }
 
         private static void Write(string message, CsvDataBase<Cheep> DataBase)
