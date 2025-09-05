@@ -1,6 +1,7 @@
 ﻿using System.Globalization;
 using System.IO;
 using CsvHelper;
+using CsvHelper.Configuration;
 
 namespace Chirp {
     class Program
@@ -10,18 +11,7 @@ namespace Chirp {
         static void Main(string[] args)
         {
             if (args.Length == 1 && args[0] == "read") Read();
-            
-            else if (args.Length == 2 && args[0] == "cheep")
-            {
-                string author = Environment.UserName;
-                DateTimeOffset timeOffset = DateTimeOffset.UtcNow;
-                long unixTime = timeOffset.ToUnixTimeSeconds();
-                Console.WriteLine(unixTime);
-                StreamWriter writer = File.AppendText("chirp_cli_db.csv");
-                writer.WriteLine(author + ",\"" + args[1] + "\"," + unixTime);
-                writer.Flush();
-                writer.Close();
-            };
+            else if (args.Length == 2 && args[0] == "cheep") Write(args[1]);
         }
         private static void Read()
         {
@@ -35,8 +25,33 @@ namespace Chirp {
                 }
             }
         }
-        
-        
+
+        private static void Write(string message)
+        {
+            message = "\"" + message + "\""; 
+            string author = Environment.UserName;
+            DateTimeOffset timeOffset = DateTimeOffset.UtcNow;
+            long unixTime = timeOffset.ToUnixTimeSeconds();
+            
+            Cheep cheep = new Cheep(author, message , unixTime);
+            
+            var config = new CsvConfiguration(CultureInfo.InvariantCulture)
+            {
+                // Don't write the header again.
+                HasHeaderRecord = false,
+                NewLine = Environment.NewLine,
+                ShouldQuote = args => false
+                
+            };
+
+            using var stream = File.Open(path, FileMode.Append);
+            using var writer = new StreamWriter(stream);
+            using (var csv = new CsvWriter(writer, config))
+            {
+                csv.WriteRecord(cheep);
+                csv.NextRecord();
+            }
+        }
     }
     
 }
