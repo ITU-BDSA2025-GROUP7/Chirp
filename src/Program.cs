@@ -2,31 +2,29 @@
 using System.IO;
 using CsvHelper;
 using CsvHelper.Configuration;
+using SimpleDB;
 
 namespace Chirp {
     class Program
     {
-
         private static string path = "chirp_cli_db.csv";
+        
         static void Main(string[] args)
         {
-            if (args.Length == 1 && args[0] == "read") Read();
-            else if (args.Length == 2 && args[0] == "cheep") Write(args[1]);
+            CsvDataBase<Cheep> DataBase = new CsvDataBase<Cheep>(path);
+            if (args.Length == 1 && args[0] == "read") Read(DataBase);
+            else if (args.Length == 2 && args[0] == "cheep") Write(args[1],  DataBase);
         }
-        private static void Read()
+        private static void Read(CsvDataBase<Cheep> DataBase)
         {
-            using (var reader = new StreamReader(path))
-            using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
+            var records = DataBase.Read();
+            foreach (var record in records)
             {
-                var records = csv.GetRecords<Cheep>();
-                foreach (var record in records)
-                {
-                    Console.WriteLine(record);
-                }
+                Console.WriteLine(record);
             }
         }
 
-        private static void Write(string message)
+        private static void Write(string message, CsvDataBase<Cheep> DataBase)
         {
             message = "\"" + message + "\""; 
             string author = Environment.UserName;
@@ -35,22 +33,7 @@ namespace Chirp {
             
             Cheep cheep = new Cheep(author, message , unixTime);
             
-            var config = new CsvConfiguration(CultureInfo.InvariantCulture)
-            {
-                // Don't write the header again.
-                HasHeaderRecord = false,
-                NewLine = Environment.NewLine,
-                ShouldQuote = args => false
-                
-            };
-
-            using var stream = File.Open(path, FileMode.Append);
-            using var writer = new StreamWriter(stream);
-            using (var csv = new CsvWriter(writer, config))
-            {
-                csv.WriteRecord(cheep);
-                csv.NextRecord();
-            }
+            DataBase.Store(cheep);
         }
     }
     
