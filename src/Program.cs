@@ -1,27 +1,43 @@
-﻿using System.Globalization;
+﻿using System.Diagnostics;
+using System.Globalization;
 using System.IO;
 using CsvHelper;
 using CsvHelper.Configuration;
 using SimpleDB;
+using DocoptNet;
 
 namespace Chirp {
     class Program
     {
+        const string Help = @"Chirp
+Usage:
+    -- read
+    -- cheep <message>
+
+Options:
+    -h, --help  show this screen.
+";
+
         private static string path = "chirp_cli_db.csv";
-        
-        static void Main(string[] args)
+        static int Main(string[] args)
         {
-            CsvDataBase<Cheep> DataBase = new CsvDataBase<Cheep>(path);
-            if (args.Length == 1 && args[0] == "read") Read(DataBase);
-            else if (args.Length == 2 && args[0] == "cheep") Write(args[1],  DataBase);
+            CsvDataBase<Cheep> dataBase = new CsvDataBase<Cheep>(path);
+            var parser = Docopt.CreateParser(Help);
+
+            return parser.Parse(args) switch
+            {
+                IArgumentsResult<IDictionary<string, ArgValue>> { Arguments: var arguments } => Run(arguments, dataBase),
+                IHelpResult => ShowHelp(Help),
+                IInputErrorResult { Usage: var usage } => OnError(usage),
+                var result => throw new System.Runtime.CompilerServices.SwitchExpressionException(result)
+            };
         }
-        private static void Read(CsvDataBase<Cheep> DataBase)
+        private static void Read(CsvDataBase<Cheep> dataBase)
         {
-            var records = DataBase.Read();
+            var records = dataBase.Read();
             UserInterface.PrintCheeps(records);
         }
-
-        private static void Write(string message, CsvDataBase<Cheep> DataBase)
+        private static void Write(string message, CsvDataBase<Cheep> dataBase)
         {
             message = "\"" + message + "\""; 
             string author = Environment.UserName;
@@ -30,8 +46,24 @@ namespace Chirp {
             
             Cheep cheep = new Cheep(author, message , unixTime);
             
-            DataBase.Store(cheep);
+            dataBase.Store(cheep);
+        }
+        static int ShowHelp(string help) {Console.WriteLine(help); return 0;}
+        static int OnError(string error) {Console.Error.WriteLine(error);return 1;}
+        static int Run(IDictionary<string, ArgValue> arguments, CsvDataBase<Cheep> dataBase)
+        {
+            if (arguments["read"].IsTrue)
+            {
+                Read(dataBase);
+                return 0;
+            }
+            if (arguments["cheep"].IsTrue)
+            {
+                string message = arguments["<message>"].ToString();
+                Write(message,  dataBase);
+                return 0;
+            }
+            return 1;
         }
     }
-    
 }
