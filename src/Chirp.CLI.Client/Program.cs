@@ -3,10 +3,10 @@ using System.Globalization;
 using System.IO;
 using CsvHelper;
 using CsvHelper.Configuration;
-using SimpleDB;
+using Chirp.CSVDB;
 using DocoptNet;
 
-namespace Chirp {
+namespace Chirp.CLI.Client {
     class Program
     {
         const string Help = @"Chirp

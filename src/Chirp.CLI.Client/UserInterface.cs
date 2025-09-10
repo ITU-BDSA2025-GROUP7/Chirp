@@ -1,4 +1,4 @@
-namespace Chirp;
+namespace Chirp.CLI.Client;
 
 public static class UserInterface
 {
