@@ -22,7 +22,7 @@ public class UnitTests
 		Assert.True(File.Exists(path));
 
 		CsvDataBase<Cheep> database = new CsvDataBase<Cheep>(path);
-		List<Cheep> results = database.Read().ToList();
-		Assert.Equal(8, results.Count);
+		Cheep results = database.Read().ToList()[0];
+		Assert.Equal("ropf", results.Author);
     }
 }
