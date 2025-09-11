@@ -37,15 +37,18 @@ Options:
             var records = dataBase.Read();
             UserInterface.PrintCheeps(records);
         }
+
+        // `message` may not contain ", or the CVSHelper library considers it "bad data".
+        // It is possible to ignore this, and it would *probably* work fine.
         private static void Write(string message, CsvDataBase<Cheep> dataBase)
         {
-            message = "\"" + message + "\""; 
+            message = "\"" + message + "\"";
             string author = Environment.UserName;
             DateTimeOffset timeOffset = DateTimeOffset.UtcNow;
             long unixTime = timeOffset.ToUnixTimeSeconds();
-            
-            Cheep cheep = new Cheep(author, message , unixTime);
-            
+
+            Cheep cheep = new Cheep(author, message, unixTime);
+
             dataBase.Store(cheep);
         }
         static int ShowHelp(string help) {Console.WriteLine(help); return 0;}
