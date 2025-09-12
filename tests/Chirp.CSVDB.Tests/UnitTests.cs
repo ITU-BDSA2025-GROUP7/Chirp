@@ -27,9 +27,12 @@ public class TestBase
 
 public class UnitTests
 {
-	[Fact]
-	public void Read()
-	{		
+	[Theory]
+	[InlineData(0, "ropf", "Hello, BDSA students!", 1690891760L)]
+	[InlineData(1, "adho", "Welcome to the course!", 1690978778L)]
+	[InlineData(7, "pines", "wow, so this is what it feels like to cheep!", 1757242423L)]
+	public void Read(int cheepIndex, string author, string message, long timestamp)
+	{
 		var dir = TestBase.Dir;
 		string filename = "chirp_cli_db.csv";
 		string dirString = dir.FullName;
@@ -37,8 +40,10 @@ public class UnitTests
 		Assert.True(File.Exists(path));
 
 		CsvDataBase<Cheep> database = new CsvDataBase<Cheep>(path);
-		Cheep result = database.Read().ToList()[0];
-		Assert.Equal("ropf", result.Author);
+		Cheep result = database.Read().ToList()[cheepIndex];
+		Assert.Equal(author, result.Author);
+		Assert.Equal(message, result.Message);
+		Assert.Equal(timestamp, result.Timestamp);
 	}
 
 	[Fact]
