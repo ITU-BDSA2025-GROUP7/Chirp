@@ -38,8 +38,6 @@ Options:
             UserInterface.PrintCheeps(records);
         }
 
-        // `message` may not contain ", or the CVSHelper library considers it "bad data".
-        // It is possible to ignore this, and it would *probably* work fine.
         private static void Write(string message, CsvDataBase<Cheep> dataBase)
         {
             message = "\"" + message + "\"";
