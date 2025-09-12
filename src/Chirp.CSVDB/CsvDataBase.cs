@@ -12,13 +12,21 @@ public sealed class CsvDataBase<T> : IDataBaseRepository<T>
     {
         this.path = path;
     }
+
     public IEnumerable<T> Read(int? limit = null)
     {
         using (var reader = new StreamReader(path))
         using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
         {
             var records = csv.GetRecords<T>();
-            return records.ToList<T>();
+            if (limit != null)
+            {
+                return records.Take((int)limit).ToList();
+            }
+            else
+            {
+                return records.ToList();
+            }
         }
     }
 
@@ -30,7 +38,6 @@ public sealed class CsvDataBase<T> : IDataBaseRepository<T>
             HasHeaderRecord = false,
             NewLine = Environment.NewLine,
             ShouldQuote = args => false
-                
         };
 
         using var stream = File.Open(path, FileMode.Append);
