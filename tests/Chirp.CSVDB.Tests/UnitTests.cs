@@ -76,24 +76,4 @@ public class UnitTests
 			File.Delete(tempPath);
 		}
 	}
-
-	/*
-	// Problem: Looking in \..\tests\Chirp.CSVDB.Tests\bin\Debug\9.0\ for the .csv file.
-	[Fact]
-	public void readCLI()
-	{
-		using (Process process = new Process())
-		{
-			process.StartInfo.FileName = "Chirp.CLI.Client.exe";
-			process.StartInfo.UseShellExecute = false;
-			process.StartInfo.Arguments = "read";
-			process.StartInfo.RedirectStandardInput = true;
-			process.Start();
-
-			//StreamWriter writer = process.StandardInput;
-			//writer.WriteLine("dotnet run -- read");
-			//writer.Flush();
-			Assert.True(true);
-		}
-	}*/
 }
