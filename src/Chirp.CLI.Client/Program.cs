@@ -18,10 +18,11 @@ Options:
     -h, --help  show this screen.
 ";
 
-        private static string path = "chirp_cli_db.csv";
+        private static string path = "../../chirp_cli_db.csv";
         static int Main(string[] args)
         {
-            CsvDataBase<Cheep> dataBase = new CsvDataBase<Cheep>(path);
+            var dataBase =  CsvDataBase<Cheep>.Instance;
+            dataBase.SetPath(path);
             var parser = Docopt.CreateParser(Help);
 
             return parser.Parse(args) switch

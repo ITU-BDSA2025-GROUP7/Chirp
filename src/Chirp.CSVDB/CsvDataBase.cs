@@ -6,20 +6,48 @@ namespace Chirp.CSVDB;
 
 public sealed class CsvDataBase<T> : IDataBaseRepository<T>
 {
-    private string path;
+    private string path = "";
+    private static CsvDataBase<T> instance = null;
+    private static readonly object padlock = new object();
 
-    public CsvDataBase(string path)
+    private CsvDataBase()
     {
-        this.path = path;
+       
+    }
+
+    public static CsvDataBase<T> Instance
+    {
+        get
+        {
+            lock (padlock)
+            {
+                if (instance == null)
+                {
+                    instance = new CsvDataBase<T>();
+                }
+                return instance;
+            }
+        }
     }
     public IEnumerable<T> Read(int? limit = null)
     {
+        
         using (var reader = new StreamReader(path))
         using (var csv = new CsvReader(reader, CultureInfo.InvariantCulture))
         {
             var records = csv.GetRecords<T>();
             return records.ToList<T>();
         }
+    }
+
+    public void SetPath(string path)
+    {
+        this.path = path;
+    }
+
+    public string GetPath()
+    {
+        return path;
     }
 
     public void Store(T record)
