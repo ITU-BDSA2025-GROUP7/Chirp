@@ -55,7 +55,7 @@ public class UnitTests
 		string path = Path.Combine(dirString, filename);
 		Assert.True(File.Exists(path));
 
-		string tempPath = path + '_';
+		string tempPath = Path.GetTempFileName()
 
 		if (File.Exists(tempPath))
 		{
