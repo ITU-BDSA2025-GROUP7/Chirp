@@ -4,7 +4,7 @@ using CsvHelper.Configuration;
 
 namespace Chirp.CSVDB;
 
-public sealed class CsvDataBase<T> : IDataBaseRepository<T>
+public class CsvDataBase<T> : IDataBaseRepository<T>
 {
     private string path;
 
