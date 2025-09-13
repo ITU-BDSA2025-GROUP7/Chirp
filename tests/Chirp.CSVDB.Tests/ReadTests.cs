@@ -80,9 +80,9 @@ public class ReadTests
 		Assert.Equal(1757242423L, results[7].Timestamp);
 	}
 
-	/** Testing what happens when reading a CSV file that contains normal entries and a
-	 * corrupted one (,,), but the limit was such that we only actually retrieve normal ones
-	 * anyway.
+	/** Testing what happens when reading a CSV file that contains normal
+	 * entries and a corrupted one (,,), but the limit was such that we only
+	 * actually retrieve normal ones anyway.
 	 */
 	[Fact]
 	public void ReadWhenNullRecordLater()
@@ -96,11 +96,12 @@ public class ReadTests
 		Assert.Equal(1690891760L, results[0].Timestamp);
 	}
 
-	/** Testing what happens when reading a CSV file that has both normal and a corrupted entry,
-	 * and all the entries are read. */
+	/** Testing what happens when reading a CSV file that has both normal and
+	 * a corrupted entry, and all the entries are read. */
 	[Theory]
 	[InlineData(null)]
 	[InlineData(9)]
+	[InlineData(int.MaxValue)] // If a list of this length is created, C# will run out of memory and crash.
 	public void ReadFromCSVFileWithANullEntryAmongNormalOnes(int? limit)
 	{
 		var database = GetDatabase("nullRecordInMiddle.csv");
@@ -116,6 +117,8 @@ public class ReadTests
 	[InlineData(-1)]
 	[InlineData(-2)]
 	[InlineData(-1234)]
+	[InlineData(int.MaxValue)] // If a list of this length is created, C# will run out of memory and crash.
+	[InlineData(int.MinValue)]
 	public void ReadFromEmptyCSVFile(int? limit)
 	{
 		var database = GetDatabase("empty.csv");
@@ -172,5 +175,88 @@ public class ReadTests
 		Assert.Equal("ropf", record.Author);
 		Assert.Equal("Hello BDSA students!", record.Message);
 		Assert.Equal(1690891760, record.Timestamp);
+	}
+
+	[Theory]
+	[InlineData("chirp_cli_db.csv", 8, null)]
+	[InlineData("chirp_cli_db.csv", 0, 0)]
+	[InlineData("chirp_cli_db.csv", 1, 1)]
+	[InlineData("chirp_cli_db.csv", 2, 2)]
+	[InlineData("chirp_cli_db.csv", 8, int.MaxValue)]
+	[InlineData("chirp_cli_db.csv", 0, -1)]
+	[InlineData("chirp_cli_db.csv", 0, -2)]
+	[InlineData("chirp_cli_db.csv", 0, int.MinValue)]
+	[InlineData("empty.csv", 0, null)]
+	[InlineData("empty.csv", 0, 0)]
+	[InlineData("empty.csv", 0, 1)]
+	[InlineData("empty.csv", 0, 2)]
+	[InlineData("empty.csv", 0, int.MaxValue)]
+	[InlineData("empty.csv", 0, -1)]
+	[InlineData("empty.csv", 0, -2)]
+	[InlineData("empty.csv", 0, int.MinValue)]
+	public void ReadLimit(string filename, int expectedRecords, int? limit)
+	{
+		var database = GetDatabase(filename);
+		var records = database.Read(limit).ToList();
+		Assert.Equal(expectedRecords, records.Count);
+	}
+
+	/** Asserts that reading again from the same database returns the same result(s) as before.
+	 * You don't continue where you left off, you read from the start each time.
+	 */
+	[Theory]
+	[InlineData(1)]
+	[InlineData(2)]
+	[InlineData(8)]
+	public void SubsequentReads(int limit)
+	{
+		var database = GetDatabase("chirp_cli_db.csv");
+		var records1 = database.Read(limit).ToList();
+		Assert.Equal(limit, records1.Count);
+		Cheep cheep1 = new Cheep("ropf", "Hello, BDSA students!", 1690891760L);
+		Assert.Equal(cheep1, records1[0]);
+		
+		var records2 = database.Read(limit).ToList();
+		Assert.Equal(limit, records2.Count);
+		Cheep cheep2 = new Cheep("ropf", "Hello, BDSA students!", 1690891760L);
+		Assert.Equal(cheep2, records2[0]);
+	}
+
+	[Theory]
+	[InlineData("chirp_cli_db.csv")]
+	[InlineData("empty.csv")]
+	[InlineData("noHeader.csv")]
+	[InlineData("nullRecordAtEnd.csv")]
+	[InlineData("nullRecordAtStart.csv")]
+	[InlineData("nullRecordInMiddle.csv")]
+	[InlineData("oneNullRecord.csv")]
+	[InlineData("twoRecordsOnOneLine.csv")]
+	public void EnsureReadDoesNotMutate(string filename)
+	{
+		var path = GetPathTo(filename);
+		var f1 = File.OpenText(path);
+		var before = f1.ReadToEnd();
+		f1.Close();
+		
+		var database = GetDatabase(filename);
+		_ = database.Read().ToList();
+		
+		var f2 = File.OpenText(path);
+		var after = f2.ReadToEnd();
+		Assert.Equal(before, after);
+		f2.Close();
+	}
+
+	/** Asserts that attempting to read from a .csv file without a header row
+	 * will result in nothing being read.
+	 */
+	[Theory]
+	[InlineData("noHeader.csv")]
+	[InlineData("noHeaderAlt.csv")]
+	public void ReadWhenNoHeader(string filename)
+	{
+		var database = GetDatabase(filename);
+		var records = database.Read().ToList();
+		Assert.Empty(records);
 	}
 }

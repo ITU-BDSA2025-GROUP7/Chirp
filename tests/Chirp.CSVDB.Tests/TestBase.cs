@@ -66,13 +66,15 @@ public static class TestBase
 	 */
 	public static CsvDataBase<Cheep> GetDatabase(string filename)
 	{
-		return new CsvDataBase<Cheep>(GetPathTo(filename));
+		var path = GetPathTo(filename);
+		return new CsvDataBase<Cheep>(path);
 	}
 
 	/** Convenience function. Makes a copy of the given file (located in the
 	 * main directory of this test project), then opens the database in that copy. */
 	public static CsvDataBase<Cheep> GetDatabaseCopy(string filename)
 	{
-		return new CsvDataBase<Cheep>(CopyToTempFile(filename));
+		var pathOfCopy = CopyToTempFile(filename);
+		return new CsvDataBase<Cheep>(pathOfCopy);
 	}
 }
