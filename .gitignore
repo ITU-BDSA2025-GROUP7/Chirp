@@ -54,3 +54,6 @@ TestResult.xml
 nunit-*.xml
 
 .idea/*
+
+# individual user setting sould not be added
+Chirp.sln.DotSettings.user
