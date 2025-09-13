@@ -1,4 +1,6 @@
-﻿namespace Chirp.CLI.Client;
+﻿using System.Globalization;
+
+namespace Chirp.CLI.Client;
 
 public class CheepTest
 {
@@ -29,7 +31,7 @@ public class CheepTest
         string Message = "Hello World, i am alive!!!!";
         long Timestamp = timestamp; // this tecnically also tests time conversion
         // Calculates the expeted time since it will depend on what time zone the computer running the test will be in
-        String ExpectedTime = DateTime.Parse(expectedTimeString + " +02:00").ToLocalTime().ToString("dd-MM-yyyy HH:mm:ss"); 
+        String ExpectedTime = DateTime.Parse(expectedTimeString + " +02:00").ToLocalTime().ToString("dd-MM-yyyy HH:mm:ss", CultureInfo.InvariantCulture); 
         
         string expected ="Chirp @ " + ExpectedTime + ": Hello World, i am alive!!!!";
         
