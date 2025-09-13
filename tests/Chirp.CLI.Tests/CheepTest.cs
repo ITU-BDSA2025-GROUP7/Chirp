@@ -31,9 +31,10 @@ public class CheepTest
         string Message = "Hello World, i am alive!!!!";
         long Timestamp = timestamp; // this tecnically also tests time conversion
         // Calculates the expeted time since it will depend on what time zone the computer running the test will be in
-        string ExpectedTime = DateTime.Parse(expectedTimeString + " +02:00").ToLocalTime().ToString("dd-MM-yyyy HH:mm:ss", CultureInfo.InvariantCulture); 
+        DateTime expectedDateTime = DateTime.ParseExact(expectedTimeString + " +02:00", "dd-MM-yyyy HH:mm:ss zzz", CultureInfo.InvariantCulture).ToLocalTime();
+        string expectedDateTimeString = expectedDateTime.ToString("dd-MM-yyyy HH:mm:ss", CultureInfo.InvariantCulture);
         
-        string expected ="Chirp @ " + ExpectedTime + ": Hello World, i am alive!!!!";
+        string expected ="Chirp @ " + "" +  expectedDateTimeString + ": Hello World, i am alive!!!!";
         
         //act
         Cheep cheep = new Cheep(Author, Message, Timestamp);
