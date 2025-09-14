@@ -44,6 +44,6 @@ jobs:
         with:
           dotnet-version: 9.0.x
       - name: publishWindows
-        run: dotnet publish --arch win-x64 --artifacts-path Published/Windows
+        run: dotnet publish -r win-x64 --artifacts-path Published/Windows --self-contained true
 
   
