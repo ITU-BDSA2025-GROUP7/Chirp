@@ -8,7 +8,7 @@ on:
   pull_request:
     tags:
       - v[0-9]+.[0-9]+.[0-9]+
-        
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -23,6 +23,7 @@ jobs:
         run: dotnet restore
       - name: Build
         run: dotnet build --no-restore
+        
   test:
     runs-on: ubuntu-latest
     needs: build
@@ -34,6 +35,7 @@ jobs:
           dotnet-version: 9.0.x
       - name: Test
         run: dotnet test --no-build --verbosity normal
+        
   publish:
     runs-on: ubuntu-latest
     needs: test
@@ -43,13 +45,22 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 9.0.x
-      - name: publishWindows
-        run: dotnet publish src/Chirp.CLI.Client/Chirp.CLI.Client.csproj -r win-x64 -c Release -o Published/Windows --self-contained true -p:PublishSingleFile=true
+      - name: publish
+        run: |
+          dotnet publish src/Chirp.CLI.Client/Chirp.CLI.Client.csproj -r win-x64 -c Release -o Published/Windows --self-contained true -p:PublishSingleFile=true
+          dotnet publish src/Chirp.CLI.Client/Chirp.CLI.Client.csproj -r osx-x64 -c Release -o Published/MacOS --self-contained true -p:PublishSingleFile=true
+          dotnet publish src/Chirp.CLI.Client/Chirp.CLI.Client.csproj -r linux-x64 -c Release -o Published/Linux --self-contained true -p:PublishSingleFile=true
       - name: zipFiles
-        run: zip -r Chirp-Win.zip Published/Windows
+        run: |
+          zip -r Chirp-Win.zip Published/Windows
+          zip -r Chirp-MacOS.zip Published/MacOS
+          zip -r Chirp-Linux.zip Published/Linux
       - name: Release
         uses: softprops/action-gh-release@v2
         with: 
-          files: Chirp-Win.zip
+          files: |
+            Chirp-Win.zip
+            Chirp-MacOS.zip
+            Chirp-Linux.zip
 
   
