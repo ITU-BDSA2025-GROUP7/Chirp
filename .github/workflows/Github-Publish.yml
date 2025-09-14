@@ -44,6 +44,8 @@ jobs:
         with:
           dotnet-version: 9.0.x
       - name: publishWindows
-        run: dotnet publish -r win-x64 --artifacts-path Published/Windows --self-contained true
+        run: dotnet publish -r win-x64 -o Published/Windows --self-contained true
+      - name: zipFiles
+        run: zip -r Chirp-Win.zip Published/Windows
 
   
