@@ -40,16 +40,15 @@ Options:
             var records = dataBase.Read();
             UserInterface.PrintCheeps(records);
         }
-
         private static void Write(string message, CsvDataBase<Cheep> dataBase)
         {
-            message = "\"" + message + "\"";
+            message = "\"" + message + "\""; 
             string author = Environment.UserName;
             DateTimeOffset timeOffset = DateTimeOffset.UtcNow;
             long unixTime = timeOffset.ToUnixTimeSeconds();
-
-            Cheep cheep = new Cheep(author, message, unixTime);
-
+            
+            Cheep cheep = new Cheep(author, message , unixTime);
+            
             dataBase.Store(cheep);
         }
         static int ShowHelp(string help) {Console.WriteLine(help); return 0;}

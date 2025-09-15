@@ -28,7 +28,6 @@ public static class TestBase
 		DirectoryInfo[] subDirs = dir.GetDirectories("data");
 		Assert.Single(subDirs);
 		DirectoryInfo dataDir = subDirs[0];
-		Console.WriteLine("Data Directory: " + dataDir.FullName);
 		Assert.NotNull(dataDir);
 		Assert.True(dataDir.Exists);
 		Dir = dataDir;
