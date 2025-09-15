@@ -4,7 +4,7 @@ namespace Chirp.CLI.Client;
 
 public class CheepTest
 {
-    // Simulated change
+    // Simulated change 2
     
     [Fact]
     public void cheepInstantiation()
