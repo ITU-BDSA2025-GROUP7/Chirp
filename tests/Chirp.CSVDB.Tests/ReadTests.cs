@@ -3,6 +3,8 @@ using static Chirp.CSVDB.Tests.TestBase;
 
 namespace Chirp.CSVDB.Tests;
 
+/** Tests that validate the behaviour of <see cref="Chirp.CSVDB.CsvDataBase{T}.Read(int?)">
+ * CsvDataBase.Read(int?)</see>. */
 public class ReadTests
 {
 	/** Testing reading valid data when <c>CsvDataBase&lt;T&gt;.Read(int?)</c>
@@ -13,7 +15,7 @@ public class ReadTests
 	[InlineData(7, "pines", "wow, so this is what it feels like to cheep!", 1757242423L)]
 	public void Read(int cheepIndex, string author, string message, long timestamp)
 	{
-		CsvDataBase<Cheep> database = GetDatabase("chirp_cli_db.csv");
+		CsvDataBase<Cheep> database = GetDatabaseCopy("generalExample.csv");
 		Cheep result = database.Read().ToList()[cheepIndex];
 		Assert.Equal(author, result.Author);
 		Assert.Equal(message, result.Message);
@@ -24,7 +26,7 @@ public class ReadTests
 	[Fact]
 	public void ReadLimitLessThan()
 	{
-		CsvDataBase<Cheep> database = GetDatabase("chirp_cli_db.csv");
+		CsvDataBase<Cheep> database = GetDatabaseCopy("generalExample.csv");
 		List<Cheep> results = database.Read(2).ToList();
 		Assert.Equal(2, results.Count);
 		Assert.Equal("ropf", results[0].Author);
@@ -39,7 +41,7 @@ public class ReadTests
 	[Fact]
 	public void ReadLimitEqualTo()
 	{
-		var database = GetDatabase("chirp_cli_db.csv");
+		CsvDataBase<Cheep> database = GetDatabaseCopy("generalExample.csv");
 		List<Cheep> results = database.Read(8).ToList();
 
 		Assert.Equal(8, results.Count);
@@ -63,7 +65,7 @@ public class ReadTests
 	[Fact]
 	public void ReadLimitHigher()
 	{
-		var database = GetDatabase("chirp_cli_db.csv");
+		CsvDataBase<Cheep> database = GetDatabaseCopy("generalExample.csv");
 		List<Cheep> results = database.Read(int.MaxValue).ToList();
 		Assert.Equal(8, results.Count);
 		Assert.Equal("ropf", results[0].Author);
@@ -87,7 +89,7 @@ public class ReadTests
 	[Fact]
 	public void ReadWhenNullRecordLater()
 	{
-		var database = GetDatabase("nullRecordInMiddle.csv");
+		CsvDataBase<Cheep> database = GetDatabaseCopy("nullRecordInMiddle.csv");
 
 		List<Cheep> results = database.Read(1).ToList();
 		Assert.Single(results);
@@ -104,7 +106,7 @@ public class ReadTests
 	[InlineData(int.MaxValue)] // If a list of this length is created, C# will run out of memory and crash.
 	public void ReadFromCSVFileWithANullEntryAmongNormalOnes(int? limit)
 	{
-		var database = GetDatabase("nullRecordInMiddle.csv");
+		CsvDataBase<Cheep> database = GetDatabaseCopy("nullRecordInMiddle.csv");
 		Assert.Equal(4, database.Read(limit).ToList().Count);
 	}
 
@@ -121,9 +123,9 @@ public class ReadTests
 	[InlineData(int.MinValue)]
 	public void ReadFromEmptyCSVFile(int? limit)
 	{
-		var database = GetDatabase("empty.csv");
+		CsvDataBase<Cheep> database = GetDatabaseCopy("empty.csv");
 
-		var results = database.Read(limit).ToList();
+		List<Cheep> results = database.Read(limit).ToList();
 		Assert.NotNull(results);
 		Assert.Empty(results);
 	}
@@ -134,7 +136,7 @@ public class ReadTests
 	[Fact]
 	public void ReadFromCSVFileWithOneNullEntry()
 	{
-		var database = GetDatabase("oneNullRecord.csv");
+		CsvDataBase<Cheep> database = GetDatabaseCopy("oneNullRecord.csv");
 		Assert.Empty(database.Read().ToList());
 	}
 
@@ -146,8 +148,8 @@ public class ReadTests
 	[InlineData(9)]
 	public void ReadWhenNullRecordAtEnd(int? limit)
 	{
-		var database = GetDatabase("nullRecordAtEnd.csv");
-		var records = database.Read(limit).ToList();
+		CsvDataBase<Cheep> database = GetDatabaseCopy("nullRecordAtEnd.csv");
+		List<Cheep> records = database.Read(limit).ToList();
 		Assert.Equal(8, records.Count);
 	}
 
@@ -160,32 +162,35 @@ public class ReadTests
 	[InlineData(9)]
 	public void ReadWhenNullRecordAtStart(int? limit)
 	{
-		var database = GetDatabase("nullRecordAtStart.csv");
-		var records = database.Read(limit).ToList();
+		CsvDataBase<Cheep> database = GetDatabaseCopy("nullRecordAtStart.csv");
+		List<Cheep> records = database.Read(limit).ToList();
 		Assert.Empty(records);
 	}
 
 	/** Test what happens when reading a file where there are two entries on one line. */
 	[Fact]
 	public void ReadWhenTwoRecordsOnOneLine() {
-		var database = GetDatabase("twoRecordsOnOneLine.csv");
-		var records = database.Read().ToList();
+		CsvDataBase<Cheep> database = GetDatabaseCopy("twoRecordsOnOneLine.csv");
+		List<Cheep> records = database.Read().ToList();
 		Assert.Single(records);
-		var record = records[0];
+		Cheep record = records[0];
 		Assert.Equal("ropf", record.Author);
 		Assert.Equal("Hello BDSA students!", record.Message);
 		Assert.Equal(1690891760, record.Timestamp);
 	}
 
+	/** Asserts that changing the <c>limit</c> parameter of
+	 * <see cref="Chirp.CSVDB.CsvDataBase{T}.Read(int?)">CsvDataBase.Read(int?)</see>
+	 * causes the expected number of records to be returned. */
 	[Theory]
-	[InlineData("chirp_cli_db.csv", 8, null)]
-	[InlineData("chirp_cli_db.csv", 0, 0)]
-	[InlineData("chirp_cli_db.csv", 1, 1)]
-	[InlineData("chirp_cli_db.csv", 2, 2)]
-	[InlineData("chirp_cli_db.csv", 8, int.MaxValue)]
-	[InlineData("chirp_cli_db.csv", 0, -1)]
-	[InlineData("chirp_cli_db.csv", 0, -2)]
-	[InlineData("chirp_cli_db.csv", 0, int.MinValue)]
+	[InlineData("generalExample.csv", 8, null)]
+	[InlineData("generalExample.csv", 0, 0)]
+	[InlineData("generalExample.csv", 1, 1)]
+	[InlineData("generalExample.csv", 2, 2)]
+	[InlineData("generalExample.csv", 8, int.MaxValue)]
+	[InlineData("generalExample.csv", 0, -1)]
+	[InlineData("generalExample.csv", 0, -2)]
+	[InlineData("generalExample.csv", 0, int.MinValue)]
 	[InlineData("empty.csv", 0, null)]
 	[InlineData("empty.csv", 0, 0)]
 	[InlineData("empty.csv", 0, 1)]
@@ -196,8 +201,8 @@ public class ReadTests
 	[InlineData("empty.csv", 0, int.MinValue)]
 	public void ReadLimit(string filename, int expectedRecords, int? limit)
 	{
-		var database = GetDatabase(filename);
-		var records = database.Read(limit).ToList();
+		CsvDataBase<Cheep> database = GetDatabaseCopy(filename);
+		List<Cheep> records = database.Read(limit).ToList();
 		Assert.Equal(expectedRecords, records.Count);
 	}
 
@@ -210,20 +215,22 @@ public class ReadTests
 	[InlineData(8)]
 	public void SubsequentReads(int limit)
 	{
-		var database = GetDatabase("chirp_cli_db.csv");
-		var records1 = database.Read(limit).ToList();
+		CsvDataBase<Cheep> database = GetDatabaseCopy("generalExample.csv");
+		List<Cheep> records1 = database.Read(limit).ToList();
 		Assert.Equal(limit, records1.Count);
-		Cheep cheep1 = new Cheep("ropf", "Hello, BDSA students!", 1690891760L);
+		var cheep1 = new Cheep("ropf", "Hello, BDSA students!", 1690891760L);
 		Assert.Equal(cheep1, records1[0]);
 		
-		var records2 = database.Read(limit).ToList();
+		List<Cheep> records2 = database.Read(limit).ToList();
 		Assert.Equal(limit, records2.Count);
-		Cheep cheep2 = new Cheep("ropf", "Hello, BDSA students!", 1690891760L);
+		var cheep2 = new Cheep("ropf", "Hello, BDSA students!", 1690891760L);
 		Assert.Equal(cheep2, records2[0]);
 	}
 
+	/** Asserts that <see cref="Chirp.CSVDB.CsvDataBase{T}.Read(int?)">CsvDataBase.Read(int?)</see> does not mutate
+	 * the input file in any way. */
 	[Theory]
-	[InlineData("chirp_cli_db.csv")]
+	[InlineData("generalExample.csv")]
 	[InlineData("empty.csv")]
 	[InlineData("noHeader.csv")]
 	[InlineData("nullRecordAtEnd.csv")]
@@ -233,16 +240,16 @@ public class ReadTests
 	[InlineData("twoRecordsOnOneLine.csv")]
 	public void EnsureReadDoesNotMutate(string filename)
 	{
-		var path = GetPathTo(filename);
-		var f1 = File.OpenText(path);
-		var before = f1.ReadToEnd();
+		string path = CopyToTempFile(filename);
+		StreamReader f1 = File.OpenText(path);
+		string before = f1.ReadToEnd();
 		f1.Close();
 		
-		var database = GetDatabase(filename);
+		var database = new CsvDataBase<Cheep>(path);
 		_ = database.Read().ToList();
 		
-		var f2 = File.OpenText(path);
-		var after = f2.ReadToEnd();
+		StreamReader f2 = File.OpenText(path);
+		string after = f2.ReadToEnd();
 		Assert.Equal(before, after);
 		f2.Close();
 	}
@@ -255,8 +262,8 @@ public class ReadTests
 	[InlineData("noHeaderAlt.csv")]
 	public void ReadWhenNoHeader(string filename)
 	{
-		var database = GetDatabase(filename);
-		var records = database.Read().ToList();
+		CsvDataBase<Cheep> database = GetDatabaseCopy(filename);
+		List<Cheep> records = database.Read().ToList();
 		Assert.Empty(records);
 	}
 }

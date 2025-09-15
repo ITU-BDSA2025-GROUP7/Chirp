@@ -1,16 +1,19 @@
 using Chirp.CLI.Client;
+using Xunit.Sdk;
 
 namespace Chirp.CSVDB.Tests;
 
-/// Helps find the working directory
+/// Helps find the directory with the data files, and to copy these to temporary
+/// files before using them.
 public static class TestBase
 {
-	/// The current working directory.
+	/// The "data" directory of this test project, where .csv files are stored for use in tests.
+	/// The tests create temporary copies of these before doing anything else.
 	private static DirectoryInfo Dir { get; }
 
 	static TestBase()
 	{
-		var current = Directory.GetCurrentDirectory();
+		string current = Directory.GetCurrentDirectory();
 		var dir = new DirectoryInfo(current);
 
 		/* Going up three directories, from <working directory>\bin\Debug\net9.0\
@@ -19,62 +22,51 @@ public static class TestBase
 		{
 			dir = dir.Parent.Parent.Parent;
 		}
-
-		Dir = dir;
-		Assert.NotNull(Dir);
+		Assert.True(dir.Exists);
+		
+		// Getting the "data" subdirectory.
+		DirectoryInfo[] subDirs = dir.GetDirectories("data");
+		Assert.Single(subDirs);
+		DirectoryInfo dataDir = subDirs[0];
+		Console.WriteLine("Data Directory: " + dataDir.FullName);
+		Assert.NotNull(dataDir);
+		Assert.True(dataDir.Exists);
+		Dir = dataDir;
 	}
 
-	/** Copies the file located in the main directory of this test project into
+	/** Copies the file located in the "data" directory of this test project into
 	 * a new temporary file, asserts that it exists, then returns the path to that
 	 * copy.<br/>
-	 * If you don't need to write to the file, GetPathTo() might be preferable.<br/>
-	 * The <b>filename</b> parameter refers to only the filename, not the full path.
+	 * <param name="filename">The filename, <i>not the full path</i>, of the .csv file to copy.</param>
 	 */
-	public static string CopyToTempFile(string filename)
-	{
-		string dirString = Dir.FullName;
-		string path = Path.Combine(dirString, filename);
-		Assert.True(File.Exists(path));
-
-		string tempPath = Path.GetTempFileName();
-		if (File.Exists(tempPath))
-		{
-			File.Delete(tempPath);
-		}
-		File.Copy(path, tempPath);
-		Assert.True(File.Exists(tempPath));
+	public static string CopyToTempFile(string filename) {
+		string path = GetPathTo(filename);
+		string tempPath = Path.GetTempFileName(); // This creates the file as well.
+		File.Copy(path, tempPath, true);
 		return tempPath;
 	}
 
-	/** Returns the path to the given filename located in the main directory of this
+	/** Returns the path to the given filename located in the "data" directory of this
 	 * test project. Asserts that the file exists first.<br/>
-	 * Use this function for files that will be read but not written to.<br/>
-	 * The <b>filename</b> parameter refers to only the filename, not the full path.<br/>
-	 * Use CopyToTempFile(string) to get a copy of the file instead.
+	 * Use this function for files that will be read but not written to.
+	 * <param name="filename">The filename, <i>not the full path</i>, of the .csv file.</param>
+	 * <seealso cref="CopyToTempFile(string)"/>
 	 */
 	public static string GetPathTo(string filename)
 	{
-		string dirString = Dir.FullName;
-		string path = Path.Combine(dirString, filename);
+		string path = Path.Combine(Dir.FullName, filename);
 		Assert.True(File.Exists(path));
 		return path;
 	}
 
-	/** Convenience function. Opens the database with the given filename in the
-	 * main directory of this test project. Use <see cref="GetDatabaseCopy"/> instead if
-	 * you need to write to the database.
-	 */
-	public static CsvDataBase<Cheep> GetDatabase(string filename)
-	{
-		var path = GetPathTo(filename);
-		return new CsvDataBase<Cheep>(path);
-	}
-
 	/** Convenience function. Makes a copy of the given file (located in the
-	 * main directory of this test project), then opens the database in that copy. */
+	 * "data" directory of this test project), then opens the database in that copy.<br/>
+	 * Use this when opening the test .csv files to avoid accidentally overwriting the original.
+	 * <param name="filename">The filename, <i>not the full path</i>,
+	 * of the .csv file to copy and then open.</param> */
 	public static CsvDataBase<Cheep> GetDatabaseCopy(string filename)
 	{
-		var pathOfCopy = CopyToTempFile(filename);
+		string pathOfCopy = CopyToTempFile(filename);
 		return new CsvDataBase<Cheep>(pathOfCopy);
 	}
 }
