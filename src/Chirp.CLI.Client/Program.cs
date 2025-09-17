@@ -22,7 +22,7 @@ Options:
 ";
 
         private static string path = "../../chirp_cli_db.csv";
-        static int Main(string[] args)
+        public static int Main(string[] args)
         {
             var dataBase =  CsvDataBase<Cheep>.Instance;
             dataBase.SetPath(path);

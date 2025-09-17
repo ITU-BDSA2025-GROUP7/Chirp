@@ -72,6 +72,12 @@ public class CsvDataBase<T> : IDataBaseRepository<T>
     {
         return path;
     }
+    public static void Reset() {
+        
+        instance = null;
+    }
+    
+    
 
     /** Adds a new record to the database.<br/>
      * No sanity checks are applied; this method assumes that the record is safe
@@ -83,11 +89,12 @@ public class CsvDataBase<T> : IDataBaseRepository<T>
         {
             // Don't write the header again.
             HasHeaderRecord = false,
-            NewLine = Environment.NewLine,
+            NewLine = Environment.NewLine, 
             ShouldQuote = args => false
         };
         
-        using var stream = File.Open(path, FileMode.Append);
+        
+        using var stream = File.Open(path, FileMode.Append, FileAccess.Write,FileShare.ReadWrite);
         using var writer = new StreamWriter(stream);
         using var csv = new CsvWriter(writer, config);
         if (shouldWriteHeader)

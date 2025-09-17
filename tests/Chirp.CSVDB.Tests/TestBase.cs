@@ -1,17 +1,18 @@
 using Chirp.CLI.Client;
 using Xunit.Sdk;
 
+
 namespace Chirp.CSVDB.Tests;
 
 /// Helps find the directory with the data files, and to copy these to temporary
 /// files before using them.
-public static class TestBase
+public static class TestBase 
 {
 	/// The "data" directory of this test project, where .csv files are stored for use in tests.
 	/// The tests create temporary copies of these before doing anything else.
 	private static DirectoryInfo Dir { get; }
 
-	static TestBase()
+	static TestBase() 
 	{
 		string current = Directory.GetCurrentDirectory();
 		var dir = new DirectoryInfo(current);
@@ -66,6 +67,11 @@ public static class TestBase
 	public static CsvDataBase<Cheep> GetDatabaseCopy(string filename)
 	{
 		string pathOfCopy = CopyToTempFile(filename);
-		return new CsvDataBase<Cheep>(pathOfCopy);
+		var database = CsvDataBase<Cheep>.Instance;
+		database.SetPath(pathOfCopy);
+		return database;
 	}
+	
+
+
 }
