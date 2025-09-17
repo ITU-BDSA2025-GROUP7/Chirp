@@ -16,7 +16,7 @@ public class ReadTests : IDisposable
 	public void Read(int cheepIndex, string author, string message, long timestamp)
 	{
 		CsvDataBase<Cheep> database = GetDatabaseCopy("generalExample.csv");
-		Cheep result = database.Read().ToList()[cheepIndex];
+		Cheep result = database.Read(null).ToList()[cheepIndex];
 		Assert.Equal(author, result.Author);
 		Assert.Equal(message, result.Message);
 		Assert.Equal(timestamp, result.Timestamp);
@@ -137,7 +137,7 @@ public class ReadTests : IDisposable
 	public void ReadFromCSVFileWithOneNullEntry()
 	{
 		CsvDataBase<Cheep> database = GetDatabaseCopy("oneNullRecord.csv");
-		Assert.Empty(database.Read().ToList());
+		Assert.Empty(database.Read(null).ToList());
 	}
 
 	/** Testing the behaviour when there's a null entry at the very end of a file of
@@ -171,7 +171,7 @@ public class ReadTests : IDisposable
 	[Fact]
 	public void ReadWhenTwoRecordsOnOneLine() {
 		CsvDataBase<Cheep> database = GetDatabaseCopy("twoRecordsOnOneLine.csv");
-		List<Cheep> records = database.Read().ToList();
+		List<Cheep> records = database.Read(null).ToList();
 		Assert.Single(records);
 		Cheep record = records[0];
 		Assert.Equal("ropf", record.Author);
@@ -247,7 +247,7 @@ public class ReadTests : IDisposable
 		
 		var database = CsvDataBase<Cheep>.Instance;
 		database.SetPath(path);
-		_ = database.Read().ToList();
+		_ = database.Read(null).ToList();
 		
 		StreamReader f2 = File.OpenText(path);
 		string after = f2.ReadToEnd();
@@ -264,7 +264,7 @@ public class ReadTests : IDisposable
 	public void ReadWhenNoHeader(string filename)
 	{
 		CsvDataBase<Cheep> database = GetDatabaseCopy(filename);
-		List<Cheep> records = database.Read().ToList();
+		List<Cheep> records = database.Read(null).ToList();
 		Assert.Empty(records);
 	}
 		public void Dispose()
