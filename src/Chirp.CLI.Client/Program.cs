@@ -1,13 +1,16 @@
 ﻿using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.Runtime.CompilerServices;
 using CsvHelper;
 using CsvHelper.Configuration;
 using Chirp.CSVDB;
 using DocoptNet;
 
+
+
 namespace Chirp.CLI.Client {
-    class Program
+   public class Program
     {
         const string Help = @"Chirp
 Usage:
@@ -51,16 +54,20 @@ Options:
         }
         static int ShowHelp(string help) {Console.WriteLine(help); return 0;}
         static int OnError(string error) {Console.Error.WriteLine(error);return 1;}
-        static int Run(IDictionary<string, ArgValue> arguments, CsvDataBase<Cheep> dataBase)
-        {
+        public static int Run(IDictionary<string, ArgValue> arguments, CsvDataBase<Cheep> dataBase)
+        {   
+            
             if (arguments["read"].IsTrue)
             {
+                if (arguments["cheep"].IsTrue) return 1; // cant cheep and read at the same time
                 Read(dataBase);
                 return 0;
             }
             if (arguments["cheep"].IsTrue)
             {
+                if (arguments["<message>"].IsNone) return 1;
                 string message = arguments["<message>"].ToString();
+                
                 Write(message,  dataBase);
                 return 0;
             }

@@ -6,9 +6,9 @@
         {
             DateTime time = new DateTime(1970, 1, 1);
             time = time.AddSeconds(Timestamp);
-            time = time.ToLocalTime();
+            var strTime = time.ToLocalTime().ToString("dd-MM-yyyy HH':'mm':'ss");
             
-            return Author + " @ " + time + ": " + Message ;
+            return Author + " @ " + strTime + ": " + Message ;
         }
         
     }
