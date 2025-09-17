@@ -15,13 +15,15 @@ namespace Chirp.CLI.Client {
         const string Help = @"Chirp
 Usage:
     -- read
+    -- read <amount>
     -- cheep <message>
 
 Options:
     -h, --help  show this screen.
 ";
 
-        private static string path = "../../chirp_cli_db.csv";
+        private static string path = "chirp_cli_db.csv";
+
         public static int Main(string[] args)
         {
             var dataBase =  CsvDataBase<Cheep>.Instance;
