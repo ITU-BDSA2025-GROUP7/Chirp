@@ -11,7 +11,7 @@ namespace Chirp.CSVDB.Tests;
  * recovering from encountering unreadable entries by returning everything
  * found up until that point.
  */
-public class WriteTests
+public class WriteTests : IDisposable
 {
 	/** Asserts that valid (and essentially valid) entries are written and read
 	 * as expected without throwing errors. This includes empty strings, messages
@@ -145,7 +145,8 @@ public class WriteTests
 		File.Delete(tempPath);
 		Assert.False(File.Exists(tempPath));
 		
-		var database = new CsvDataBase<Cheep>(tempPath);
+		var database = CsvDataBase<Cheep>.Instance;
+		database.SetPath(tempPath);
 		var cheep = new Cheep("test author", "Test message!", 1757601000L);
 		database.Store(cheep);
 		List<Cheep> records = database.Read().ToList();
@@ -165,5 +166,10 @@ public class WriteTests
 		StreamReader f1 = File.OpenText(path1);
 		StreamReader f2 = File.OpenText(path2);
 		Assert.Equal(f1.ReadToEnd(), f2.ReadToEnd()); // contents are the same
+	}
+	public void Dispose()
+	{
+		
+		CsvDataBase<Cheep>.Reset();
 	}
 }

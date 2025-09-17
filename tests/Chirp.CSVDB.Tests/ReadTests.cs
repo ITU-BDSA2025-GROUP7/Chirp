@@ -1,11 +1,11 @@
 ﻿using Chirp.CLI.Client;
 using static Chirp.CSVDB.Tests.TestBase;
-
+[assembly: CollectionBehavior(DisableTestParallelization = true)] // makes sure the tests are not parrallel to make sure the files are not used at the same time, (this became a problem after creating the singleton 
 namespace Chirp.CSVDB.Tests;
 
 /** Tests that validate the behaviour of <see cref="Chirp.CSVDB.CsvDataBase{T}.Read(int?)">
  * CsvDataBase.Read(int?)</see>. */
-public class ReadTests
+public class ReadTests : IDisposable
 {
 	/** Testing reading valid data when <c>CsvDataBase&lt;T&gt;.Read(int?)</c>
 	 * is not given a parameter, including data where there is a comma within a string. */
@@ -245,7 +245,8 @@ public class ReadTests
 		string before = f1.ReadToEnd();
 		f1.Close();
 		
-		var database = new CsvDataBase<Cheep>(path);
+		var database = CsvDataBase<Cheep>.Instance;
+		database.SetPath(path);
 		_ = database.Read().ToList();
 		
 		StreamReader f2 = File.OpenText(path);
@@ -265,5 +266,10 @@ public class ReadTests
 		CsvDataBase<Cheep> database = GetDatabaseCopy(filename);
 		List<Cheep> records = database.Read().ToList();
 		Assert.Empty(records);
+	}
+		public void Dispose()
+	{
+		
+		CsvDataBase<Cheep>.Reset();
 	}
 }

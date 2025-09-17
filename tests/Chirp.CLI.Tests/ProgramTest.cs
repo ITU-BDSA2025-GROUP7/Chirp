@@ -30,8 +30,9 @@ public class ProgramTest
         };
 		
         //act
-		var fakeDb = new CsvDataBase<Cheep>(tempFile);
-		int result = Chirp.CLI.Client.Program.Run(args, fakeDb); 
+		var fakeDb = CsvDataBase<Cheep>.Instance;
+		fakeDb.SetPath(tempFile);
+		int result = Program.Run(args, fakeDb); 
         
         //assert
 		//using the fact that run returns 0 if everything is good and 1 if something is wrong

@@ -6,11 +6,28 @@ namespace Chirp.CSVDB;
 
 public class CsvDataBase<T> : IDataBaseRepository<T>
 {
-    private string path;
+    private string path = "";
+    private static CsvDataBase<T> instance = null;
+    private static readonly object padlock = new object();
 
-    public CsvDataBase(string path)
+    private CsvDataBase()
     {
-        this.path = path;
+       
+    }
+
+    public static CsvDataBase<T> Instance
+    {
+        get
+        {
+            lock (padlock)
+            {
+                if (instance == null)
+                {
+                    instance = new CsvDataBase<T>();
+                }
+                return instance;
+            }
+        }
     }
 
     /** Returns up to and including <c>limit</c> records from the database.<br/>
@@ -46,6 +63,22 @@ public class CsvDataBase<T> : IDataBaseRepository<T>
         return output;
     }
 
+    public void SetPath(string path)
+    {
+        this.path = path;
+    }
+
+    public string GetPath()
+    {
+        return path;
+    }
+    public static void Reset() {
+        
+        instance = null;
+    }
+    
+    
+
     /** Adds a new record to the database.<br/>
      * No sanity checks are applied; this method assumes that the record is safe
      * to be read back by <see cref="Read(int?)"/> later on. */
@@ -56,11 +89,12 @@ public class CsvDataBase<T> : IDataBaseRepository<T>
         {
             // Don't write the header again.
             HasHeaderRecord = false,
-            NewLine = Environment.NewLine,
+            NewLine = Environment.NewLine, 
             ShouldQuote = args => false
         };
         
-        using var stream = File.Open(path, FileMode.Append);
+        
+        using var stream = File.Open(path, FileMode.Append, FileAccess.Write,FileShare.ReadWrite);
         using var writer = new StreamWriter(stream);
         using var csv = new CsvWriter(writer, config);
         if (shouldWriteHeader)
