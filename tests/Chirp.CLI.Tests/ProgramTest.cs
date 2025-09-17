@@ -16,6 +16,8 @@ public class ProgramTest
 	[InlineData(false, null, true, null, 1)] // -- cheep null
 	[InlineData(true, "1", false, "Hello World", 0)] // -- read "Hello World"
 	[InlineData(true, "notInt", false, "Hello World", 1)] // can't read "notInt" amount of cheeps
+	[InlineData(true, "0", false, "Hello World", 1)] //Program will not bother reading 0 cheeps
+	[InlineData(true, "-1", false, "Hello World", 1)] // no negative amount reading
 
 	
     public void runTest(bool readFlag, string? amount, bool cheepFlag, string? message, int expected)

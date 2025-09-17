@@ -67,7 +67,7 @@ Options:
                     return 0;
                 }
                 bool isInt = int.TryParse(arguments["<amount>"].ToString(), out int intVal);
-                if (isInt)
+                if (isInt && intVal >0)
                 {
                     Read(dataBase, intVal);
                     return 0;
