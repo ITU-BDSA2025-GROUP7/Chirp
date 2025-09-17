@@ -15,7 +15,6 @@ namespace Chirp.CLI.Client {
         const string Help = @"Chirp
 Usage:
     -- read
-    -- read <amount>
     -- cheep <message>
 
 Options:
