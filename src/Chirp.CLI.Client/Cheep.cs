@@ -17,10 +17,12 @@
             return strTime;
         }
 
-        public Cheep(string message) :
-            this(Environment.UserName,
-                "\"" + message + "\"",
-                DateTimeOffset.UtcNow.ToUnixTimeSeconds()) {}
+        public static Cheep Assemble(string message) {
+            return new Cheep(
+                Environment.UserName, 
+                "\"" + message + "\"", 
+                DateTimeOffset.UtcNow.ToUnixTimeSeconds());
+        }
     }
 }
 
