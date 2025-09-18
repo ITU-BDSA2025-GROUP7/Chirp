@@ -4,12 +4,14 @@
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <AssemblyName>Chirp.CSVDBService</AssemblyName>
   </PropertyGroup>
 
 
   <ItemGroup>
     <ProjectReference Include="../Chirp.CSVDB/Chirp.CSVDB.csproj" />
     <ProjectReference Include="../Chirp.General/Chirp.General.csproj" />
+    <None Include="chirp_cli_db_Testing.csv" CopyToOutputDirectory="Always" />
   </ItemGroup>
   
 </Project>

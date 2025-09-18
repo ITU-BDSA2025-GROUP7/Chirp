@@ -1,5 +1,8 @@
+using System.Collections.ObjectModel;
 using Chirp.CSVDB;
 using Chirp.General;
+
+namespace Chirp.CSVDBService;
 
 public class Services
 {
@@ -7,15 +10,18 @@ public class Services
     {
         new Services();
     }
-    private Services()
+
+    private WebApplication app;
+    public Services()
     {
         // Setup database
         var db = CsvDataBase<Cheep>.Instance;
-        db.SetPath("chirp_cli_db.csv"); // im not sure if this is the best place for the .csv file
+        if (File.Exists("chirp_cli_db.csv")) db.SetPath("chirp_cli_db.csv"); 
+        else if  (File.Exists("chirp_cli_db_Testing.csv")) db.SetPath("chirp_cli_db_Testing.csv");
 
         // setup app
         var builder = WebApplication.CreateBuilder();
-        var app = builder.Build();
+        app = builder.Build();
 
         app.MapGet("/cheeps", () =>
         {
@@ -28,6 +34,11 @@ public class Services
         });
 
         app.Run();
+    }
+
+    public bool test()
+    {
+        return true;
     }
 }
 
