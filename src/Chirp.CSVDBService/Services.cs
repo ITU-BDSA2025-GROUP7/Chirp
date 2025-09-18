@@ -28,9 +28,9 @@ public class Services
             return db.Read();
         });
 
-        app.MapPost("/cheep", (String message) =>
+        app.MapPost("/cheep", (Cheep cheep) =>
         {
-            Console.WriteLine("i have recived a message: ", message);
+            db.Store(cheep);
         });
 
         app.Run();
