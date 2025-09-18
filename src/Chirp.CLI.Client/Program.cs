@@ -1,6 +1,5 @@
 ﻿using System.Net.Http.Headers;
 using System.Net.Http.Json;
-using System.Text.Json;
 using Chirp.CSVDB;
 using DocoptNet;
 
@@ -38,13 +37,26 @@ Options:
             };
         }
 
-        private static async Task<IEnumerable<Cheep>> ReadRequestServer(string? limit = "")
+        /// Boxes the integer for automatic JSON serialisation.
+        private struct Limit (int val) {
+            public int limit = val;
+        }
+
+        private static async Task<IEnumerable<Cheep>> RequestCheepsFromServer(int? limit = null)
         {
             using var client = new HttpClient();
             client.DefaultRequestHeaders.Accept.Clear();
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            client.DefaultRequestHeaders.UserAgent.Clear();
+            client.DefaultRequestHeaders.UserAgent.Add(new  ProductInfoHeaderValue("Chirp", "0.5.0"));
             client.BaseAddress = new Uri(baseURL);
 
+            if (limit.HasValue) {
+                 HttpResponseMessage response =
+                     await client.PostAsJsonAsync<Limit>("cheeps", new Limit(limit.Value));
+                 var task = await response.Content.ReadFromJsonAsync<IEnumerable<Cheep>>();
+                 return task ?? []; // If null, returns empty array
+            }
             return await client.GetFromJsonAsync<IEnumerable<Cheep>>("cheeps") ?? [];
         }
 
@@ -54,75 +66,83 @@ Options:
             UserInterface.PrintCheeps(records);
         }
 
-        private static Cheep AssembleCheep(string message)
-        {
-            message = "\"" + message + "\"";
-            string author = Environment.UserName;
-            DateTimeOffset timeOffset = DateTimeOffset.UtcNow;
-            long unixTime = timeOffset.ToUnixTimeSeconds();
-
-            return new Cheep(author, message , unixTime);
-        }
-
         private static void Write(string message, CsvDataBase<Cheep> database)
         {
-            database.Store(AssembleCheep(message));
+            database.Store(Cheep.Assemble(message));
         }
 
-        private static async void MessageServer(Cheep cheep)
+        private static async Task<string> MessageServer(Cheep cheep)
         {
             using var client = new HttpClient();
             client.BaseAddress = new Uri(baseURL);
             client.DefaultRequestHeaders.Accept.Clear();
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            client.DefaultRequestHeaders.UserAgent.Clear();
+            client.DefaultRequestHeaders.UserAgent.Add(new  ProductInfoHeaderValue("Chirp", "0.5.0"));
 
             using HttpResponseMessage response = await client.PostAsJsonAsync("cheep", cheep);
-
             response.EnsureSuccessStatusCode();
 
             string acknowledge = await response.Content.ReadAsStringAsync();
             Console.WriteLine(acknowledge);
+            return acknowledge;
         }
 
-        private static void Post(string message)
+        private static void SendCheepToServer(string message)
         {
-            MessageServer(AssembleCheep(message));
+            Task<string> task = MessageServer(Cheep.Assemble(message));
+            if (task.IsCompletedSuccessfully)
+                Console.WriteLine(task.Result);
+            else 
+                Console.WriteLine(task.Exception);
         }
 
-        static int ShowHelp(string help) {Console.WriteLine(help); return 0;}
+        private static int ShowHelp(string help) {
+            Console.WriteLine(help); return 0;
+        }
 
-        static int OnError(string error) {Console.Error.WriteLine(error);return 1;}
+        private static int OnError(string error) {
+            Console.Error.WriteLine(error); return 1;
+        }
 
-        public static int Run(IDictionary<string, ArgValue> arguments, CsvDataBase<Cheep> dataBase)
-        {
-            if (arguments["post"].IsTrue)
-            {
-                if (arguments["<message>"].IsNone)
-                {
-                    Post(arguments["<message>"].ToString());
-                    return 0;
-                }
-
-                return 1;
+        /// Returns true if the input dictionary has exactly one value which is true.
+        private static bool ValidateExactlyOneCommand(IDictionary<string, ArgValue> arguments) {
+            var seenTrue = false;
+            foreach (KeyValuePair<string, ArgValue> pair in arguments) {
+                if (pair.Value.IsTrue && seenTrue) return false;
+                if (pair.Value.IsTrue && !seenTrue) seenTrue = true;
             }
+            return seenTrue;
+        }
 
-            if (arguments["get"].IsTrue)
+        public static int Run(IDictionary<string, ArgValue> arguments, CsvDataBase<Cheep> dataBase) {
+            if (!ValidateExactlyOneCommand(arguments)) return 1;
+            
+            if (arguments["post"].IsTrue && !arguments["<message>"].IsNone)
+            {
+                SendCheepToServer(arguments["<message>"].ToString());
+            }
+            else if (arguments["get"].IsTrue)
             {
                 Task<IEnumerable<Cheep>> cheepTask;
                 if (arguments["<amount>"].IsNone)
                 {
-                     cheepTask = ReadRequestServer();
+                     cheepTask = RequestCheepsFromServer();
+                }
+                else if (int.TryParse(arguments["<amount>"].ToString(), out int intVal)
+                      && intVal > 0)
+                {
+                    cheepTask = RequestCheepsFromServer(intVal);
                 }
                 else
                 {
-                    cheepTask = ReadRequestServer(arguments["<amount>"].ToString());
+                    return 1;
                 }
                 IEnumerable<Cheep> cheeps = cheepTask.Result;
                 UserInterface.PrintCheeps(cheeps);
             }
-            if (arguments["read"].IsTrue)
+            else if (arguments["read"].IsTrue)
             {
-                if (arguments["cheep"].IsTrue) return 1; // cant cheep and read at the same time
                 if (arguments["<amount>"].IsNone)
                 {
                     Read(dataBase);
@@ -134,11 +154,9 @@ Options:
                     Read(dataBase, intVal);
                     return 0;
                 }
-                return 1;
             }
-            if (arguments["cheep"].IsTrue)
+            else if (arguments["cheep"].IsTrue && !arguments["<message>"].IsNone)
             {
-                if (arguments["<message>"].IsNone) return 1;
                 string message = arguments["<message>"].ToString();
                 Write(message, dataBase);
                 return 0;
