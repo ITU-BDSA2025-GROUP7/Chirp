@@ -17,7 +17,7 @@ public class ServicesTest : IClassFixture<WebApplicationFactory<Services>>
     
     /* Tests that it's possible to retreve data using the '/cheeps' api*/
     [Fact]
-    public async void ReadServer()
+    public async Task ReadServer()
     {
         //Arrange
         var client = _factory.CreateClient();
@@ -34,7 +34,7 @@ public class ServicesTest : IClassFixture<WebApplicationFactory<Services>>
 
     /*Tests if it's possible to push a cheep to the server */
     [Fact]
-    public async void PushToServer()
+    public async Task PushToServer()
     {
         //Arrange
         var client = _factory.CreateClient();
@@ -44,7 +44,7 @@ public class ServicesTest : IClassFixture<WebApplicationFactory<Services>>
         var resultBefore = await responseBefore.Content.ReadAsStringAsync();
         
         // act
-        var response = await client.PostAsJsonAsync("/cheep", message);
+        await client.PostAsJsonAsync("/cheep", message);
         
         // Assert
         var responseAfter = await client.GetAsync("/cheeps"); // read from the database contains after
@@ -55,6 +55,27 @@ public class ServicesTest : IClassFixture<WebApplicationFactory<Services>>
             ;
         Assert.NotEqual(resultBefore, resultAfter);
         Assert.Equal(expected, resultAfter);
+    }
+    
+    
+    /*Tests if the server crashes when pushing something that's not a cheep*/
+    [Fact]
+    public async Task PushToServerFalty()
+    {
+        //Arrange
+        var client = _factory.CreateClient();
+        
+        var responseBefore = await client.GetAsync("/cheeps"); // Read what the database contains before
+        var resultBefore = await responseBefore.Content.ReadAsStringAsync();
+        
+        // act
+        await client.PostAsJsonAsync("/cheep", "Hello i am not a cheep!");
+        
+        // Assert
+        var responseAfter = await client.GetAsync("/cheeps"); // read from the database contains after
+        var resultAfter = await responseAfter.Content.ReadAsStringAsync();
+        
+        Assert.Equal(resultBefore, resultAfter);
     }
     
     
