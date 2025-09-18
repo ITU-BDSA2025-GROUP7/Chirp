@@ -11,6 +11,8 @@ namespace Chirp.CLI.Client {
 Usage:
     -- read [<amount>]
     -- cheep <message>
+    -- get [<amount>]
+    -- post <message>
 
 Options:
     -h, --help  show this screen.
@@ -36,7 +38,7 @@ Options:
             };
         }
 
-        private static async Task<IEnumerable<Cheep>> ReadRequestServer()
+        private static async Task<IEnumerable<Cheep>> ReadRequestServer(string? limit = "")
         {
             using var client = new HttpClient();
             client.DefaultRequestHeaders.Accept.Clear();
@@ -46,20 +48,25 @@ Options:
             return await client.GetFromJsonAsync<IEnumerable<Cheep>>("cheeps") ?? [];
         }
 
-        private static void Read(CsvDataBase<Cheep> dataBase, int? limit)
+        private static void Read(CsvDataBase<Cheep> dataBase, int? limit = null)
         {
             var records = dataBase.Read(limit);
             UserInterface.PrintCheeps(records);
         }
 
-        private static void Write(string message)
+        private static Cheep AssembleCheep(string message)
         {
-            message = "\"" + message + "\""; 
+            message = "\"" + message + "\"";
             string author = Environment.UserName;
             DateTimeOffset timeOffset = DateTimeOffset.UtcNow;
             long unixTime = timeOffset.ToUnixTimeSeconds();
-            
-            Cheep cheep = new Cheep(author, message , unixTime);
+
+            return new Cheep(author, message , unixTime);
+        }
+
+        private static void Write(string message, CsvDataBase<Cheep> database)
+        {
+            database.Store(AssembleCheep(message));
         }
 
         private static async void MessageServer(Cheep cheep)
@@ -69,12 +76,17 @@ Options:
             client.DefaultRequestHeaders.Accept.Clear();
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-            using HttpResponseMessage response = await client.PutAsJsonAsync("cheep", cheep);
+            using HttpResponseMessage response = await client.PostAsJsonAsync("cheep", cheep);
 
             response.EnsureSuccessStatusCode();
 
-            var acknowledge = await response.Content.ReadAsStringAsync();
+            string acknowledge = await response.Content.ReadAsStringAsync();
             Console.WriteLine(acknowledge);
+        }
+
+        private static void Post(string message)
+        {
+            MessageServer(AssembleCheep(message));
         }
 
         static int ShowHelp(string help) {Console.WriteLine(help); return 0;}
@@ -83,15 +95,37 @@ Options:
 
         public static int Run(IDictionary<string, ArgValue> arguments, CsvDataBase<Cheep> dataBase)
         {
+            if (arguments["post"].IsTrue)
+            {
+                if (arguments["<message>"].IsNone)
+                {
+                    Post(arguments["<message>"].ToString());
+                    return 0;
+                }
+
+                return 1;
+            }
+
+            if (arguments["get"].IsTrue)
+            {
+                Task<IEnumerable<Cheep>> cheepTask;
+                if (arguments["<amount>"].IsNone)
+                {
+                     cheepTask = ReadRequestServer();
+                }
+                else
+                {
+                    cheepTask = ReadRequestServer(arguments["<amount>"].ToString());
+                }
+                IEnumerable<Cheep> cheeps = cheepTask.Result;
+                UserInterface.PrintCheeps(cheeps);
+            }
             if (arguments["read"].IsTrue)
             {
                 if (arguments["cheep"].IsTrue) return 1; // cant cheep and read at the same time
                 if (arguments["<amount>"].IsNone)
                 {
-                    Task<IEnumerable<Cheep>> cheepTask = ReadRequestServer();
-                    IEnumerable<Cheep> cheeps = cheepTask.Result;
-                    UserInterface.PrintCheeps(cheeps);
-                    //Read(dataBase, null);
+                    Read(dataBase);
                     return 0;
                 }
                 bool isInt = int.TryParse(arguments["<amount>"].ToString(), out int intVal);
@@ -106,7 +140,7 @@ Options:
             {
                 if (arguments["<message>"].IsNone) return 1;
                 string message = arguments["<message>"].ToString();
-                Write(message);
+                Write(message, dataBase);
                 return 0;
             }
             return 1;
