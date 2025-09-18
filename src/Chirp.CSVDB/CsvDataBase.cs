@@ -34,7 +34,7 @@ public class CsvDataBase<T> : IDataBaseRepository<T>
      * If <c>limit</c> is null, returns all records.<br/>
      * If a corrupted/unreadable record is encountered, everything
      * up until that point is returned, excluding the unreadable data. */
-    public IEnumerable<T> Read(int? limit = null)
+    public IEnumerable<T> Read(int? limit)
     {
         if (limit != null && limit <= 0)
             return new List<T>();
