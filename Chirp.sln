@@ -16,7 +16,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "chirp.CLI.Tests", "tests\Ch
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chirp.CSVDBService", "src\Chirp.CSVDBService\Chirp.CSVDBService.csproj", "{48169DE7-0C47-4502-9656-FD44B8619C9F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chirp.Cheep", "src\Chirp.Cheep\Chirp.Cheep.csproj", "{46640AF5-CEB8-4F1D-A1AE-CBD21D6F61D5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chirp.General", "src\Chirp.General\Chirp.General.csproj", "{46640AF5-CEB8-4F1D-A1AE-CBD21D6F61D5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

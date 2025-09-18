@@ -1,5 +1,6 @@
 using DocoptNet;
 using Chirp.CSVDB;
+using Chirp.General;
 using System.IO;
 namespace Chirp.CLI.Client;
 

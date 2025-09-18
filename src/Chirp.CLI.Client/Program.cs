@@ -4,6 +4,7 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using CsvHelper;
 using CsvHelper.Configuration;
+using Chirp.General;
 using Chirp.CSVDB;
 using DocoptNet;
 

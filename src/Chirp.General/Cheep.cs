@@ -1,4 +1,4 @@
-﻿namespace Chirp.CLI.Client
+﻿namespace Chirp.General
 {
     public record Cheep(string Author, string Message, long Timestamp)
     {
