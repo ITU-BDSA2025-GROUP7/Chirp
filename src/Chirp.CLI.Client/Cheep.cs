@@ -4,20 +4,23 @@
     {
         public override string ToString()
         {
-            
-            var strTime = StringTime(Timestamp);
-            
+            string strTime = StringTime();
             return Author + " @ " + strTime + ": " + Message ;
         }
 
-        public string StringTime(long Timestamp)
+        private string StringTime()
         {
-            DateTime time = new DateTime(1970, 1, 1);
+            var time = new DateTime(1970, 1, 1);
             time = time.AddSeconds(Timestamp);
             var strTime = time.ToLocalTime().ToString("dd-MM-yyyy HH':'mm':'ss");
             
             return strTime;
         }
+
+        public Cheep(string message) :
+            this(Environment.UserName,
+                "\"" + message + "\"",
+                DateTimeOffset.UtcNow.ToUnixTimeSeconds()) {}
     }
 }
 
