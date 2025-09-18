@@ -9,7 +9,7 @@ namespace Chirp.CLI.Client {
     {
         private const string Help = @"Chirp
 Usage:
-    -- read
+    -- read [<amount>]
     -- cheep <message>
 
 Options:
@@ -35,7 +35,7 @@ Options:
                 var result => throw new System.Runtime.CompilerServices.SwitchExpressionException(result)
             };
         }
-        
+
         private static async Task<IEnumerable<Cheep>> ReadRequestServer()
         {
             using var client = new HttpClient();
@@ -45,13 +45,13 @@ Options:
 
             return await client.GetFromJsonAsync<IEnumerable<Cheep>>("cheeps") ?? [];
         }
-        
-        
-        private static void Read(CsvDataBase<Cheep> dataBase)
+
+        private static void Read(CsvDataBase<Cheep> dataBase, int? limit)
         {
-            var records = dataBase.Read();
+            var records = dataBase.Read(limit);
             UserInterface.PrintCheeps(records);
         }
+
         private static void Write(string message)
         {
             message = "\"" + message + "\""; 
@@ -60,21 +60,10 @@ Options:
             long unixTime = timeOffset.ToUnixTimeSeconds();
             
             Cheep cheep = new Cheep(author, message , unixTime);
-            
-            ;
         }
 
         private static async void MessageServer(Cheep cheep)
         {
-            
-            
-            /*using StringContent content = new(JsonSerializer.Serialize(new
-            {
-                Author = cheep.Author,
-                Message = cheep.Message,
-                Time = cheep.StringTime(cheep.Timestamp)
-            }));*/
-            
             using var client = new HttpClient();
             client.BaseAddress = new Uri(baseURL);
             client.DefaultRequestHeaders.Accept.Clear();
@@ -86,9 +75,8 @@ Options:
 
             var acknowledge = await response.Content.ReadAsStringAsync();
             Console.WriteLine(acknowledge);
-            //client.PostAsync(cheep, null).Wait();
         }
-        
+
         static int ShowHelp(string help) {Console.WriteLine(help); return 0;}
 
         static int OnError(string error) {Console.Error.WriteLine(error);return 1;}
@@ -98,11 +86,21 @@ Options:
             if (arguments["read"].IsTrue)
             {
                 if (arguments["cheep"].IsTrue) return 1; // cant cheep and read at the same time
-                Task<IEnumerable<Cheep>> cheepTask = ReadRequestServer();
-                IEnumerable<Cheep> cheeps = cheepTask.Result;
-                UserInterface.PrintCheeps(cheeps);
-                //Read(dataBase);
-                return 0;
+                if (arguments["<amount>"].IsNone)
+                {
+                    Task<IEnumerable<Cheep>> cheepTask = ReadRequestServer();
+                    IEnumerable<Cheep> cheeps = cheepTask.Result;
+                    UserInterface.PrintCheeps(cheeps);
+                    //Read(dataBase, null);
+                    return 0;
+                }
+                bool isInt = int.TryParse(arguments["<amount>"].ToString(), out int intVal);
+                if (isInt && intVal >0)
+                {
+                    Read(dataBase, intVal);
+                    return 0;
+                }
+                return 1;
             }
             if (arguments["cheep"].IsTrue)
             {

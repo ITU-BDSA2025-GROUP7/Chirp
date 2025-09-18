@@ -46,9 +46,9 @@ public class WriteTests : IDisposable
 		CsvDataBase<Cheep> database = GetDatabaseCopy("generalExample.csv");
 		var cheep = new Cheep(author, writtenMessage, timestamp);
 		
-		int countBefore = database.Read().ToList().Count;
+		int countBefore = database.Read(null).ToList().Count;
 		database.Store(cheep);
-		List<Cheep> results = database.Read().ToList();
+		List<Cheep> results = database.Read(null).ToList();
 		Assert.Equal(results.Count, countBefore + 1);
 
 		Cheep result = results[countBefore];
@@ -70,12 +70,12 @@ public class WriteTests : IDisposable
 		CsvDataBase<Cheep> database = GetDatabaseCopy("empty.csv");
 		var cheep = new Cheep(author, writtenMessage, timestamp);
 		database.Store(cheep);
-		Assert.Empty(database.Read().ToList());
+		Assert.Empty(database.Read(null).ToList());
 		
 		database = GetDatabaseCopy("generalExample.csv");
 		cheep = new Cheep(author, writtenMessage, timestamp);
 		database.Store(cheep);
-		Assert.Equal(8, database.Read().ToList().Count);
+		Assert.Equal(8, database.Read(null).ToList().Count);
 	}
 
 	/** A message which includes only a new-line character and no bordering <c>"</c>
@@ -89,12 +89,12 @@ public class WriteTests : IDisposable
 		CsvDataBase<Cheep> database = GetDatabaseCopy("empty.csv");
 		var cheep = new Cheep(author, writtenMessage, timestamp);
 		database.Store(cheep);
-		Assert.Empty(database.Read().ToList());
+		Assert.Empty(database.Read(null).ToList());
 		
 		database = GetDatabaseCopy("generalExample.csv");
 		cheep = new Cheep(author, writtenMessage, timestamp);
 		database.Store(cheep);
-		Assert.Equal(8, database.Read().ToList().Count);
+		Assert.Equal(8, database.Read(null).ToList().Count);
 	}
 
 	/** Tests that a Cheep whose message includes an odd number of extra <c>"</c>,
@@ -122,12 +122,12 @@ public class WriteTests : IDisposable
 	public void WriteBadData(string author, string writtenMessage, long timestamp)
 	{
 		CsvDataBase<Cheep> database = GetDatabaseCopy("generalExample.csv");
-		List<Cheep> recordsBefore = database.Read().ToList();
+		List<Cheep> recordsBefore = database.Read(null).ToList();
 
 		var cheep = new Cheep(author, writtenMessage, timestamp);
 		database.Store(cheep);
 
-		List<Cheep> records = database.Read().ToList();
+		List<Cheep> records = database.Read(null).ToList();
 		Assert.Equal(recordsBefore.Count, records.Count);
 		for (var i = 0; i < recordsBefore.Count; i++)
 		{
@@ -149,7 +149,7 @@ public class WriteTests : IDisposable
 		database.SetPath(tempPath);
 		var cheep = new Cheep("test author", "Test message!", 1757601000L);
 		database.Store(cheep);
-		List<Cheep> records = database.Read().ToList();
+		List<Cheep> records = database.Read(null).ToList();
 		Assert.Single(records);
 		Assert.Equal(cheep, records[0]);
 	}

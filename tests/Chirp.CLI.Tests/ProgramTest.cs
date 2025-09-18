@@ -5,45 +5,52 @@ namespace Chirp.CLI.Client;
 
 public class ProgramTest
 {
-	
-    [Theory]
-	[InlineData(true, false, "", 0)] // read, no message ( -- read
-	[InlineData(false, true, "Hello World", 0)] // -- cheep "Hello World"
-	[InlineData(false, false, "Hello World", 1)] // --  "Hello World"
-	[InlineData(true, true, "", 1)] // -- cheep read
-	[InlineData(false, false, null, 1)] // ** nothing ** 
-	[InlineData(true, false, "Hello World", 0)] // -- read "Hello World"
-	[InlineData(false, true, null, 1)] // -- cheep null
+
+	[Theory]
+	[InlineData(true, null, false, "", 0)] // read, no message ( -- read
+	[InlineData(false, null, true, "Hello World", 0)] // -- cheep "Hello World"
+	[InlineData(false, null, false, "Hello World", 1)] // --  "Hello World"
+	[InlineData(true, null, true, "", 1)] // -- cheep read
+	[InlineData(false, null, false, null, 1)] // ** nothing ** 
+	[InlineData(true, null, false, "Hello World", 0)] // -- read "Hello World"
+	[InlineData(false, null, true, null, 1)] // -- cheep null
+	[InlineData(true, "1", false, "Hello World", 0)] // -- read "Hello World"
+	[InlineData(true, "notInt", false, "Hello World", 1)] // can't read "notInt" amount of cheeps
+	[InlineData(true, "0", false, "Hello World", 1)] //Program will not bother reading 0 cheeps
+	[InlineData(true, "-1", false, "Hello World", 1)] // no negative amount reading
 
 	
-    public void runTest(bool readFlag, bool cheepFlag, string? message, int expected)
-    {
-		
-        //arrange
+    public void runTest(bool readFlag, string? amount, bool cheepFlag, string? message, int expected)
+	{
+
+		//arrange
 		string tempFile = Path.GetTempFileName(); // creating a temporary file, to be able to run the program and not affect the actual database
-        try {
-		var args = new Dictionary<string, ArgValue>
-        {
-           ["read"] = readFlag,
-			["cheep"] = cheepFlag,
-			["<message>"] = message != null ? message : ArgValue.None
-        };
-		
-        //act
-		var fakeDb = CsvDataBase<Cheep>.Instance;
-		fakeDb.SetPath(tempFile);
-		int result = Program.Run(args, fakeDb); 
-        
-        //assert
-		//using the fact that run returns 0 if everything is good and 1 if something is wrong
-        Assert.Equal(expected, result);
-        }
-		finally {
+		try
+		{
+			var args = new Dictionary<string, ArgValue>
+			{
+				["read"] = readFlag,
+				["<amount>"] = amount != null ? amount : ArgValue.None,
+				["cheep"] = cheepFlag,
+				["<message>"] = message != null ? message : ArgValue.None
+			};
+
+			//act
+			var fakeDb = CsvDataBase<Cheep>.Instance;
+			fakeDb.SetPath(tempFile);
+			int result = Program.Run(args, fakeDb);
+
+			//assert
+			//using the fact that run returns 0 if everything is good and 1 if something is wrong
+			Assert.Equal(expected, result);
+		}
+		finally
+		{
 
 
-        
-        File.Delete(tempFile);
-    	}
+
+			File.Delete(tempFile);
+		}
 	} 
 	[Theory]
 	[InlineData("--help", 0)]
