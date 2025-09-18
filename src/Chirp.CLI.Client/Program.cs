@@ -1,5 +1,6 @@
 ﻿using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Text.Json;
 using Chirp.CSVDB;
 using DocoptNet;
 
@@ -14,7 +15,7 @@ Usage:
 Options:
     -h, --help  show this screen.
 ";
-
+        const string baseURL = "http://localhost:5012";
         private static string path = "chirp_cli_db.csv";
 
         public static int Main(string[] args)
@@ -34,10 +35,9 @@ Options:
                 var result => throw new System.Runtime.CompilerServices.SwitchExpressionException(result)
             };
         }
-
+        
         private static async Task<IEnumerable<Cheep>> ReadRequestServer()
         {
-            const string baseURL = "http://localhost:5012";
             using var client = new HttpClient();
             client.DefaultRequestHeaders.Accept.Clear();
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
@@ -45,13 +45,14 @@ Options:
 
             return await client.GetFromJsonAsync<IEnumerable<Cheep>>("cheeps") ?? [];
         }
-
+        
+        
         private static void Read(CsvDataBase<Cheep> dataBase)
         {
             var records = dataBase.Read();
             UserInterface.PrintCheeps(records);
         }
-        private static void Write(string message, CsvDataBase<Cheep> dataBase)
+        private static void Write(string message)
         {
             message = "\"" + message + "\""; 
             string author = Environment.UserName;
@@ -60,9 +61,34 @@ Options:
             
             Cheep cheep = new Cheep(author, message , unixTime);
             
-            dataBase.Store(cheep);
+            ;
         }
 
+        private static async void MessageServer(Cheep cheep)
+        {
+            
+            
+            /*using StringContent content = new(JsonSerializer.Serialize(new
+            {
+                Author = cheep.Author,
+                Message = cheep.Message,
+                Time = cheep.StringTime(cheep.Timestamp)
+            }));*/
+            
+            using var client = new HttpClient();
+            client.BaseAddress = new Uri(baseURL);
+            client.DefaultRequestHeaders.Accept.Clear();
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+            using HttpResponseMessage response = await client.PutAsJsonAsync("cheep", cheep);
+
+            response.EnsureSuccessStatusCode();
+
+            var acknowledge = await response.Content.ReadAsStringAsync();
+            Console.WriteLine(acknowledge);
+            //client.PostAsync(cheep, null).Wait();
+        }
+        
         static int ShowHelp(string help) {Console.WriteLine(help); return 0;}
 
         static int OnError(string error) {Console.Error.WriteLine(error);return 1;}
@@ -82,8 +108,7 @@ Options:
             {
                 if (arguments["<message>"].IsNone) return 1;
                 string message = arguments["<message>"].ToString();
-                
-                Write(message,  dataBase);
+                Write(message);
                 return 0;
             }
             return 1;
