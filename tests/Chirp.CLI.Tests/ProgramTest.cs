@@ -1,11 +1,9 @@
 using DocoptNet;
 using Chirp.CSVDB;
-using System.IO;
 namespace Chirp.CLI.Client;
 
 public class ProgramTest
 {
-
 	[Theory]
 	[InlineData(true, null, false, "", 0)] // read, no message ( -- read
 	[InlineData(false, null, true, "Hello World", 0)] // -- cheep "Hello World"
@@ -18,8 +16,6 @@ public class ProgramTest
 	[InlineData(true, "notInt", false, "Hello World", 1)] // can't read "notInt" amount of cheeps
 	[InlineData(true, "0", false, "Hello World", 1)] //Program will not bother reading 0 cheeps
 	[InlineData(true, "-1", false, "Hello World", 1)] // no negative amount reading
-
-	
     public void runTest(bool readFlag, string? amount, bool cheepFlag, string? message, int expected)
 	{
 
@@ -32,7 +28,9 @@ public class ProgramTest
 				["read"] = readFlag,
 				["<amount>"] = amount != null ? amount : ArgValue.None,
 				["cheep"] = cheepFlag,
-				["<message>"] = message != null ? message : ArgValue.None
+				["<message>"] = message != null ? message : ArgValue.None,
+				["post"] = false,
+				["get"] = false
 			};
 
 			//act
@@ -46,18 +44,15 @@ public class ProgramTest
 		}
 		finally
 		{
-
-
-
 			File.Delete(tempFile);
 		}
-	} 
+	}
+    
 	[Theory]
 	[InlineData("--help", 0)]
 	[InlineData("--h", 0)]
 	[InlineData("--uifheriouhfos", 1)]
 	[InlineData("", 1)]
-	
 	public void showHelpTest(string arg, int expected)
 	{
     	string[] args = new[] { arg };
@@ -66,8 +61,6 @@ public class ProgramTest
 
     	Assert.Equal(expected, result); // ShowHelp returns 0 if good, 1 if error
 	}
- 
-
 }
 
 
