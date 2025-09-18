@@ -14,7 +14,7 @@ namespace Chirp.CLI.Client {
     {
         const string Help = @"Chirp
 Usage:
-    -- read
+    -- read [<amount>]
     -- cheep <message>
 
 Options:
@@ -37,9 +37,9 @@ Options:
                 var result => throw new System.Runtime.CompilerServices.SwitchExpressionException(result)
             };
         }
-        private static void Read(CsvDataBase<Cheep> dataBase)
+        private static void Read(CsvDataBase<Cheep> dataBase, int? limit)
         {
-            var records = dataBase.Read();
+            var records = dataBase.Read(limit);
             UserInterface.PrintCheeps(records);
         }
         private static void Write(string message, CsvDataBase<Cheep> dataBase)
@@ -61,8 +61,18 @@ Options:
             if (arguments["read"].IsTrue)
             {
                 if (arguments["cheep"].IsTrue) return 1; // cant cheep and read at the same time
-                Read(dataBase);
-                return 0;
+                if (arguments["<amount>"].IsNone)
+                {
+                    Read(dataBase, null);
+                    return 0;
+                }
+                bool isInt = int.TryParse(arguments["<amount>"].ToString(), out int intVal);
+                if (isInt && intVal >0)
+                {
+                    Read(dataBase, intVal);
+                    return 0;
+                }
+                return 1;
             }
             if (arguments["cheep"].IsTrue)
             {
