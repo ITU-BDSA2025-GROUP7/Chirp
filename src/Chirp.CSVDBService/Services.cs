@@ -6,6 +6,7 @@ namespace Chirp.CSVDBService;
 
 public class Services
 {
+    // required to start the server
     public static void Main(string[] args)
     {
         new Services();
@@ -22,23 +23,9 @@ public class Services
         // setup app
         var builder = WebApplication.CreateBuilder();
         app = builder.Build();
-
-        app.MapGet("/cheeps", () =>
-        {
-            return db.Read();
-        });
-
-        app.MapPost("/cheep", (Cheep cheep) =>
-        {
-            db.Store(cheep);
-        });
-
+        app.MapGet("/cheeps", () => db.Read());
+        app.MapPost("/cheep", (Cheep cheep) => db.Store(cheep));
         app.Run();
-    }
-
-    public bool test()
-    {
-        return true;
     }
 }
 
