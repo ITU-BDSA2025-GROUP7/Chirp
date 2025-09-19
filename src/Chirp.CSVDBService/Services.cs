@@ -8,11 +8,18 @@ public class Services
     // required to start the server
     public static void Main(string[] args)
     {
-        new Services();
+        if (args.Length == 1)
+        {
+            new Services("http://localhost:" + args[0]);
+        }
+        else
+        {
+            new Services();
+        }
     }
 
     private WebApplication app;
-    public Services()
+    public Services(string? port = null)
     {
         // Setup database
         var db = CsvDataBase<Cheep>.Instance;
@@ -23,13 +30,13 @@ public class Services
         var builder = WebApplication.CreateBuilder();
         app = builder.Build();
         app.MapGet("/cheeps", () => db.Read(null));
+        app.MapPost("/cheeps", (Limit limit) => db.Read(limit.Val));
         app.MapPost("/cheep", (Cheep cheep) =>
         {
             db.Store(cheep);
-            return new { Message = "Cheep stored." };
+            return "Cheep stored.";
         });
-        //app.MapPost("/cheep", (Cheep cheep) => db.Store(cheep));
-        app.Run("http://localhost:5012");
+        app.Run(port);
     }
 }
 

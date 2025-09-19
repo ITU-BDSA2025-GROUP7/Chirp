@@ -38,11 +38,6 @@ Options:
             };
         }
 
-        /// Boxes the integer for automatic JSON serialisation.
-        private struct Limit (int val) {
-            public int limit = val;
-        }
-
         /// Send HTTP request to server to ask for a list of <see cref="Cheep"/>s.<br/>
         /// If <c>limit</c> is null, sends a Get request. Otherwise,
         /// sends a Post request along with a JSON-serialised <see cref="Limit"/>.
@@ -55,15 +50,13 @@ Options:
             client.DefaultRequestHeaders.UserAgent.Add(new  ProductInfoHeaderValue("Chirp", "0.5.0"));
             client.BaseAddress = new Uri(baseURL);
 
-            if (limit.HasValue)
-            {
-                if (limit <= 0) return [];
-                 HttpResponseMessage response =
-                     await client.PostAsJsonAsync<Limit>("/cheeps", new Limit(limit.Value));
-                 var task = await response.Content.ReadFromJsonAsync<IEnumerable<Cheep>>();
-                 return task ?? []; // If null, returns empty array
-            }
-            return await client.GetFromJsonAsync<IEnumerable<Cheep>>("/cheeps") ?? [];
+            if (limit == null)
+                return await client.GetFromJsonAsync<IEnumerable<Cheep>>("/cheeps") ?? [];
+            if (limit.Value <= 0) return [];
+            HttpResponseMessage response =
+                await client.PostAsJsonAsync<Limit>("/cheeps", new Limit(limit.Value));
+            response.EnsureSuccessStatusCode();
+            return response.Content.ReadFromJsonAsync<IEnumerable<Cheep>>().Result ?? [];
         }
 
         /// Starts the background process of getting a list of <see cref="Cheep"/>s from the
@@ -125,7 +118,8 @@ Options:
         {
             // We HAVE TO get the Result property of the returned Task in order
             // for the Task to complete.
-            _ = MessageServer(Cheep.Assemble(message)).Result;
+            string response = MessageServer(Cheep.Assemble(message)).Result;
+            Console.WriteLine(response);
             return 0;
         }
 
