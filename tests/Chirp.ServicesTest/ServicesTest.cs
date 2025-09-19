@@ -2,7 +2,6 @@
 using Xunit;
 using Chirp.CSVDBService;
 using Chirp.General;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc.Testing;
 
 namespace Chirp.ServicesTest;
@@ -12,6 +11,7 @@ public class ServicesTest : IClassFixture<WebApplicationFactory<Services>>
 
     public ServicesTest(WebApplicationFactory<Services> factory)
     {
+		Console.SetOut(new StringWriter());
         _factory = factory;
     }
     
