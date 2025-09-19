@@ -1,5 +1,6 @@
 using Chirp.CLI.Client;
 using Xunit.Sdk;
+using Chirp.General;
 
 
 namespace Chirp.CSVDB.Tests;

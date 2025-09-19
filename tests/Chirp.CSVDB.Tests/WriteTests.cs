@@ -1,4 +1,5 @@
 using Chirp.CLI.Client;
+using Chirp.General;
 using static Chirp.CSVDB.Tests.TestBase;
 
 namespace Chirp.CSVDB.Tests;
