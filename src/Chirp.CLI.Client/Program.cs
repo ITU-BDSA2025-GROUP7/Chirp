@@ -42,7 +42,9 @@ Options:
             public int limit = val;
         }
 
-        /// Send HTTP request to server to ask for a list of <see cref="Cheep"/>.
+        /// Send HTTP request to server to ask for a list of <see cref="Cheep"/>s.<br/>
+        /// If <c>limit</c> is null, sends a Get request. Otherwise,
+        /// sends a Post request along with a JSON-serialised <see cref="Limit"/>.
         private static async Task<IEnumerable<Cheep>> RequestCheepsFromServer(int? limit = null)
         {
             using var client = new HttpClient();
@@ -52,7 +54,9 @@ Options:
             client.DefaultRequestHeaders.UserAgent.Add(new  ProductInfoHeaderValue("Chirp", "0.5.0"));
             client.BaseAddress = new Uri(baseURL);
 
-            if (limit.HasValue) {
+            if (limit.HasValue)
+            {
+                if (limit <= 0) return [];
                  HttpResponseMessage response =
                      await client.PostAsJsonAsync<Limit>("cheeps", new Limit(limit.Value));
                  var task = await response.Content.ReadFromJsonAsync<IEnumerable<Cheep>>();
@@ -61,7 +65,10 @@ Options:
             return await client.GetFromJsonAsync<IEnumerable<Cheep>>("cheeps") ?? [];
         }
 
-        /// Send request to server, then print results.
+        /// Starts the background process of getting a list of <see cref="Cheep"/>s from the
+        /// server by calling <see cref="RequestCheepsFromServer"/>,
+        /// and prints out the result.<br/>
+        /// Returns 0 if successful, and 1 otherwise.
         private static int ReadFromServer(string? amount = null)
         {
             Task<IEnumerable<Cheep>> cheepTask;
@@ -111,8 +118,10 @@ Options:
             return acknowledge;
         }
 
-        /// Starts the process of sending a cheep to the server. Returns 0 if the
-        /// HTTP request was successful, and 0 otherwise.
+        /// Starts the background process of sending a <see cref="Cheep"/> to the server
+        /// by calling <see cref="MessageServer"/>, then prints the response to
+        /// the standard output. <br/>
+        /// Returns 0 if the HTTP request was successful, and 1 otherwise.
         private static int SendCheepToServer(string message)
         {
             Task<string> task = MessageServer(Cheep.Assemble(message));
