@@ -23,7 +23,7 @@ public class Services
         // setup app
         var builder = WebApplication.CreateBuilder();
         app = builder.Build();
-        app.MapGet("/cheeps", () => db.Read());
+        app.MapGet("/cheeps", () => db.Read(null));
         app.MapPost("/cheep", (Cheep cheep) => db.Store(cheep));
         app.Run();
     }
