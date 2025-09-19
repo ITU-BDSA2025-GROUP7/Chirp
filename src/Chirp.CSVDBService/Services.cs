@@ -23,8 +23,13 @@ public class Services
         var builder = WebApplication.CreateBuilder();
         app = builder.Build();
         app.MapGet("/cheeps", () => db.Read(null));
-        app.MapPost("/cheep", (Cheep cheep) => db.Store(cheep));
-        app.Run();
+        app.MapPost("/cheep", (Cheep cheep) =>
+        {
+            db.Store(cheep);
+            return new { Message = "Cheep stored." };
+        });
+        //app.MapPost("/cheep", (Cheep cheep) => db.Store(cheep));
+        app.Run("http://localhost:5012");
     }
 }
 

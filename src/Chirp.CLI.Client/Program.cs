@@ -59,11 +59,11 @@ Options:
             {
                 if (limit <= 0) return [];
                  HttpResponseMessage response =
-                     await client.PostAsJsonAsync<Limit>("cheeps", new Limit(limit.Value));
+                     await client.PostAsJsonAsync<Limit>("/cheeps", new Limit(limit.Value));
                  var task = await response.Content.ReadFromJsonAsync<IEnumerable<Cheep>>();
                  return task ?? []; // If null, returns empty array
             }
-            return await client.GetFromJsonAsync<IEnumerable<Cheep>>("cheeps") ?? [];
+            return await client.GetFromJsonAsync<IEnumerable<Cheep>>("/cheeps") ?? [];
         }
 
         /// Starts the background process of getting a list of <see cref="Cheep"/>s from the
@@ -105,18 +105,16 @@ Options:
         private static async Task<string> MessageServer(Cheep cheep)
         {
             using var client = new HttpClient();
-            client.BaseAddress = new Uri(baseURL);
             client.DefaultRequestHeaders.Accept.Clear();
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             client.DefaultRequestHeaders.UserAgent.Clear();
             client.DefaultRequestHeaders.UserAgent.Add(new  ProductInfoHeaderValue("Chirp", "0.5.0"));
+            client.BaseAddress = new Uri(baseURL);
 
-            using HttpResponseMessage response = await client.PostAsJsonAsync("cheep", cheep);
+            HttpResponseMessage response = await client.PostAsJsonAsync<Cheep>("/cheep", cheep);
+
             response.EnsureSuccessStatusCode();
-
-            string acknowledge = await response.Content.ReadAsStringAsync();
-            Console.WriteLine(acknowledge);
-            return acknowledge;
+            return response.Content.ReadAsStringAsync().Result;
         }
 
         /// Starts the background process of sending a <see cref="Cheep"/> to the server
@@ -125,14 +123,10 @@ Options:
         /// Returns 0 if the HTTP request was successful, and 1 otherwise.
         private static int SendCheepToServer(string message)
         {
-            Task<string> task = MessageServer(Cheep.Assemble(message));
-            if (task.IsCompletedSuccessfully)
-            {
-                Console.WriteLine(task.Result);
-                return 0;
-            }
-            Console.WriteLine(task.Exception);
-            return 1;
+            // We HAVE TO get the Result property of the returned Task in order
+            // for the Task to complete.
+            _ = MessageServer(Cheep.Assemble(message)).Result;
+            return 0;
         }
 
         private static int ShowHelp(string help) {

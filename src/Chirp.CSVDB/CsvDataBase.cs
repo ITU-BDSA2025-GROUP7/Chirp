@@ -92,7 +92,6 @@ public class CsvDataBase<T> : IDataBaseRepository<T>
             ShouldQuote = args => false
         };
         
-        
         using var stream = File.Open(path, FileMode.Append, FileAccess.Write,FileShare.ReadWrite);
         using var writer = new StreamWriter(stream);
         using var csv = new CsvWriter(writer, config);
