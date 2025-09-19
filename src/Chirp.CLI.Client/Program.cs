@@ -72,7 +72,7 @@ Options:
         private static int ReadFromServer(string? amount = null)
         {
             Task<IEnumerable<Cheep>> cheepTask;
-            if (amount == null)
+            if (string.IsNullOrEmpty(amount))
             {
                  cheepTask = RequestCheepsFromServer();
             } else if (int.TryParse(amount, out int intVal)
