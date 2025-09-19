@@ -17,7 +17,7 @@ Usage:
 Options:
     -h, --help  show this screen.
 ";
-        const string baseURL = "http://localhost:5012";
+        const string baseURL = "http://localhost:5000";
         private static string path = "chirp_cli_db.csv";
 
         public static int Main(string[] args)
