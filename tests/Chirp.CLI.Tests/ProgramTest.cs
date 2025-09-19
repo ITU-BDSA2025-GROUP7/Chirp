@@ -1,11 +1,23 @@
+using System.Runtime.InteropServices.JavaScript;
 using DocoptNet;
 using Chirp.CSVDB;
+using Chirp.CSVDBService;
 using Chirp.General;
 
 namespace Chirp.CLI.Client;
 
-public class ProgramTest
-{
+public class ProgramTest {
+	/** Each test starts a new Services instance in a background thead, but since such threads
+	 don't actually close until the foreground process closes, the Services instances
+	 persist in the background. Hence, we give each its own port. */
+	private static int uniquePortID = 5000;
+
+	public ProgramTest() {
+		// Prevents writing to standard output from this class
+		Console.SetOut(new StringWriter());
+		Console.SetError(new StringWriter());
+	}
+	
 	[Theory]
 	[InlineData(true, null, false, "", 0)] // read, no message ( -- read
 	[InlineData(false, null, true, "Hello World", 0)] // -- cheep "Hello World"
@@ -18,31 +30,35 @@ public class ProgramTest
 	[InlineData(true, "notInt", false, "Hello World", 1)] // can't read "notInt" amount of cheeps
 	[InlineData(true, "0", false, "Hello World", 1)] //Program will not bother reading 0 cheeps
 	[InlineData(true, "-1", false, "Hello World", 1)] // no negative amount reading
-    public void runTest(bool readFlag, string? amount, bool cheepFlag, string? message, int expected)
-	{
-
-		//arrange
-		string tempFile = Path.GetTempFileName(); // creating a temporary file, to be able to run the program and not affect the actual database
-		try
-		{
-			var args = new Dictionary<string, ArgValue>
-			{
+    public void runTest(bool readFlag, string? amount, bool cheepFlag, string? message, int expected) {
+	    //arrange
+	    string tempFile = Path.GetTempFileName(); // creating a temporary file, to be able to run the program and not affect the actual database
+	    try {
+			uniquePortID++;
+			var t = new Thread(() => {
+				 Thread.CurrentThread.IsBackground = true;
+				 _ = new Services(uniquePortID.ToString());
+			});
+			t.Start();
+			
+			var args = new Dictionary<string, ArgValue> {
 				["read"] = readFlag,
 				["<amount>"] = amount != null ? amount : ArgValue.None,
 				["cheep"] = cheepFlag,
-				["<message>"] = message != null ? message : ArgValue.None,
-				["post"] = false,
-				["get"] = false
+				["<message>"] = message != null ? message : ArgValue.None
 			};
 
 			//act
 			var fakeDb = CsvDataBase<Cheep>.Instance;
 			fakeDb.SetPath(tempFile);
+			Program.SetPort(uniquePortID);
 			int result = Program.Run(args, fakeDb);
 
 			//assert
 			//using the fact that run returns 0 if everything is good and 1 if something is wrong
 			Assert.Equal(expected, result);
+		} catch (IOException) {
+			// Preventing "error" messages when trying to listen on a port that's already busy.
 		}
 		finally
 		{

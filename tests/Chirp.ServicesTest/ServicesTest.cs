@@ -11,6 +11,7 @@ public class ServicesTest : IClassFixture<WebApplicationFactory<Services>>
 
     public ServicesTest(WebApplicationFactory<Services> factory)
     {
+		Console.SetOut(new StringWriter());
         _factory = factory;
     }
     

@@ -11,15 +11,19 @@ namespace Chirp.CLI.Client {
 Usage:
     -- read [<amount>]
     -- cheep <message>
-    -- get [<amount>]
-    -- post <message>
 
 Options:
     -h, --help  show this screen.
 ";
-        const string baseURL = "http://localhost:5000";
+        private static string baseURL = "http://localhost:";
+        private static string URLwithPort = "http://localhost:5000";
         private static string path = "chirp_cli_db.csv";
 
+        /// Sets the port which the program will interact with. Used for testing.
+        public static void SetPort(int port) {
+            URLwithPort = baseURL + port.ToString();
+        }
+        
         public static int Main(string[] args)
         {
             var dataBase =  CsvDataBase<Cheep>.Instance;
@@ -46,9 +50,7 @@ Options:
             using var client = new HttpClient();
             client.DefaultRequestHeaders.Accept.Clear();
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            client.DefaultRequestHeaders.UserAgent.Clear();
-            client.DefaultRequestHeaders.UserAgent.Add(new  ProductInfoHeaderValue("Chirp", "0.5.0"));
-            client.BaseAddress = new Uri(baseURL);
+            client.BaseAddress = new Uri(URLwithPort);
 
             if (limit == null)
                 return await client.GetFromJsonAsync<IEnumerable<Cheep>>("/cheeps") ?? [];
@@ -83,26 +85,13 @@ Options:
             return 0;
         }
 
-        private static void Read(CsvDataBase<Cheep> dataBase, int? limit = null)
-        {
-            var records = dataBase.Read(limit);
-            UserInterface.PrintCheeps(records);
-        }
-
-        private static void Write(string message, CsvDataBase<Cheep> database)
-        {
-            database.Store(Cheep.Assemble(message));
-        }
-
         /// Send post-request to server to store a new <see cref="Cheep"/>.
         private static async Task<string> MessageServer(Cheep cheep)
         {
             using var client = new HttpClient();
             client.DefaultRequestHeaders.Accept.Clear();
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            client.DefaultRequestHeaders.UserAgent.Clear();
-            client.DefaultRequestHeaders.UserAgent.Add(new  ProductInfoHeaderValue("Chirp", "0.5.0"));
-            client.BaseAddress = new Uri(baseURL);
+            client.BaseAddress = new Uri(URLwithPort);
 
             HttpResponseMessage response = await client.PostAsJsonAsync<Cheep>("/cheep", cheep);
 
@@ -117,7 +106,7 @@ Options:
         private static int SendCheepToServer(string message)
         {
             // We HAVE TO get the Result property of the returned Task in order
-            // for the Task to complete.
+            // for the Task inside the function call to complete.
             string response = MessageServer(Cheep.Assemble(message)).Result;
             Console.WriteLine(response);
             return 0;
@@ -144,33 +133,13 @@ Options:
         public static int Run(IDictionary<string, ArgValue> arguments, CsvDataBase<Cheep> dataBase) {
             if (!ValidateExactlyOneCommand(arguments)) return 1;
 
-            if (arguments["post"].IsTrue && !arguments["<message>"].IsNone)
+            if (arguments["cheep"].IsTrue && !arguments["<message>"].IsNone)
             {
                 return SendCheepToServer(arguments["<message>"].ToString());
             }
-            if (arguments["get"].IsTrue)
-            {
-                return ReadFromServer(arguments["<amount>"].ToString());
-            }
             if (arguments["read"].IsTrue)
             {
-                if (arguments["<amount>"].IsNone)
-                {
-                    Read(dataBase);
-                    return 0;
-                }
-                bool isInt = int.TryParse(arguments["<amount>"].ToString(), out int intVal);
-                if (isInt && intVal >0)
-                {
-                    Read(dataBase, intVal);
-                    return 0;
-                }
-            }
-            else if (arguments["cheep"].IsTrue && !arguments["<message>"].IsNone)
-            {
-                string message = arguments["<message>"].ToString();
-                Write(message, dataBase);
-                return 0;
+                return ReadFromServer(arguments["<amount>"].ToString());
             }
             return 1;
         }
