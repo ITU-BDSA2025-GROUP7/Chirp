@@ -1,5 +1,7 @@
 using DocoptNet;
 using Chirp.CSVDB;
+using Chirp.General;
+
 namespace Chirp.CLI.Client;
 
 public class ProgramTest
@@ -47,7 +49,7 @@ public class ProgramTest
 			File.Delete(tempFile);
 		}
 	}
-    
+
 	[Theory]
 	[InlineData("--help", 0)]
 	[InlineData("--h", 0)]

@@ -1,9 +1,9 @@
-using Chirp.CLI.Client;
+using Chirp.General;
 using static Chirp.CSVDB.Tests.TestBase;
 
 namespace Chirp.CSVDB.Tests;
 
-/** <see cref="CsvDataBase"/> does not actually sanity check its output, and the CvsHelper
+/** <see cref="CsvDataBase{T}"/> does not actually sanity check its output, and the CvsHelper
  * library doesn't seem to do so, either.<br/>
  * These tests therefore actually
  * look at what happens when the CsvDataBase reads back a record that it
@@ -169,7 +169,6 @@ public class WriteTests : IDisposable
 	}
 	public void Dispose()
 	{
-		
 		CsvDataBase<Cheep>.Reset();
 	}
 }

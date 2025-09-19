@@ -12,7 +12,6 @@ public class CsvDataBase<T> : IDataBaseRepository<T>
 
     private CsvDataBase()
     {
-       
     }
 
     public static CsvDataBase<T> Instance

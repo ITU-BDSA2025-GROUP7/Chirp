@@ -1,4 +1,4 @@
-﻿using Chirp.CLI.Client;
+﻿using Chirp.General;
 using static Chirp.CSVDB.Tests.TestBase;
 [assembly: CollectionBehavior(DisableTestParallelization = true)] // makes sure the tests are not parrallel to make sure the files are not used at the same time, (this became a problem after creating the singleton 
 namespace Chirp.CSVDB.Tests;

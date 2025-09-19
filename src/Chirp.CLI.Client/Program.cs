@@ -1,5 +1,6 @@
-﻿using System.Net.Http.Headers;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using Chirp.General;
 using Chirp.CSVDB;
 using DocoptNet;
 
