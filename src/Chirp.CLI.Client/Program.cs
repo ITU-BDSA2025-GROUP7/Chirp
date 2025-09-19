@@ -42,6 +42,7 @@ Options:
             public int limit = val;
         }
 
+        /// Send HTTP request to server to ask for a list of <see cref="Cheep"/>.
         private static async Task<IEnumerable<Cheep>> RequestCheepsFromServer(int? limit = null)
         {
             using var client = new HttpClient();
@@ -60,6 +61,27 @@ Options:
             return await client.GetFromJsonAsync<IEnumerable<Cheep>>("cheeps") ?? [];
         }
 
+        /// Send request to server, then print results.
+        private static int ReadFromServer(string? amount = null)
+        {
+            Task<IEnumerable<Cheep>> cheepTask;
+            if (amount == null)
+            {
+                 cheepTask = RequestCheepsFromServer();
+            } else if (int.TryParse(amount, out int intVal)
+                       && intVal > 0)
+            {
+                cheepTask = RequestCheepsFromServer(intVal);
+            }
+            else
+            {
+                return 1;
+            }
+            IEnumerable<Cheep> cheeps = cheepTask.Result;
+            UserInterface.PrintCheeps(cheeps);
+            return 0;
+        }
+
         private static void Read(CsvDataBase<Cheep> dataBase, int? limit = null)
         {
             var records = dataBase.Read(limit);
@@ -71,6 +93,7 @@ Options:
             database.Store(Cheep.Assemble(message));
         }
 
+        /// Send post-request to server to store a new <see cref="Cheep"/>.
         private static async Task<string> MessageServer(Cheep cheep)
         {
             using var client = new HttpClient();
@@ -88,13 +111,18 @@ Options:
             return acknowledge;
         }
 
-        private static void SendCheepToServer(string message)
+        /// Starts the process of sending a cheep to the server. Returns 0 if the
+        /// HTTP request was successful, and 0 otherwise.
+        private static int SendCheepToServer(string message)
         {
             Task<string> task = MessageServer(Cheep.Assemble(message));
             if (task.IsCompletedSuccessfully)
+            {
                 Console.WriteLine(task.Result);
-            else 
-                Console.WriteLine(task.Exception);
+                return 0;
+            }
+            Console.WriteLine(task.Exception);
+            return 1;
         }
 
         private static int ShowHelp(string help) {
@@ -117,31 +145,16 @@ Options:
 
         public static int Run(IDictionary<string, ArgValue> arguments, CsvDataBase<Cheep> dataBase) {
             if (!ValidateExactlyOneCommand(arguments)) return 1;
-            
+
             if (arguments["post"].IsTrue && !arguments["<message>"].IsNone)
             {
-                SendCheepToServer(arguments["<message>"].ToString());
+                return SendCheepToServer(arguments["<message>"].ToString());
             }
-            else if (arguments["get"].IsTrue)
+            if (arguments["get"].IsTrue)
             {
-                Task<IEnumerable<Cheep>> cheepTask;
-                if (arguments["<amount>"].IsNone)
-                {
-                     cheepTask = RequestCheepsFromServer();
-                }
-                else if (int.TryParse(arguments["<amount>"].ToString(), out int intVal)
-                      && intVal > 0)
-                {
-                    cheepTask = RequestCheepsFromServer(intVal);
-                }
-                else
-                {
-                    return 1;
-                }
-                IEnumerable<Cheep> cheeps = cheepTask.Result;
-                UserInterface.PrintCheeps(cheeps);
+                return ReadFromServer(arguments["<amount>"].ToString());
             }
-            else if (arguments["read"].IsTrue)
+            if (arguments["read"].IsTrue)
             {
                 if (arguments["<amount>"].IsNone)
                 {
