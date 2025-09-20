@@ -47,12 +47,10 @@ public class ProgramTest {
 				["cheep"] = cheepFlag,
 				["<message>"] = message != null ? message : ArgValue.None
 			};
+			Program.SetPort(uniquePortID);
 
 			//act
-			var fakeDb = CsvDataBase<Cheep>.Instance;
-			fakeDb.SetPath(tempFile);
-			Program.SetPort(uniquePortID);
-			int result = Program.Run(args, fakeDb);
+			int result = Program.Run(args);
 
 			//assert
 			//using the fact that run returns 0 if everything is good and 1 if something is wrong

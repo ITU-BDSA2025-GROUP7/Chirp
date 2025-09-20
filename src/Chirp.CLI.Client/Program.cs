@@ -26,8 +26,6 @@ Options:
         
         public static int Main(string[] args)
         {
-            var dataBase =  CsvDataBase<Cheep>.Instance;
-            dataBase.SetPath(path);
             var parser = Docopt.CreateParser(Help);
 
             return parser.Parse(args) switch
@@ -35,7 +33,7 @@ Options:
                 IArgumentsResult<IDictionary<string, ArgValue>>
                 {
                     Arguments: var arguments
-                } => Run(arguments, dataBase),
+                } => Run(arguments),
                 IHelpResult => ShowHelp(Help),
                 IInputErrorResult { Usage: var usage } => OnError(usage),
                 var result => throw new System.Runtime.CompilerServices.SwitchExpressionException(result)
@@ -130,7 +128,7 @@ Options:
             return seenTrue;
         }
 
-        public static int Run(IDictionary<string, ArgValue> arguments, CsvDataBase<Cheep> dataBase) {
+        public static int Run(IDictionary<string, ArgValue> arguments) {
             if (!ValidateExactlyOneCommand(arguments)) return 1;
 
             if (arguments["cheep"].IsTrue && !arguments["<message>"].IsNone)
