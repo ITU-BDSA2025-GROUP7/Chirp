@@ -25,10 +25,15 @@ public class Services {
             port = "http://localhost:" + port;
         }
         
+        string environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")!;
+        var config = new ConfigurationBuilder()
+            .AddJsonFile("appsettings.json")
+            .AddJsonFile($"appsettings.{environment}.json", optional:true)
+            .Build();
+        
         // Setup database
         var db = CsvDataBase<Cheep>.Instance;
-        if (File.Exists("chirp_cli_db.csv")) db.SetPath("chirp_cli_db.csv"); 
-        else if  (File.Exists("chirp_cli_db_Testing.csv")) db.SetPath("chirp_cli_db_Testing.csv");
+        db.SetPath(config["AppSettings:DatabaseLocation"]);
 
         // setup app
         var builder = WebApplication.CreateBuilder();
