@@ -25,6 +25,7 @@ public class Services {
             port = "http://localhost:" + port;
         }
         
+        // setup configs 
         string environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")!;
         var config = new ConfigurationBuilder()
             .AddJsonFile("appsettings.Services.json")

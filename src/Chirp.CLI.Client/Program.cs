@@ -144,8 +144,8 @@ Options:
         }
 
         
-        /*Returns the RTL of the wepsite. If the URL is null, then calculate what the URL
-         Should be and return it*/
+        /*Returns the URL of the website.
+         The URL might change depending on if the server is tarted with the environment variable ASPNETCORE_ENVIRONMENT set to test*/
         public static string GetURLwithPort()
         {
             if (URLwithPort != null)
