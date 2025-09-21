@@ -3,6 +3,7 @@ using System.Net.Http.Json;
 using Chirp.General;
 using Chirp.CSVDB;
 using DocoptNet;
+using Microsoft.Extensions.Configuration;
 
 namespace Chirp.CLI.Client {
    public static class Program
@@ -15,27 +16,19 @@ Usage:
 Options:
     -h, --help  show this screen.
 ";
-        private static string baseURL = "http://localhost:";
-        private static string URLwithPort = "http://localhost:5000";
-        private static string path = "chirp_cli_db.csv";
 
-        /// Sets the port which the program will interact with. Used for testing.
-        public static void SetPort(int port) {
-            URLwithPort = baseURL + port.ToString();
-        }
+        private static string? baseURL;
+        private static string? URLwithPort;
         
         public static int Main(string[] args)
         {
-            var dataBase =  CsvDataBase<Cheep>.Instance;
-            dataBase.SetPath(path);
             var parser = Docopt.CreateParser(Help);
-
             return parser.Parse(args) switch
             {
                 IArgumentsResult<IDictionary<string, ArgValue>>
                 {
                     Arguments: var arguments
-                } => Run(arguments, dataBase),
+                } => Run(arguments),
                 IHelpResult => ShowHelp(Help),
                 IInputErrorResult { Usage: var usage } => OnError(usage),
                 var result => throw new System.Runtime.CompilerServices.SwitchExpressionException(result)
@@ -50,7 +43,7 @@ Options:
             using var client = new HttpClient();
             client.DefaultRequestHeaders.Accept.Clear();
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            client.BaseAddress = new Uri(URLwithPort);
+            client.BaseAddress = new Uri(GetUrlWithPort());
 
             if (limit == null)
                 return await client.GetFromJsonAsync<IEnumerable<Cheep>>("/cheeps") ?? [];
@@ -91,7 +84,7 @@ Options:
             using var client = new HttpClient();
             client.DefaultRequestHeaders.Accept.Clear();
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            client.BaseAddress = new Uri(URLwithPort);
+            client.BaseAddress = new Uri(GetUrlWithPort());
 
             HttpResponseMessage response = await client.PostAsJsonAsync<Cheep>("/cheep", cheep);
 
@@ -130,7 +123,7 @@ Options:
             return seenTrue;
         }
 
-        public static int Run(IDictionary<string, ArgValue> arguments, CsvDataBase<Cheep> dataBase) {
+        public static int Run(IDictionary<string, ArgValue> arguments) {
             if (!ValidateExactlyOneCommand(arguments)) return 1;
 
             if (arguments["cheep"].IsTrue && !arguments["<message>"].IsNone)
@@ -142,6 +135,37 @@ Options:
                 return ReadFromServer(arguments["<amount>"].ToString());
             }
             return 1;
+        }
+        
+        /// Sets the port which the program will interact with. Used for testing.
+        public static void SetPort(int port) {
+            GetUrlWithPort(); // make sure the 
+            URLwithPort = baseURL + port.ToString();
+        }
+
+        
+        /*Returns the URL of the website.
+         The URL might change depending on if the server is tarted with the environment variable ASPNETCORE_ENVIRONMENT set to test*/
+        public static string GetUrlWithPort()
+        {
+            if (URLwithPort != null)
+            {
+                return URLwithPort;
+            }
+            
+            // Decide URL depending on environment 
+            string environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")!;
+            IConfigurationRoot config = new ConfigurationBuilder()
+                .AddJsonFile("appsettings.Client.json")
+                .AddJsonFile($"appsettings.Client.{environment}.json", optional:true)
+                .Build();
+            
+            baseURL = config["AppSettings:BaseURL"] ?? throw new InvalidOperationException("Confing BaseURL is missing.");
+            if (environment == "Test") URLwithPort = baseURL + config["AppSettings:DefaultPort"];
+            else URLwithPort = baseURL;
+            
+            return URLwithPort;
+            
         }
     }
 }

@@ -12,6 +12,7 @@
     <ProjectReference Include="../Chirp.CSVDB/Chirp.CSVDB.csproj" />
     <ProjectReference Include="../Chirp.General/Chirp.General.csproj" />
     <None Include="chirp_cli_db_Testing.csv" CopyToOutputDirectory="Always" />
+    <None Include="chirp_cli_db.csv" CopyToOutputDirectory="Always" />
   </ItemGroup>
   
 </Project>

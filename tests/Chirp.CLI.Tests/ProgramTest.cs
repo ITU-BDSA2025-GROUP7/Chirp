@@ -3,6 +3,7 @@ using DocoptNet;
 using Chirp.CSVDB;
 using Chirp.CSVDBService;
 using Chirp.General;
+using Xunit.Abstractions;
 
 namespace Chirp.CLI.Client;
 
@@ -12,10 +13,24 @@ public class ProgramTest {
 	 persist in the background. Hence, we give each its own port. */
 	private static int uniquePortID = 5000;
 
-	public ProgramTest() {
+	private readonly ITestOutputHelper output;
+
+	public ProgramTest(ITestOutputHelper output) {
 		// Prevents writing to standard output from this class
 		Console.SetOut(new StringWriter());
 		Console.SetError(new StringWriter());
+		this.output = output;
+	}
+	
+	[Fact]
+	public void getURLTest()
+	{
+		//act
+		var URL = Program.GetUrlWithPort();
+		
+		// assert
+		Assert.NotNull(URL);
+		Assert.Equal("http://localhost:5000", URL);
 	}
 	
 	[Theory]
@@ -47,12 +62,11 @@ public class ProgramTest {
 				["cheep"] = cheepFlag,
 				["<message>"] = message != null ? message : ArgValue.None
 			};
+			Program.SetPort(uniquePortID);
+			output.WriteLine($"URL: {Program.GetUrlWithPort()}");
 
 			//act
-			var fakeDb = CsvDataBase<Cheep>.Instance;
-			fakeDb.SetPath(tempFile);
-			Program.SetPort(uniquePortID);
-			int result = Program.Run(args, fakeDb);
+			int result = Program.Run(args);
 
 			//assert
 			//using the fact that run returns 0 if everything is good and 1 if something is wrong
@@ -63,6 +77,7 @@ public class ProgramTest {
 		finally
 		{
 			File.Delete(tempFile);
+			Program.SetPort(5000); // reset the port so it doesent interfear with other tests
 		}
 	}
 
@@ -79,6 +94,7 @@ public class ProgramTest {
 
     	Assert.Equal(expected, result); // ShowHelp returns 0 if good, 1 if error
 	}
+	
 }
 
 
