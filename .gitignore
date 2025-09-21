@@ -55,5 +55,7 @@ nunit-*.xml
 
 .idea/*
 
+src/Chirp.CSVDBService/.azure
+
 # individual user setting sould not be added
 Chirp.sln.DotSettings.user
