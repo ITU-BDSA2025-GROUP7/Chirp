@@ -3,6 +3,7 @@ using System.Net.Http.Json;
 using Chirp.General;
 using Chirp.CSVDB;
 using DocoptNet;
+using Microsoft.Extensions.Configuration;
 
 namespace Chirp.CLI.Client {
    public static class Program
@@ -15,19 +16,13 @@ Usage:
 Options:
     -h, --help  show this screen.
 ";
-        private static string baseURL = "http://localhost:";
-        private static string URLwithPort = "http://localhost:5000";
-        private static string path = "chirp_cli_db.csv";
 
-        /// Sets the port which the program will interact with. Used for testing.
-        public static void SetPort(int port) {
-            URLwithPort = baseURL + port.ToString();
-        }
+        private static string baseURL;
+        private static string URLwithPort;
         
         public static int Main(string[] args)
         {
             var parser = Docopt.CreateParser(Help);
-
             return parser.Parse(args) switch
             {
                 IArgumentsResult<IDictionary<string, ArgValue>>
@@ -48,7 +43,7 @@ Options:
             using var client = new HttpClient();
             client.DefaultRequestHeaders.Accept.Clear();
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            client.BaseAddress = new Uri(URLwithPort);
+            client.BaseAddress = new Uri(GetURLwithPort());
 
             if (limit == null)
                 return await client.GetFromJsonAsync<IEnumerable<Cheep>>("/cheeps") ?? [];
@@ -89,7 +84,7 @@ Options:
             using var client = new HttpClient();
             client.DefaultRequestHeaders.Accept.Clear();
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            client.BaseAddress = new Uri(URLwithPort);
+            client.BaseAddress = new Uri(GetURLwithPort());
 
             HttpResponseMessage response = await client.PostAsJsonAsync<Cheep>("/cheep", cheep);
 
@@ -140,6 +135,37 @@ Options:
                 return ReadFromServer(arguments["<amount>"].ToString());
             }
             return 1;
+        }
+        
+        /// Sets the port which the program will interact with. Used for testing.
+        public static void SetPort(int port) {
+            GetURLwithPort(); // make sure the 
+            URLwithPort = baseURL + port.ToString();
+        }
+
+        
+        /*Returns the RTL of the wepsite. If the URL is null, then calculate what the URL
+         Should be and return it*/
+        public static string GetURLwithPort()
+        {
+            if (URLwithPort != null)
+            {
+                return URLwithPort;
+            }
+            
+            // Decide URL depending on environment 
+            string environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")!;
+            IConfigurationRoot config = new ConfigurationBuilder()
+                .AddJsonFile("appsettings.Client.json")
+                .AddJsonFile($"appsettings.Client.{environment}.json", optional:true)
+                .Build();
+            
+            baseURL = config["AppSettings:BaseURL"];
+            if (environment == "Test") URLwithPort = baseURL + config["AppSettings:DefaultPort"];
+            else URLwithPort = baseURL;
+            
+            return URLwithPort;
+            
         }
     }
 }

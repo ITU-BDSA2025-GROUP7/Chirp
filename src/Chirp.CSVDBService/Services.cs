@@ -27,8 +27,8 @@ public class Services {
         
         string environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")!;
         var config = new ConfigurationBuilder()
-            .AddJsonFile("appsettings.json")
-            .AddJsonFile($"appsettings.{environment}.json", optional:true)
+            .AddJsonFile("appsettings.Services.json")
+            .AddJsonFile($"appsettings.Services.{environment}.json", optional:true)
             .Build();
         
         // Setup database
