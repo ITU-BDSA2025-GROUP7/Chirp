@@ -26,7 +26,7 @@ public class ProgramTest {
 	public void getURLTest()
 	{
 		//act
-		var URL = Program.GetURLwithPort();
+		var URL = Program.GetUrlWithPort();
 		
 		// assert
 		Assert.NotNull(URL);
@@ -63,7 +63,7 @@ public class ProgramTest {
 				["<message>"] = message != null ? message : ArgValue.None
 			};
 			Program.SetPort(uniquePortID);
-			output.WriteLine($"URL: {Program.GetURLwithPort()}");
+			output.WriteLine($"URL: {Program.GetUrlWithPort()}");
 
 			//act
 			int result = Program.Run(args);

@@ -17,8 +17,8 @@ Options:
     -h, --help  show this screen.
 ";
 
-        private static string baseURL;
-        private static string URLwithPort;
+        private static string? baseURL;
+        private static string? URLwithPort;
         
         public static int Main(string[] args)
         {
@@ -43,7 +43,7 @@ Options:
             using var client = new HttpClient();
             client.DefaultRequestHeaders.Accept.Clear();
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            client.BaseAddress = new Uri(GetURLwithPort());
+            client.BaseAddress = new Uri(GetUrlWithPort());
 
             if (limit == null)
                 return await client.GetFromJsonAsync<IEnumerable<Cheep>>("/cheeps") ?? [];
@@ -84,7 +84,7 @@ Options:
             using var client = new HttpClient();
             client.DefaultRequestHeaders.Accept.Clear();
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            client.BaseAddress = new Uri(GetURLwithPort());
+            client.BaseAddress = new Uri(GetUrlWithPort());
 
             HttpResponseMessage response = await client.PostAsJsonAsync<Cheep>("/cheep", cheep);
 
@@ -139,14 +139,14 @@ Options:
         
         /// Sets the port which the program will interact with. Used for testing.
         public static void SetPort(int port) {
-            GetURLwithPort(); // make sure the 
+            GetUrlWithPort(); // make sure the 
             URLwithPort = baseURL + port.ToString();
         }
 
         
         /*Returns the URL of the website.
          The URL might change depending on if the server is tarted with the environment variable ASPNETCORE_ENVIRONMENT set to test*/
-        public static string GetURLwithPort()
+        public static string GetUrlWithPort()
         {
             if (URLwithPort != null)
             {
@@ -160,7 +160,7 @@ Options:
                 .AddJsonFile($"appsettings.Client.{environment}.json", optional:true)
                 .Build();
             
-            baseURL = config["AppSettings:BaseURL"];
+            baseURL = config["AppSettings:BaseURL"] ?? throw new InvalidOperationException("Confing BaseURL is missing.");
             if (environment == "Test") URLwithPort = baseURL + config["AppSettings:DefaultPort"];
             else URLwithPort = baseURL;
             
