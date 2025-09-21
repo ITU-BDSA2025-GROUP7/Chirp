@@ -31,7 +31,7 @@ jobs:
         with:
           dotnet-version: 9.0.x
       - name: Test
-        run: dotnet test --no-build --verbosity normal
+        run: dotnet test -e ASPNETCORE_ENVIRONMENT=Test --no-build --verbosity normal
         
   publish:
     runs-on: ubuntu-latest
