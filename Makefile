@@ -1,4 +1,16 @@
 ﻿# Can download a Windows-port of GNU Make here: https://gnuwin32.sourceforge.net/packages/make.htm
+#  There are probably other places to get it, too. Might be available on Winget.
+# If you're on GNU/Linux then you probably have it already.
+
+# Usage:
+#   `make <target> [n=<arg>]`
+#  where <target> is the text before a colon in the list of commands below.
+#  The optional `n=<arg>` will add an argument to the command, in the sense of
+#   `dotnet run ... read <arg>` or `dotnet run ... cheep <arg>` 
+#  So you'll have to do that if you want to cheep with this system.
+
+# ==============================================================================
+# Variables
 
 # Sets the environment name to "Test", which causes some changes in the
 #  client and service programmes.
@@ -8,6 +20,8 @@ ENV := -e ASPNETCORE_ENVIRONMENT=Test
 #  its place in the commands below.
 #  Override it by typing e.g. `make read n=3` or `make cheep n="Hello, World!"`
 n := 
+
+# ==============================================================================
 
 # Read from local server. Limit the amount by adding n=<limit>
 read-local:
