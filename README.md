@@ -26,8 +26,9 @@ You will be prompted to download any such missing dependencies when running the 
 
 ## Command overview
 
-Standing in the main solution directory (i.e. the same as this file):
-
+All commands here and below expect you to be in the main solution directory (i.e. the same as this file).\
+When a `dotnet` and `make` command are listed together, they are equivalent.\
+Executing `make` commands requires you to have GNU Make installed.
 ```
 dotnet run --project src/Chirp.CLI.Client read [<limit>]
 make read [n=<limit>]
@@ -55,12 +56,15 @@ make build
 
 ## Local Setup and Usage
 
-### Service setup
+### Starting the Service Locally
 
-To build and start the daemon on the current computer, execute either:\
-`dotnet run --project src/Chirp.CSVDBService [<port>]`\
-or\
-`make start [<port>]`
+To build and start the daemon on the current computer, execute either:
+```
+dotnet run --project src/Chirp.CSVDBService [<port>]
+```
+```
+make start [<port>]
+```
 
 If a `<port>` is provided, it will start listening on `http://localhost:<port>`.\
 Otherwise, it will default to something like `http://localhost:5000`.
@@ -68,31 +72,39 @@ Otherwise, it will default to something like `http://localhost:5000`.
 To stop it listening, you will have to cancel the process (`Ctrl + C`), or close the
 terminal window.
 
-### Using client with local service
+### Using the Client Locally
 
-**To read cheep(s):**\
-`dotnet run --project src/Chirp.CLI.Client -e ASPNETCORE_ENVIRONMENT=Test read [<limit>]`\
-or\
-`make read-local [n=<limit>]`\
+**To read cheep(s):**
+```
+dotnet run --project src/Chirp.CLI.Client -e ASPNETCORE_ENVIRONMENT=Test read [<limit>]
+```
+```
+make read-local [n=<limit>]
+```
 where `<limit>` is the maximum number of records to retrieve.
 
-**To store a cheep:**\
-`dotnet run --project src/Chirp.CLI.Client -e ASPNETCORE_ENVIRONMENT=Test cheep <message>`\
-or\
-`make cheep-local n=<message>`\
+**To store a cheep:**
+```
+dotnet run --project src/Chirp.CLI.Client -e ASPNETCORE_ENVIRONMENT=Test cheep <message>
+```
+```
+make cheep-local n=<message>
+```
 where `<message>` is the message to store.
 
 ---
 
 ## Online Setup and Usage
 
-### Deploying to Azure
+### Setup (Deploying to Azure)
 
 It will likely be easiest to use the [Azure CLI application](https://learn.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest).
 
-First, login to Azure:\
-`az login`\
-Then, deploy the application:
+First, login to Azure:
+```
+az login
+```
+Then, upload and deploy the application:
 ```
 az webapp up --sku F1 --name <name> --os-type Linux --location <location> --runtime DOTNETCORE:9.0
 ```
@@ -104,34 +116,58 @@ You may encounter an error relating to a subscription registration. In that case
 go to the Azure web portal, and then
 `Subscriptions -> Settings -> Resource Providers` and select `Microsoft.Web` (or whatever was mentioned in the error message).
 
-You only have a limited amount of uptime allotted to you.\
-You can pause the app with `az webapp stop`,\
-or you can take it down entirely with `az webapp delete`
+Note that you only have a limited amount of uptime allotted to you.\
+To pause the app:
+```
+az webapp stop
+```
+To (re)start the app:
+```
+az webapp start
+```
+To take the app down entirely: 
+```
+az webapp delete
+```
 
-See more options with `az webapp --help`.
+See more options with
+```
+az webapp --help
+```
 
-### Using client with online service
+### Using the Client over the Network
 
 To use the client programme with the server already running on the Azure cloud platform:
 
-**Print records to the standard output:**\
-`dotnet run --project src/Chirp.CLI.Client read [<limit>]`\
-or\
-`make read [n=<limit>]`\
+**Print records to the standard output:**
+```
+dotnet run --project src/Chirp.CLI.Client read [<limit>]
+```
+```
+make read [n=<limit>]
+```
 where `<limit>` is the maximum number of records to retrieve.
 
-**Store a new record (a "cheep"):**\
-`dotnet run --project src/Chirp.CLI.Client cheep <message>`\
-or\
-`make cheep n=<message>`\
+**Store a new record (a "cheep"):**
+```
+dotnet run --project src/Chirp.CLI.Client cheep <message>
+```
+```
+make cheep n=<message>
+```
 where `<message>` is the message to store.
 
 ---
 
 ## Testing
 
-To run all the tests in the solution:\
-`dotnet test` or `make test`
+To run all the tests in the solution:
+```
+dotnet test
+```
+```
+make test
+```
 
 Overview of commands to run individual projects' tests:
 ```
