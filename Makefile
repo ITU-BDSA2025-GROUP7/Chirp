@@ -1,4 +1,4 @@
-﻿# Can download a Windows-port of GNU Make here: https://gnuwin32.sourceforge.net/packages/make.htm
+# Can download a Windows-port of GNU Make here: https://gnuwin32.sourceforge.net/packages/make.htm
 #  There are probably other places to get it, too. Might be available on Winget.
 # If you're on GNU/Linux then you probably have it already.
 
@@ -46,6 +46,10 @@ start:
 # Runs all the tests in the solution
 test:
 	dotnet test ${ENV}
+
+#
+test-linux:
+	ASPNETCORE_ENVIRONMENT=Test dotnet test
 
 # Runs client tests
 tclient:
