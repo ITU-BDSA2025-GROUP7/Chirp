@@ -142,7 +142,6 @@ Options:
             GetUrlWithPort(); // make sure the 
             URLwithPort = baseURL + port.ToString();
         }
-
         
         /*Returns the URL of the website.
          The URL might change depending on if the server is tarted with the environment variable ASPNETCORE_ENVIRONMENT set to test*/
