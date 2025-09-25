@@ -61,6 +61,6 @@ jobs:
         with:
           app-name: 'bdsagroup7chirpremotedb'
           slot-name: 'Production'
-          package: ./publish
+          package: ${{env.DOTNET_ROOT}}/publish
           clean: true
           
