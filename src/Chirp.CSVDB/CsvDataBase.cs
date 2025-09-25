@@ -7,7 +7,7 @@ namespace Chirp.CSVDB;
 public class CsvDataBase<T> : IDataBaseRepository<T>
 {
     private string path = "";
-    private static CsvDataBase<T> instance = null;
+    private static CsvDataBase<T>? instance = null; //  ? makes it nullable
     private static readonly object padlock = new object();
 
     private CsvDataBase()

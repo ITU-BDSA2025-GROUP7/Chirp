@@ -165,7 +165,6 @@ Options:
             else URLwithPort = baseURL;
             
             return URLwithPort;
-            
         }
     }
 }
