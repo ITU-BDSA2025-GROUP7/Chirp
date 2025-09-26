@@ -1,4 +1,4 @@
-using Chirp.CSVDB;
+using Chirp.DBFacade;
 using Chirp.General;
 
 namespace Chirp.CSVDBService;
@@ -33,8 +33,7 @@ public class Services {
             .Build();
         
         // Setup database
-        var db = CsvDataBase<Cheep>.Instance;
-        db.SetPath(config["AppSettings:DatabaseLocation"]);
+        var db = DBFacade<Cheep>.Instance;
 
         // setup app
         var builder = WebApplication.CreateBuilder();
