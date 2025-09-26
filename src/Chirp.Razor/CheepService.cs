@@ -95,8 +95,8 @@ private static async Task<string> MessageServer(Cheep cheep)
             .AddJsonFile($"appsettings.{environment}.json", optional:true)
             .Build();
             
-       // baseURL = config["AppSettings:BaseURL"] ??  "http://localhost:5000";
-		baseURL = "http://localhost:5000";
+        baseURL = config["AppSettings:BaseURL"] ??  "http://localhost:5000";
+		//baseURL = "http://localhost:5000";
         if (environment == "Test") URLwithPort = baseURL + config["AppSettings:DefaultPort"];
         else URLwithPort = baseURL;
             
