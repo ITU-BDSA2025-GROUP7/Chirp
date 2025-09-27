@@ -21,26 +21,6 @@ public class DBFacade<T> : IDataBaseRepository<T> {
     private readonly string _dbLocation =
         Environment.GetEnvironmentVariable("CHIRPDBPATH") ?? "";
 
-    /** Return [username, text, pub_date] */
-    private const string ReadQuery =
-        "SELECT username, text, pub_date FROM message JOIN user ON author_id=user_id ORDER BY pub_date desc";
-
-    /** Returns the user_id, and count thereof, which matches whatever @username is replaced with.
-     * In other words, even if no exceptions were to be thrown from this, we could still check the second field
-     * to know whether the person exists. */
-    private static string Check_Username_Query(string value) =>
-        $"SELECT DISTINCT (user_id, COUNT(user_id)) FROM user JOIN message ON author_id=user_id WHERE username={value}";
-
-    /** Insert the new record into the message table, supplying the 'author_id' field from the
-     user table by selecting this as one of the values. If something goes wrong, the operation is
-     aborted and any changes in progress are automatically rolled back. */
-    private static string PrepareInsertionCommand(string[] values) =>
-            "INSERT OR ROLLBACK INTO message (author_id, text, pub_date) " +
-            "VALUES (" +
-            "(SELECT DISTINCT user_id " +
-            "FROM user JOIN message ON author_id=user_id " +
-            $"WHERE username={values[0]}), {values[1]}, {values[2]})";
-
     private static DBFacade<T>? _instance = null; //  ? makes it nullable
     private static readonly Lock _padlock = new();
 
@@ -52,6 +32,20 @@ public class DBFacade<T> : IDataBaseRepository<T> {
             }
         }
     }
+    
+    /** Return [username, text, pub_date] */
+    private const string ReadQuery =
+        "SELECT username, text, pub_date FROM message JOIN user ON author_id=user_id ORDER BY pub_date desc";
+
+    /** Insert the new record into the message table, supplying the 'author_id' field from the
+     * user table by selecting this as one of the values. If something goes wrong, the operation is
+     * aborted and any changes in progress are automatically rolled back. */
+    private static string PrepareInsertionCommand(string[] values) =>
+        "INSERT OR ROLLBACK INTO message (author_id, text, pub_date) " +
+        "VALUES (" +
+        "(SELECT DISTINCT user_id " +
+        "FROM user JOIN message ON author_id=user_id " +
+        $"WHERE username={values[0]}), {values[1]}, {values[2]})";
 
     /** Execute the given embedded file's SQL command, e.g. inserting schema or initial data. */
     private static void ExecuteCommandInFile(SqliteConnection connection, string filename) {
@@ -140,14 +134,14 @@ public class DBFacade<T> : IDataBaseRepository<T> {
     }
 
     /** SQL escapes ' by putting another one before. */
-    private static string EscapeQuotes(string value) => 
+    private static string EscapeQuotes(string value) =>
         value.Replace("'", "\'\'");
-    
+
     /** We add single-quotes around the string after making sure all apostrophes are
      * properly escaped. */
-    private static string SanitiseString(string value) => 
+    private static string SanitiseString(string value) =>
         '\'' + EscapeQuotes(value) + '\'';
-    
+
     /** Make sure everything is non-null and can be formatted into a string.
      */
     private static string[] PrepareValues(T record) {
@@ -156,10 +150,10 @@ public class DBFacade<T> : IDataBaseRepository<T> {
         var values = new string[properties.Length];
         for (var i = 0; i < properties.Length; i++) {
             PropertyInfo p = properties[i];
-            object v = p.GetValue(record) ?? 
+            object v = p.GetValue(record) ??
                        throw new NullReferenceException("Value of " + p.Name + " is null.");
             string s = v.ToString() ??
-                       throw new NullReferenceException("Value of " + p.Name + 
+                       throw new NullReferenceException("Value of " + p.Name +
                                                         " could not be converted to a string.");
             if (p.PropertyType == stringType) {
                 values[i] = SanitiseString(s);
@@ -188,6 +182,7 @@ public class DBFacade<T> : IDataBaseRepository<T> {
                                     "The transaction has been rolled back.");
             throw;
         }
+
         switch (updatedRows) {
             case 0:
                 command.Transaction.Rollback();
