@@ -10,6 +10,7 @@ public class CheepServiceTest
     [InlineData("pines")]
     [InlineData("louis")]
     [InlineData("mette")]
+    [InlineData("dfiuhweiufhwe")] //not an author 
     
     public void GetCheepsFromAuthor(string name)
     {
