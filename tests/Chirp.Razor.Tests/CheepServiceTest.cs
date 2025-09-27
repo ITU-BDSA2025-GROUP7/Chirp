@@ -1,9 +1,15 @@
-namespace DefaultNamespace;
+using Chirp.General;
+using Xunit;
+using Chirp.Razor;
+
+namespace Chirp.Razor;
+
 
 public class CheepServiceTest
 {
     
     /*Test that there is only cheeps from the selected author when getcheepsfromauthor is called*/
+    [Theory]
     [InlineData("ropf")]
     [InlineData("adho")]
     [InlineData("bikzi")]
@@ -12,16 +18,17 @@ public class CheepServiceTest
     [InlineData("mette")]
     [InlineData("dfiuhweiufhwe")] //not an author 
     
-    public void GetCheepsFromAuthor(string name)
+    public async Task GetCheepsFromAuthor(string name)
     {
         //arrange
-        var cheeps = GetCheepsFromAuthor(name);
+        var service = new CheepService(); 
+        List<CheepViewModel> cheeps = await service.GetCheepsFromAuthor(name);
         
         
-        for (cheep in cheeps)
+        foreach (CheepViewModel cheep in cheeps)
         {
-            assert.Equal(name, cheep.Author);
-            assert.notEqual("hjdfiluwriu", cheep.Author);
+            Assert.Equal(name, cheep.Author);
+            Assert.NotEqual("hjdfiluwriu", cheep.Author);
         }
             
 
