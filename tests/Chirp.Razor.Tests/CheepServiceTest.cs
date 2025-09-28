@@ -10,24 +10,12 @@ namespace Chirp.Razor;
 public class CheepServiceTest : IClassFixture<WebApplicationFactory<Services>>
 {
     
-    private readonly WebApplicationFactory<Services> _factory;
-    private string _tempPath;
+    private readonly CheepService _cheepService;
 
     public CheepServiceTest(WebApplicationFactory<Services> factory)
     {
-        _tempPath = Path.Combine(Path.GetTempPath(), Guid.NewGuid() + ".csv");
-        File.WriteAllText(_tempPath, "author,message,timestamp\n");
-
-        _factory = factory.WithWebHostBuilder(builder =>
-        {
-            builder.ConfigureServices(services =>
-            {
-                Chirp.CSVDB.CsvDataBase<Cheep>.Reset();
-                Chirp.CSVDB.CsvDataBase<Cheep>.Instance.SetPath(_tempPath);
-            });
-        });
-
-        Console.SetOut(new StringWriter());
+        var client = factory.CreateClient();
+        _cheepService = new CheepService(client);
     }
     
     
@@ -45,8 +33,7 @@ public class CheepServiceTest : IClassFixture<WebApplicationFactory<Services>>
     public async Task GetCheepsFromAuthor(string name)
     {
         //arrange
-        var service = new CheepService(); 
-        List<CheepViewModel> cheeps = await service.GetCheepsFromAuthor(name,1);
+        List<CheepViewModel> cheeps = await _cheepService.GetCheepsFromAuthor(name,1);
         
         
         foreach (CheepViewModel cheep in cheeps)

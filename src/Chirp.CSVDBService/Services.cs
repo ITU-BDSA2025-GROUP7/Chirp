@@ -65,8 +65,6 @@ public class Services
             var enumerable = cheeps.ToList();
             var returnCheeps = enumerable.Skip(startIndex).Take(PAGE_SIZE);
             
-            Console.WriteLine("Gving page nr:" + pageNr + " A total of " + returnCheeps.Count() + " was returned.");
-            
             return returnCheeps;
         });
         app.MapGet("/cheepsWithPageFromUser", (HttpRequest request) =>
@@ -83,8 +81,6 @@ public class Services
             var cheepsWithNameRestriction = cheeps.Where(x => x.Author == auther);
             int startIndex = (pageNr -1) * PAGE_SIZE;
             var returnCheeps = cheepsWithNameRestriction.Skip(startIndex).Take(PAGE_SIZE);
-            
-            Console.WriteLine("Gving page nr:" + pageNr + " With user: " + auther + " A total of " + returnCheeps.Count() + " was returned.");
             
             return returnCheeps;
         });

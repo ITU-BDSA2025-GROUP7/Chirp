@@ -27,8 +27,7 @@ public class ServicesTest : IClassFixture<WebApplicationFactory<Services>>, IDis
 
         Console.SetOut(new StringWriter());
     }
-
-  
+    
     
     // read tests 
     private async Task<List<Cheep>> GetCheepsAsync()
@@ -238,6 +237,11 @@ public class ServicesTest : IClassFixture<WebApplicationFactory<Services>>, IDis
         Assert.Equal("adho", secondCheep.Author);
         Assert.Equal("Welcome to the course!", secondCheep.Message);
         Assert.Equal(1690978778L, secondCheep.Timestamp);
+    }
+
+    public async Task readPage()
+    {
+        var client _factory.CreateClient();
     }
     
     public void Dispose()

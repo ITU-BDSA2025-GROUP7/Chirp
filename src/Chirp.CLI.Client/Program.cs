@@ -143,8 +143,10 @@ Options:
             URLwithPort = baseURL + port.ToString();
         }
         
-        /*Returns the URL of the website.
-         The URL might change depending on if the server is tarted with the environment variable ASPNETCORE_ENVIRONMENT set to test*/
+        /**
+         * Returns the URL of the website.
+         * The URL might change depending on if the server is tarted with the environment variable ASPNETCORE_ENVIRONMENT set to test
+         */
         public static string GetUrlWithPort()
         {
             if (URLwithPort != null)
