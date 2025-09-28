@@ -1,4 +1,7 @@
-﻿using System.Reflection;
+﻿using System.Data;
+using System.Reflection;
+using System.Security.Cryptography;
+using System.Text;
 using Chirp.CSVDB;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.FileProviders;
@@ -7,28 +10,37 @@ using SQL = SQLitePCL;
 namespace Chirp.DBFacade;
 
 /** Facade to be used for interacting with the SQL database. */
-public class DBFacade<T> : IDataBaseRepository<T> {
+public sealed class DBFacade<T> : IDisposable, IDataBaseRepository<T> { // where T : Cheep {
     private DBFacade() {
         SQL.raw.SetProvider(new SQL.SQLite3Provider_sqlite3());
+        _connection = Connect();
+        _connection.Open();
+        ExecuteCommandInFile(SCHEMA_PATH);
+        ExecuteCommandInFile(INITIAL_DATA_PATH);
     }
 
+    public bool HashUsernames { get; set; } = 
+        Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") != "Test";
+
+    public string DatabaseLocation { get; private set; } = DEFAULT_DATABASE_FILENAME;
+    
+    
     private static readonly Type Type = typeof(T);
     private static readonly string Name = typeof(T).Name;
     private const string DEFAULT_DATABASE_FILENAME = "Chirp.db";
     private const string SCHEMA_PATH = "data/schema.sql";
     private const string INITIAL_DATA_PATH = "data/dump.sql";
 
-    private readonly string _dbLocation =
-        Environment.GetEnvironmentVariable("CHIRPDBPATH") ?? "";
-
+    private readonly SqliteConnection _connection;
+    
     private static DBFacade<T>? _instance = null; //  ? makes it nullable
-    private static readonly Lock _padlock = new();
+    // ReSharper disable once StaticMemberInGenericType // <- The lock has to be static
+    private static readonly Lock Padlock = new();
 
     public static DBFacade<T> Instance {
         get {
-            lock (_padlock) {
-                _instance ??= new DBFacade<T>();
-                return _instance;
+            lock (Padlock) {
+                return _instance ??= new DBFacade<T>();
             }
         }
     }
@@ -37,54 +49,53 @@ public class DBFacade<T> : IDataBaseRepository<T> {
     private const string ReadQuery =
         "SELECT username, text, pub_date FROM message JOIN user ON author_id=user_id ORDER BY pub_date desc";
 
-    /** Insert the new record into the message table, supplying the 'author_id' field from the
-     * user table by selecting this as one of the values. If something goes wrong, the operation is
-     * aborted and any changes in progress are automatically rolled back. */
-    private static string PrepareInsertionCommand(string[] values) =>
-        "INSERT OR ROLLBACK INTO message (author_id, text, pub_date) " +
-        "VALUES (" +
-        "(SELECT DISTINCT user_id " +
-        "FROM user JOIN message ON author_id=user_id " +
-        $"WHERE username={values[0]}), {values[1]}, {values[2]})";
+    private static string PrepareInsertionCommand(string[] p) {
+        return "INSERT OR ROLLBACK INTO message (author_id, text, pub_date) " +
+            $"VALUES ((SELECT user_id FROM user WHERE username=@{p[0]} LIMIT 1), @{p[1]}, @{p[2]})";
+    }
+    /** Deterministically generates 8-character string based on input, with the first
+     * character of the resulting name always being the same as the input. */
+    public static string HashUserName(string input) {
+        if (input.Length == 0) {
+            throw new ArgumentException("Invalid username base: " + input);
+        }
+        var username = new List<byte>(32);
+        while (username.Count < 32) { // The hashing algorithm wants reasonably long input
+            username.AddRange(Encoding.UTF8.GetBytes(input));
+        }
+        byte[] hash = SHA256.HashData(username.ToArray());
+        for (var i = 0; i < 7; i++) {
+            hash[i] &= 0b0111_1111;  // Make it ASCII.
+            hash[i] %= 52;           // Map it to values 0-51 (26 letters * 2)
+            hash[i] += (byte)'A';    // Make it minimum A (which is #65 in ASCII).
+            if (hash[i] > (byte)'Z') hash[i] += 'a'-'Z'; // Skip the characters in-between cases
+        }
+        return string.Concat(input[0], Encoding.ASCII.GetString(hash)[..7]);
+    }
 
     /** Execute the given embedded file's SQL command, e.g. inserting schema or initial data. */
-    private static void ExecuteCommandInFile(SqliteConnection connection, string filename) {
+    private void ExecuteCommandInFile(string filename) {
         var embeddedProvider = new ManifestEmbeddedFileProvider(Assembly.GetExecutingAssembly());
         using Stream? reader = embeddedProvider.GetFileInfo(filename).CreateReadStream();
         using var sr = new StreamReader(reader);
         string query = sr.ReadToEnd();
 
-        connection.Open();
-        using SqliteTransaction transaction = connection.BeginTransaction();
-        SqliteCommand command = connection.CreateCommand();
-        command.Transaction = transaction;
+        SqliteCommand command = _connection.CreateCommand();
         command.CommandText = query;
-        command.ExecuteNonQuery();
-        transaction.Commit();
-        connection.Close();
+        CarefulInsert(command);
     }
 
     /** Connects to the database. If the file cannot be found, create a new one
      * in the user's temporary directory and initialise it. */
     private SqliteConnection Connect() {
-        if (File.Exists(_dbLocation)) {
-            return new SqliteConnection($"Data Source={_dbLocation}");
+        string dbLocation = Environment.GetEnvironmentVariable("CHIRPDBPATH") ?? "";
+        if (File.Exists(dbLocation)) {
+            return new SqliteConnection($"Data Source={dbLocation}");
         }
 
         string tempDir = Path.GetTempPath();
-        string dbFile = Path.Join(tempDir, DEFAULT_DATABASE_FILENAME);
-        var connection = new SqliteConnection($"Data Source={dbFile}");
-        ExecuteCommandInFile(connection, SCHEMA_PATH);
-        ExecuteCommandInFile(connection, INITIAL_DATA_PATH);
-        return connection;
-    }
-
-    /// Returns the correct query based on the input <tt>limit</tt>.
-    /// Expects <tt>limit</tt> to be positive.
-    private static string PrepareReadQuery(int? limit = null) {
-        if (limit.HasValue)
-            return string.Concat(ReadQuery, " LIMIT ", limit.ToString());
-        return ReadQuery;
+        DatabaseLocation = Path.Join(tempDir, DEFAULT_DATABASE_FILENAME);
+        return new SqliteConnection($"Data Source={DatabaseLocation}");
     }
 
     /** <inheritdoc cref="IDataBaseRepository{T}.Read(int?)"/>
@@ -92,28 +103,23 @@ public class DBFacade<T> : IDataBaseRepository<T> {
     public IEnumerable<T> Read(int? limit = null) {
         if (limit is 0) return [];
         if (limit is < 0) throw new ArgumentOutOfRangeException(nameof(limit));
-
-        using SqliteConnection connection = Connect();
-        connection.Open();
-        using SqliteCommand command = connection.CreateCommand();
-        command.CommandText = PrepareReadQuery(limit);
+        
+        using SqliteCommand command = _connection.CreateCommand();
+        command.CommandText = ReadQuery;
+        if (limit.HasValue) {
+            command.Parameters.Add(Parameter((int)limit, nameof(limit)));
+            command.CommandText += $" LIMIT @{nameof(limit)}";
+        }
+        command.Prepare();
         using SqliteDataReader reader = command.ExecuteReader();
 
         if (!reader.HasRows) return [];
-        if (reader.IsClosed) throw new SqliteException("The database reader is closed", 1);
         if (reader.FieldCount != Type.GetProperties().Length) { // Won't be able to convert
             throw new InvalidCastException("The number of columns returned (" + reader.FieldCount +
                                            ") does not match the number of properties in " +
                                            Name + " (" + Type.GetProperties().Length + ")");
         }
-
-        // Get the types of T's properties, and then the matching constructor method.
-        Type[] types = Type.GetProperties().Select(p => p.PropertyType).ToArray();
-        ConstructorInfo? constructor = Type.GetConstructor(types);
-        if (constructor == null) {
-            throw new MissingMethodException("Could not find a constructor for " + Name
-                + " which matches its property types.");
-        }
+        ConstructorInfo constructor = GetConstructor();
 
         var values = new object?[reader.FieldCount];
         var data = new List<T>();
@@ -127,76 +133,161 @@ public class DBFacade<T> : IDataBaseRepository<T> {
 
             data.Add((T)record);
         }
-
-        reader.Close();
-        connection.Close();
         return data;
     }
 
-    /** SQL escapes ' by putting another one before. */
-    private static string EscapeQuotes(string value) =>
-        value.Replace("'", "\'\'");
-
-    /** We add single-quotes around the string after making sure all apostrophes are
-     * properly escaped. */
-    private static string SanitiseString(string value) =>
-        '\'' + EscapeQuotes(value) + '\'';
-
-    /** Make sure everything is non-null and can be formatted into a string.
-     */
-    private static string[] PrepareValues(T record) {
-        PropertyInfo[] properties = Type.GetProperties();
-        Type stringType = typeof(string);
-        var values = new string[properties.Length];
-        for (var i = 0; i < properties.Length; i++) {
-            PropertyInfo p = properties[i];
-            object v = p.GetValue(record) ??
-                       throw new NullReferenceException("Value of " + p.Name + " is null.");
-            string s = v.ToString() ??
-                       throw new NullReferenceException("Value of " + p.Name +
-                                                        " could not be converted to a string.");
-            if (p.PropertyType == stringType) {
-                values[i] = SanitiseString(s);
-            } else {
-                values[i] = EscapeQuotes(s);
-            }
+    /** Returns the constructor for T. */
+    private static ConstructorInfo GetConstructor() {
+        Type[] types = Type.GetProperties().Select(p => p.PropertyType).ToArray();
+        ConstructorInfo? constructor = Type.GetConstructor(types);
+        if (constructor == null) {
+            throw new MissingMethodException("Could not find a constructor for " + Name
+                + " which matches its property types.");
         }
 
+        return constructor;
+    }
+
+    /** Automatically create SQL parameters based on the record's properties. */
+    private static List<SqliteParameter> PrepareValues(T record) {
+        PropertyInfo[] properties = Type.GetProperties();
+        var values = new List<SqliteParameter>();
+        foreach (PropertyInfo p in properties) {
+            if (p.GetValue(record) is null) {
+                throw new NullReferenceException("Value of " + p.Name + " is null.");
+            }
+            object value = p.GetValue(record)!;
+            if (p.PropertyType == typeof(string)) {
+                values.Add(Parameter((string)value, p.Name));
+            } else if (p.PropertyType == typeof(long)) {
+                values.Add(Parameter((long)value, p.Name));
+            } else
+                throw new ArgumentOutOfRangeException(value.GetType().Name + " not supported.");
+        }
         return values;
     }
 
-    public void Store(T record) {
-        using SqliteConnection connection = Connect();
-        connection.Open();
-        using SqliteCommand command = connection.CreateCommand();
-        string[] values = PrepareValues(record);
-        command.CommandText = PrepareInsertionCommand(values);
-        command.Transaction = connection.BeginTransaction();
-        int updatedRows;
+    private bool DoesUserExist(SqliteParameter user) {
+        using SqliteCommand command = _connection.CreateCommand();
+        command.Parameters.Add(user);
+        command.CommandText =
+            $"SELECT COUNT(user_id) FROM user WHERE username=@{user.ParameterName}";
+        command.Prepare();
+        object? scalar = command.ExecuteScalar();
+        var str = scalar?.ToString();
+        if (str == null) return false;
+        long count = long.Parse(str);
+        return count > 0;
+    }
+
+    /** Insert a new user into the database with the given username. */
+    private void CreateUser(SqliteParameter username) {
+        using SqliteCommand cmd = _connection.CreateCommand();
+        cmd.Parameters.Add(username);
+        SqliteParameter p = Parameter($"{username.Value}@itu.dk", "email");
+        cmd.Parameters.Add(p);
+        p = Parameter(Guid.NewGuid().ToString("N"), "pwHash");
+        cmd.Parameters.Add(p);
+        cmd.CommandText =
+            "INSERT OR ROLLBACK INTO user (username, email, pw_hash) VALUES (" +
+            $"@{cmd.Parameters[0].ParameterName},@{cmd.Parameters[1].ParameterName}," +
+            $"@{cmd.Parameters[2].ParameterName})";
+        cmd.Prepare();
+        CarefulInsert(cmd);
+    }
+
+    private static SqliteParameter Parameter(string value, string? name = null) {
+        return new SqliteParameter {
+            ParameterName = name ?? Guid.NewGuid().ToString("N"), // generate name if left out
+            Value = value,
+            DbType = DbType.String,
+            SqliteType = SqliteType.Text
+        };
+    }
+
+    private static SqliteParameter Parameter(long value, string? name = null) {
+        return new SqliteParameter {
+            ParameterName = name ?? Guid.NewGuid().ToString("N"),
+            Value = value,
+            DbType = DbType.Int64,
+            SqliteType = SqliteType.Integer
+        };
+    }
+
+    private static SqliteParameter Parameter(int value, string? name = null) {
+        return new SqliteParameter {
+            ParameterName = name ?? Guid.NewGuid().ToString("N"),
+            Value = value,
+            DbType = DbType.Int32,
+            SqliteType = SqliteType.Integer
+        };
+    }
+
+    /** Performs a transaction which can update the database. Returns number of
+     * rows that were updated.
+     * If any error happened during the transaction, then the changes are rolled
+     * back and an exception thrown.
+     */
+    private int CarefulInsert(SqliteCommand command) {
+        using SqliteTransaction transaction = _connection.BeginTransaction();
+        command.Transaction = transaction;
+        int rowsUpdated;
         try {
-            updatedRows = command.ExecuteNonQuery();
+            rowsUpdated = command.ExecuteNonQuery();
         } catch {
             command.Transaction.Rollback();
-            connection.Close();
-            Console.Error.WriteLine("A(n) SQLite error occured during execution of the command." +
-                                    "The transaction has been rolled back.");
-            throw;
+            Console.Error.WriteLine("A(n) SQLite error occured during execution of the command.");
+            throw; // Throw the exception we caught here.
+        }
+        transaction.Commit();
+        return rowsUpdated;
+    }
+
+    /** Helpful for testing. */
+    private void ReadUsers() {
+        SqliteCommand cmd = _connection.CreateCommand();
+        cmd.CommandText = "SELECT * FROM user";
+        using SqliteDataReader reader = cmd.ExecuteReader();
+        while (reader.Read()) {
+            for (int i = 0; i < reader.FieldCount; i++) {
+                Console.Write(reader.GetString(i) + "  ");
+            }
+            Console.WriteLine();
+        }
+    }
+    
+    /** Helpful for testing. */
+    private long GetRecordCount() {
+        SqliteCommand cmd = _connection.CreateCommand();
+        cmd.CommandText = "SELECT COUNT(*) FROM message";
+        object? val = cmd.ExecuteScalar();
+        if (val != null) {
+            return (long)val;
         }
 
-        switch (updatedRows) {
-            case 0:
-                command.Transaction.Rollback();
-                connection.Close();
-                throw new Exception("Could not insert record.");
-            case > 1:
-                command.Transaction.Rollback();
-                connection.Close();
-                throw new Exception("More than one row was updated during execution of the command.");
-            // The only case where the transaction was successful is when precisely one row was added.
-            case 1:
-                command.Transaction.Commit();
-                connection.Close();
-                break;
+        return -1;
+    }
+
+    public void Store(T record) {
+        List<SqliteParameter> values = PrepareValues(record);
+        values[0].Value = HashUserName(values[0].Value!.ToString()!);
+        if (!DoesUserExist(values[0])) {
+            CreateUser(values[0]);
         }
+        using SqliteCommand cmd = _connection.CreateCommand();
+        cmd.Parameters.AddRange(values);
+        string[] names = values.Select(p => p.ParameterName).ToArray();
+        cmd.CommandText = PrepareInsertionCommand(names);
+        cmd.Prepare();
+        CarefulInsert(cmd);
+    }
+
+    public void Dispose() {
+        _connection.Close();
+        _connection.Dispose();
+    }
+
+    public void Reset() {
+        _instance = null;
     }
 }

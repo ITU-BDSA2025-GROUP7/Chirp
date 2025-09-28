@@ -20,7 +20,7 @@
         public static Cheep Assemble(string message) {
             return new Cheep(
                 Environment.UserName, 
-                "\"" + message + "\"", 
+                message, 
                 DateTimeOffset.UtcNow.ToUnixTimeSeconds());
         }
     }
