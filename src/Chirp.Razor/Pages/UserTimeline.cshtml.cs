@@ -15,7 +15,7 @@ public class UserTimelineModel : CheepTimelineModel
         
         Console.WriteLine("pageQuery: " + pageNr);
         
-        Cheeps = await _service.GetCheepsFromAuthor(author,1);
+        Cheeps = await _service.GetCheepsFromAuthor(author,pageNr);
         return Page();
     }
 }

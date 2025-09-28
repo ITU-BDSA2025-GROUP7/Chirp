@@ -25,7 +25,7 @@ public abstract class CheepTimelineModel : PageModel
     protected int getPageNr(HttpRequest request)
     {
         StringValues pageQuery = Request.Query["page"];
-        int pageNr; // page number starts at 1 as requested by session_05 1.b)
+        int pageNr;
         int.TryParse(pageQuery, out pageNr);
         if  (pageNr == 0) pageNr = 1; // if parsing failed, set page number to 1 as requested by session_05 1.b)
         return pageNr;
