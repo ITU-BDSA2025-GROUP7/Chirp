@@ -46,6 +46,17 @@ public class Services {
             db.Store(cheep);
             return "Cheep stored.";
         });
+        
+        
+        //Temporary Api's for development that should no longer be here after issue #44 is fixed
+        /*app.MapGet("/cheepsWithPage", () =>
+        {
+            
+
+        });
+        */
+        
+        
         app.Run(port);
     }
 }

@@ -8,8 +8,8 @@ public record CheepViewModel(string Author, string Message, string Timestamp);
 
 public interface ICheepService
 {
-    public  Task<List<CheepViewModel>> GetCheeps();
-    public  Task<List<CheepViewModel>> GetCheepsFromAuthor(string author);
+    public  Task<List<CheepViewModel>> GetCheeps(int pageNr);
+    public  Task<List<CheepViewModel>> GetCheepsFromAuthor(string author, int pageNr);
 }
 
 public class CheepService : ICheepService
@@ -19,8 +19,7 @@ public class CheepService : ICheepService
    
     private static readonly List<CheepViewModel>? _cheeps  = new();
    
-    public async Task<List<CheepViewModel>> GetCheeps()
-{
+    public async Task<List<CheepViewModel>> GetCheeps(int pageNr) {
     using var client = new HttpClient();
     client.DefaultRequestHeaders.Accept.Clear();
     client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
@@ -32,13 +31,11 @@ public class CheepService : ICheepService
         c.Message,
         UnixTimeStampToDateTimeString(c.Timestamp)
     )).ToList();
-	
-   
-}
+    }
 
-public async Task<List<CheepViewModel>> GetCheepsFromAuthor(string author)
+public async Task<List<CheepViewModel>> GetCheepsFromAuthor(string author, int pageNr)
 {
-    var cheeps = await GetCheeps();
+    var cheeps = await GetCheeps(1);
     return cheeps.Where(x => x.Author == author).ToList();
 }
 
@@ -91,14 +88,14 @@ private static async Task<string> MessageServer(Cheep cheep)
         // Decide URL depending on environment 
         string environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")!;
         IConfigurationRoot config = new ConfigurationBuilder()
-            .AddJsonFile("appsettings.json")
-            .AddJsonFile($"appsettings.{environment}.json", optional:true)
+            .AddJsonFile("appsettings.Razor.json")
+            .AddJsonFile($"appsettings.Razor.{environment}.json", optional:true)
             .Build();
             
-        baseURL = config["AppSettings:BaseURL"] ??  "http://localhost:5000";
-		//baseURL = "http://localhost:5000";
+        baseURL = config["AppSettings:BaseURL"] ?? throw new InvalidOperationException("Confing BaseURL is missing.");
         if (environment == "Test") URLwithPort = baseURL + config["AppSettings:DefaultPort"];
         else URLwithPort = baseURL;
+        Console.WriteLine("Listening on: " +  URLwithPort);
             
         return URLwithPort;
             

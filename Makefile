@@ -47,6 +47,10 @@ start-services:
 start-razer:
 	dotnet run --project src/Chirp.Razor
 
+# starts the razer application on local host that's connected to the localHost:5000 services application
+start-razer-local:
+	dotnet run --project src/Chirp.Razor ${ENV}
+
 # Runs all the tests in the solution
 test:
 	dotnet test ${ENV}
