@@ -20,6 +20,12 @@
 
     <ItemGroup>
         <EmbeddedResource Include="data/**/*" />
+        <EmbeddedResource Include="sqlite3.def">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </EmbeddedResource>
+        <EmbeddedResource Include="sqlite3.dll">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </EmbeddedResource>
     </ItemGroup>
     
 </Project>
