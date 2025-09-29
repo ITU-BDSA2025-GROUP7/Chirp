@@ -6,7 +6,7 @@ namespace Chirp.CSVDBService;
 
 public class Services
 {
-    private int PAGE_SIZE = 3;
+    public static int PAGE_SIZE = 3;
     
     // required to start the server
     public static void Main(string[] args)

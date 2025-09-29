@@ -14,6 +14,9 @@ public class CheepServiceTest : IClassFixture<WebApplicationFactory<Services>>
 
     public CheepServiceTest(WebApplicationFactory<Services> factory)
     {
+        // does so no extra infomation is printed in the console
+        Console.SetOut(new StringWriter());
+        
         var client = factory.CreateClient();
         _cheepService = new CheepService(client);
     }

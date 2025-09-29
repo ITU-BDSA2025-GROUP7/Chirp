@@ -44,11 +44,11 @@ start-services:
 	dotnet run --project src/Chirp.CSVDBService ${n}
 
 # starts the razer application on local host that's connected to the assure services application
-start-razer:
+start-razor:
 	dotnet run --project src/Chirp.Razor
 
 # starts the razer application on local host that's connected to the localHost:5000 services application
-start-razer-local:
+start-razor-local:
 	dotnet run --project src/Chirp.Razor ${ENV}
 
 # Runs all the tests in the solution

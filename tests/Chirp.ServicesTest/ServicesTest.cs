@@ -238,11 +238,86 @@ public class ServicesTest : IClassFixture<WebApplicationFactory<Services>>, IDis
         Assert.Equal("Welcome to the course!", secondCheep.Message);
         Assert.Equal(1690978778L, secondCheep.Timestamp);
     }
-
+    
+    // test that we can read a page and get a result that is of length PAGE_SIZE
+    [Fact]
     public async Task readPage()
     {
-        var client _factory.CreateClient();
+        // anrange
+        var client = _factory.CreateClient();
+        
+        // act
+        var response = await client.GetAsync("/cheepsWithPage?page=1");
+        
+        //assert
+        var page1 = await response.Content.ReadFromJsonAsync<List<Cheep>>() ?? new List<Cheep>();
+        Assert.Equal(Services.PAGE_SIZE, page1.Count);
     }
+    
+    // test that when changing the page we get differen answers
+    [Fact]
+    public async Task pagesAreUnique()
+    {
+        // arrange
+        var client = _factory.CreateClient();
+        
+        // act
+        var response1 = await client.GetAsync("/cheepsWithPage?page=1");
+        var response2 = await client.GetAsync("/cheepsWithPage?page=2");
+
+        // assert
+        var page1 =  await response1.Content.ReadFromJsonAsync<List<Cheep>>() ?? new List<Cheep>();
+        var page2 = await response2.Content.ReadFromJsonAsync<List<Cheep>>() ?? new List<Cheep>();
+        Assert.Equal(page1.Count, page2.Count);
+        for (var i = 0; i < page1.Count; i++)
+        {
+            bool equalAuthor = page1[i].Author == page2[i].Author;
+            bool equalMessage = page1[i].Message == page2[i].Message;
+            bool equalTimestamp = page1[i].Timestamp == page2[i].Timestamp;
+            Assert.False(equalAuthor &&  equalMessage && equalTimestamp); // they should not be equal
+        }
+    }
+    
+    //test that we can ask for a page witch does not exist
+    [Fact]
+    public async Task pagesDoesNotExist()
+    {
+        // arrange
+        var client = _factory.CreateClient();
+        int max = Int32.MaxValue;
+        
+        // act
+        var response = await client.GetAsync("/cheepsWithPage?page=" + max);
+        
+        // assert
+        var page = await response.Content.ReadFromJsonAsync<List<Cheep>>() ?? new  List<Cheep>();
+        Assert.Empty(page);
+    }
+    
+    // test that when changing the page we get differen answers. Even when we ask by name
+    [Fact]
+    public async Task pagesAreUniqueButHasSameName()
+    {
+        // arrange
+        var client = _factory.CreateClient();
+        
+        // act
+        var response1 = await client.GetAsync("/cheepsWithPage?page=1");
+        var response2 = await client.GetAsync("/cheepsWithPage?page=2");
+
+        // assert
+        var page1 =  await response1.Content.ReadFromJsonAsync<List<Cheep>>() ?? new List<Cheep>();
+        var page2 = await response2.Content.ReadFromJsonAsync<List<Cheep>>() ?? new List<Cheep>();
+        Assert.Equal(page1.Count, page2.Count);
+        for (var i = 0; i < page1.Count; i++)
+        {
+            bool equalAuthor = page1[i].Author == page2[i].Author;
+            bool equalMessage = page1[i].Message == page2[i].Message;
+            bool equalTimestamp = page1[i].Timestamp == page2[i].Timestamp;
+            Assert.False(equalAuthor &&  equalMessage && equalTimestamp); // they should not be equal
+        }
+    }
+    
     
     public void Dispose()
     {
