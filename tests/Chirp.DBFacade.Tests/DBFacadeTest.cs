@@ -41,15 +41,6 @@ public class DBFacadeTest : IDisposable {
         IDataBaseRepository<Cheep> database = Implementation;
         Assert.NotNull(database);
     }
-
-    /** Asserts that an ArgumentOutOfRangeException is thrown when trying to read
-     * a negative number of records. */
-    [Theory]
-    [InlineData(-1)]
-    [InlineData(-2)]
-    public void ReadNegative(int limit) {
-        Assert.Throws<ArgumentOutOfRangeException>(() => Implementation.Read(limit));
-    }
     
     /** Asserts that you can have a space in the username, that storing a message
      * with a single apostrophe in it works, that you can have a name that doesn't exist
@@ -62,15 +53,16 @@ public class DBFacadeTest : IDisposable {
     [InlineData("adgrardgaed", "'I have no user-name, and I must scream'", long.MaxValue)]
     public void Store(string author, string message, long timestamp) {
         IDataBaseRepository<Cheep> database = Implementation;
-        IEnumerable<Cheep> recordsBefore = Implementation.Read();
+        IEnumerable<Cheep> recordsBefore = database.Read();
+        Cheep[] before = recordsBefore as Cheep[] ?? recordsBefore.ToArray();
         var record = new Cheep(author, message, timestamp);
         database.Store(record);
-        IEnumerable<Cheep> recordsAfter = Implementation.Read();
-        Cheep[] enumerable = recordsAfter as Cheep[] ?? recordsAfter.ToArray();
-        Assert.Equal(recordsBefore.Count() + 1, enumerable.Length);
+        IEnumerable<Cheep> recordsAfter = database.Read();
+        Cheep[] after = recordsAfter as Cheep[] ?? recordsAfter.ToArray();
+        Assert.Equal(before.Length + 1, after.Length);
         
         var cheep = new Cheep(author, message, timestamp);
-        Assert.Contains(cheep, enumerable); // Not deterministic which is actually first.
+        Assert.Contains(cheep, after); // Not deterministic which is actually first.
     }
 
     /** Asserts that the usernames produced by HashUserName() are always 8 characters

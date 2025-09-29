@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection.Metadata;
 using Chirp.CSVDB;
 using Chirp.General;
 using JetBrains.Annotations;
@@ -10,12 +11,16 @@ using Xunit;
 namespace Chirp.DBFacade.Tests;
 
 [TestSubject(typeof(DBFacade<>))]
-public class ReadTests {
+public class ReadTests : IDisposable {
+    private static IDataBaseRepository<Cheep> Implementation => 
+        DBFacade<Cheep>.Instance;
+    
     public ReadTests() {
         // The file has to be embedded in the project settings, see Chirp.DBFacade.Tests.csproj.
         Environment.SetEnvironmentVariable(DBEnv.envCHIRPDBPATH, Guid.NewGuid().ToString("N") + ".db");
         Environment.SetEnvironmentVariable(DBEnv.envSCHEMA, "data/schema.sql");
         Environment.SetEnvironmentVariable(DBEnv.envDATA, "data/dump.sql");
+        DBFacade<Cheep>.Reset();
         Console.SetOut(new StringWriter());
     }
 
@@ -42,5 +47,21 @@ public class ReadTests {
         } else {
             Assert.Equal(expectedCount, arr.ToList().Count);
         }
+    }
+
+    /** Asserts that an ArgumentOutOfRangeException is not thrown when trying to read
+     * a negative number of records. */
+    [Theory]
+    [InlineData(-1)]
+    [InlineData(-2)]
+    public void ReadNegative(int limit) {
+        IDataBaseRepository<Cheep> database = DBFacade<Cheep>.Instance;
+        IEnumerable<Cheep> recordsBefore = database.Read(limit);
+        Cheep[] before = recordsBefore as Cheep[] ?? recordsBefore.ToArray();
+        Assert.Empty(before);
+    }
+
+    public void Dispose() {
+        DBFacade<Cheep>.Reset();
     }
 }

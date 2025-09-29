@@ -48,11 +48,11 @@ public sealed class DBFacade<T> : IDisposable, IDataBaseRepository<T> where T : 
         }
     }
 
-    /** <inheritdoc cref="IDataBaseRepository{T}.Read(int?)"/>
-    <exception cref="ArgumentOutOfRangeException">If a negative value is provided.</exception> */
+    /** <inheritdoc cref="IDataBaseRepository{T}.Read(int?)"/> */
     public IEnumerable<T> Read(int? limit = null) {
-        if (limit is 0) return [];
-        if (limit is < 0) throw new ArgumentOutOfRangeException(nameof(limit));
+        if (limit is <= 0) {
+            yield break;
+        }
 
         using SqliteCommand command = _connection.CreateCommand();
         SqliteParameter? p = null;
@@ -65,7 +65,7 @@ public sealed class DBFacade<T> : IDisposable, IDataBaseRepository<T> where T : 
         command.Prepare();
         using SqliteDataReader reader = command.ExecuteReader();
 
-        if (!reader.HasRows) return [];
+        if (!reader.HasRows) yield break;
         if (reader.FieldCount != typeof(T).GetProperties().Length) { // Won't be able to convert
             throw new InvalidCastException("The number of columns returned (" + reader.FieldCount +
                                            ") does not match the number of properties in " +
@@ -74,7 +74,6 @@ public sealed class DBFacade<T> : IDisposable, IDataBaseRepository<T> where T : 
 
         ConstructorInfo constructor = GetConstructor();
         var values = new object?[reader.FieldCount];
-        var data = new List<T>();
         while (reader.Read()) {
             reader.GetValues(values); // stores current row in 'values'
             object? record = constructor.Invoke(values); // call constructor with params from 'values'
@@ -84,10 +83,8 @@ public sealed class DBFacade<T> : IDisposable, IDataBaseRepository<T> where T : 
                     + typeof(T).Name);
             }
 
-            data.Add((T)record);
+            yield return (T)record;
         }
-
-        return data;
     }
 
     /** <inheritdoc cref="IDataBaseRepository{T}.Store(T)"/> */
