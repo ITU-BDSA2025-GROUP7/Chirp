@@ -6,6 +6,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <AssemblyName>Chirp.ServicesTest</AssemblyName>
+        <GenerateEmbeddedFilesManifest>true</GenerateEmbeddedFilesManifest>
     </PropertyGroup>
 
     <ItemGroup>
@@ -15,6 +16,10 @@
         <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" />
         <ProjectReference Include="../../src/Chirp.CSVDBService/Chirp.CSVDBService.csproj" />
         <InternalsVisibleTo Include="../../src/Chirp.CSVDBService/Chirp.CSVDBService.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <EmbeddedResource Include="data\testDump.sql" />
     </ItemGroup>
 
 </Project>
