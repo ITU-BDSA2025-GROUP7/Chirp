@@ -57,7 +57,7 @@ tclient:
 
 # Runs database tests
 tdatabase:
-	dotnet test $(ENV) tests/Chirp.CSVDB.Tests
+	dotnet test $(ENV) tests/Chirp.DBFacade.Tests
 
 # Runs service tests
 tservice:

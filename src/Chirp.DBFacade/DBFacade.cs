@@ -76,13 +76,7 @@ public sealed class DBFacade<T> : IDisposable, IDataBaseRepository<T> where T : 
         var values = new object?[reader.FieldCount];
         while (reader.Read()) {
             reader.GetValues(values); // stores current row in 'values'
-            object? record = constructor.Invoke(values); // call constructor with params from 'values'
-            if (record == null) {
-                throw new NullReferenceException(
-                    "Record is null; something went wrong while invoking the constructor of "
-                    + typeof(T).Name);
-            }
-
+            object record = constructor.Invoke(values); // call constructor with params from 'values'
             yield return (T)record;
         }
     }
