@@ -1,4 +1,4 @@
-﻿using System.Data;
+﻿using System.Collections;
 using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
@@ -14,27 +14,29 @@ namespace Chirp.DBFacade;
 public sealed class DBFacade<T> : IDisposable, IDataBaseRepository<T> { // where T : Cheep {
     private DBFacade() {
         SQL.raw.SetProvider(new SQL.SQLite3Provider_sqlite3());
-        _connection = Connect();
-        _connection.Open();
-        ExecuteCommandInFile(SCHEMA_PATH);
-        ExecuteCommandInFile(INITIAL_DATA_PATH);
+        (_connection, bool hasToInitialise) = Connect();
+        if (hasToInitialise)
+            Init();
     }
 
-    public bool HashUsernames { get; set; } = 
+    private bool HashUsernames { get; set; } =
         Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") != "Test";
 
-    public string DatabaseLocation { get; private set; } = DEFAULT_DATABASE_FILENAME;
-    
-    
+    public string DatabaseLocation { get; private set; } = DEFAULT_DATABASE_DIR 
+                                                           + Path.PathSeparator 
+                                                           + DEFAULT_DATABASE_FILENAME;
+
     private static readonly Type Type = typeof(T);
     private static readonly string Name = typeof(T).Name;
+    private const string DEFAULT_DATABASE_DIR = "data";
     private const string DEFAULT_DATABASE_FILENAME = "Chirp.db";
-    private const string SCHEMA_PATH = "data/schema.sql";
-    private const string INITIAL_DATA_PATH = "data/dump.sql";
+    private const string DEFAULT_SCHEMA_PATH = "data/schema.sql";
+    private const string DEFAULT_INITIAL_DATA_PATH = "data/dump.sql";
 
     private readonly SqliteConnection _connection;
-    
-    private static DBFacade<T>? _instance = null; //  ? makes it nullable
+
+    private static DBFacade<T>? _instance = null;
+
     // ReSharper disable once StaticMemberInGenericType // <- The lock has to be static
     private static readonly Lock Padlock = new();
 
@@ -44,59 +46,6 @@ public sealed class DBFacade<T> : IDisposable, IDataBaseRepository<T> { // where
                 return _instance ??= new DBFacade<T>();
             }
         }
-    }
-    
-    /** Return [username, text, pub_date] */
-    private const string ReadQuery =
-        "SELECT username, text, pub_date FROM message JOIN user ON author_id=user_id ORDER BY pub_date desc";
-
-    private static string PrepareInsertionCommand(string[] p) {
-        return "INSERT OR ROLLBACK INTO message (author_id, text, pub_date) " +
-            $"VALUES ((SELECT user_id FROM user WHERE username=@{p[0]} LIMIT 1), @{p[1]}, @{p[2]})";
-    }
-    /** Deterministically generates 8-character string based on input, with the first
-     * character of the resulting name always being the same as the input. */
-    public static string HashUserName(string input) {
-        if (input.Length == 0) {
-            throw new ArgumentException("Invalid username base: " + input);
-        }
-        var username = new List<byte>(32);
-        while (username.Count < 32) { // The hashing algorithm wants reasonably long input
-            username.AddRange(Encoding.UTF8.GetBytes(input));
-        }
-        byte[] hash = SHA256.HashData(username.ToArray());
-        for (var i = 0; i < 7; i++) {
-            hash[i] &= 0b0111_1111;  // Make it ASCII.
-            hash[i] %= 52;           // Map it to values 0-51 (26 letters * 2)
-            hash[i] += (byte)'A';    // Make it minimum A (which is #65 in ASCII).
-            if (hash[i] > (byte)'Z') hash[i] += 'a'-'Z'; // Skip the characters in-between cases
-        }
-        return string.Concat(input[0], Encoding.ASCII.GetString(hash)[..7]);
-    }
-
-    /** Execute the given embedded file's SQL command, e.g. inserting schema or initial data. */
-    private void ExecuteCommandInFile(string filename) {
-        var embeddedProvider = new ManifestEmbeddedFileProvider(Assembly.GetExecutingAssembly());
-        using Stream? reader = embeddedProvider.GetFileInfo(filename).CreateReadStream();
-        using var sr = new StreamReader(reader);
-        string query = sr.ReadToEnd();
-
-        SqliteCommand command = _connection.CreateCommand();
-        command.CommandText = query;
-        CarefulInsert(command);
-    }
-
-    /** Connects to the database. If the file cannot be found, create a new one
-     * in the user's temporary directory and initialise it. */
-    private SqliteConnection Connect() {
-        string dbLocation = Environment.GetEnvironmentVariable("CHIRPDBPATH") ?? "";
-        if (File.Exists(dbLocation)) {
-            return new SqliteConnection($"Data Source={dbLocation}");
-        }
-
-        string tempDir = Path.GetTempPath();
-        DatabaseLocation = Path.Join(tempDir, DEFAULT_DATABASE_FILENAME);
-        return new SqliteConnection($"Data Source={DatabaseLocation}");
     }
 
     /** <inheritdoc cref="IDataBaseRepository{T}.Read(int?)"/>
@@ -141,6 +90,109 @@ public sealed class DBFacade<T> : IDisposable, IDataBaseRepository<T> { // where
         return data;
     }
 
+    public void Store(T record) {
+        List<SqliteParameter> values = PrepareValues(record);
+        if (HashUsernames)
+            values[0].Value = HashUserName(values[0].Value!.ToString()!);
+        bool exists = DoesUserExist(values[0]);
+        if (!exists) {
+            CreateUser(values[0]);
+        }
+
+        using SqliteCommand cmd = _connection.CreateCommand();
+        cmd.Parameters.AddRange(values);
+        string[] names = values.Select(p => p.ParameterName).ToArray();
+        cmd.CommandText = Queries.PrepareInsertionCommand(names);
+        cmd.Prepare();
+        CarefulInsert(cmd);
+    }
+
+    /** Connects to the database. If the file cannot be found or opened, create
+     * a new one in the user's temporary directory.<br/>
+     * Returns a tuple containing the SqliteConnection and whether the file is
+     * new, and therefore needs to be initialised. */
+    private (SqliteConnection, bool) Connect() {
+        DatabaseLocation = Environment.GetEnvironmentVariable(DBEnv.envCHIRPDBPATH) ?? 
+                           Path.Join(DEFAULT_DATABASE_DIR, DEFAULT_DATABASE_FILENAME);
+        var str = $"Data Source={DatabaseLocation}; Mode=ReadWrite";
+        var conn = new SqliteConnection(str);
+        Console.WriteLine("Creating SQL connection with connection string:\n  " + conn.ConnectionString);
+        try {
+            conn.Open();
+            Console.WriteLine("Connection opened.");
+            return (conn, false);
+        } catch {
+            Console.WriteLine("Unable to open existing database in\n  " + conn.DataSource);
+        }
+        
+        string tempDir = Path.GetTempPath();
+        string tempName = Environment.GetEnvironmentVariable(DBEnv.envCHIRPDBPATH) 
+                          ?? DEFAULT_DATABASE_FILENAME;
+        DatabaseLocation = Path.Join(tempDir, tempName);
+        Console.WriteLine("Creating new database in temporary directory:\n  " + DatabaseLocation);
+        conn = new SqliteConnection($"Data Source={DatabaseLocation}");
+        try {
+            conn.Open();
+            Console.WriteLine("Connection opened.");
+            return (conn, true);
+        } catch (SqliteException ex) {
+            if (ex.SqliteErrorCode == 14) {
+                Console.Error.WriteLine("Failed to open database in temporary directory:\n  " + conn.DataSource);
+            }
+
+            throw;
+        }
+    }
+
+    private void Init() {
+        IDictionary env = Environment.GetEnvironmentVariables();
+        object? variable = env["CHIRPDB_SCHEMA"];
+        string schema = variable?.ToString() ?? DEFAULT_SCHEMA_PATH;
+        ExecuteEmbeddedFile(schema);
+        
+        variable = env["CHIRPDB_DATA"];
+        string dump = variable?.ToString() ?? DEFAULT_INITIAL_DATA_PATH;
+        ExecuteEmbeddedFile(dump);
+    }
+
+    /** Execute the given embedded file's SQL command, e.g. inserting schema or initial data. */
+    private void ExecuteEmbeddedFile(string filename) {
+        var embeddedProvider = new ManifestEmbeddedFileProvider(Assembly.GetExecutingAssembly());
+        IFileInfo f = embeddedProvider.GetFileInfo(filename);
+        if (!f.Exists)
+            throw new FileNotFoundException(f.Name);
+        using Stream? reader = f.CreateReadStream();
+        using var sr = new StreamReader(reader);
+        string query = sr.ReadToEnd();
+
+        SqliteCommand command = _connection.CreateCommand();
+        command.CommandText = query;
+        CarefulInsert(command);
+    }
+
+    /** Deterministically generates 8-character string based on input, with the first
+     * character of the resulting name always being the same as the input. */
+    public static string HashUserName(string input) {
+        if (input.Length == 0) {
+            throw new ArgumentException("Invalid username base: " + input);
+        }
+
+        var username = new List<byte>(32);
+        while (username.Count < 32) { // The hashing algorithm wants reasonably long input
+            username.AddRange(Encoding.UTF8.GetBytes(input));
+        }
+
+        byte[] hash = SHA256.HashData(username.ToArray());
+        for (var i = 0; i < 7; i++) {
+            hash[i] &= 0b0111_1111; // Make it ASCII.
+            hash[i] %= 52; // Map it to values 0-51 (26 letters * 2)
+            hash[i] += (byte)'A'; // Make it minimum A (which is #65 in ASCII).
+            if (hash[i] > (byte)'Z') hash[i] += 'a' - 'Z'; // Skip the characters in-between cases
+        }
+
+        return string.Concat(input[0], Encoding.ASCII.GetString(hash)[..7]);
+    }
+
     /** Returns the constructor for T. */
     private static ConstructorInfo GetConstructor() {
         Type[] types = Type.GetProperties().Select(p => p.PropertyType).ToArray();
@@ -161,22 +213,23 @@ public sealed class DBFacade<T> : IDisposable, IDataBaseRepository<T> { // where
             if (p.GetValue(record) is null) {
                 throw new NullReferenceException("Value of " + p.Name + " is null.");
             }
+
             object value = p.GetValue(record)!;
             if (p.PropertyType == typeof(string)) {
-                values.Add(Parameter((string)value, p.Name));
+                values.Add(NewParam((string)value, p.Name));
             } else if (p.PropertyType == typeof(long)) {
-                values.Add(Parameter((long)value, p.Name));
+                values.Add(NewParam((long)value, p.Name));
             } else
                 throw new ArgumentOutOfRangeException(value.GetType().Name + " not supported.");
         }
+
         return values;
     }
 
     private bool DoesUserExist(SqliteParameter user) {
         using SqliteCommand command = _connection.CreateCommand();
         command.Parameters.Add(user);
-        command.CommandText =
-            $"SELECT COUNT(user_id) FROM user WHERE username=@{user.ParameterName}";
+        command.CommandText = Queries.CountMatchingUsernames(user);
         command.Prepare();
         object? scalar = command.ExecuteScalar();
         var str = scalar?.ToString();
@@ -186,46 +239,14 @@ public sealed class DBFacade<T> : IDisposable, IDataBaseRepository<T> { // where
     }
 
     /** Insert a new user into the database with the given username. */
-    private void CreateUser(SqliteParameter username) {
+    private int CreateUser(SqliteParameter username) {
         using SqliteCommand cmd = _connection.CreateCommand();
         cmd.Parameters.Add(username);
-        SqliteParameter p = Parameter($"{username.Value}@itu.dk", "email");
-        cmd.Parameters.Add(p);
-        p = Parameter(Guid.NewGuid().ToString("N"), "pwHash");
-        cmd.Parameters.Add(p);
-        cmd.CommandText =
-            "INSERT OR ROLLBACK INTO user (username, email, pw_hash) VALUES (" +
-            $"@{cmd.Parameters[0].ParameterName},@{cmd.Parameters[1].ParameterName}," +
-            $"@{cmd.Parameters[2].ParameterName})";
+        cmd.Add($"{username.Value}@itu.dk", "email");
+        cmd.Add(Guid.NewGuid().ToString("N"), "pwHash");
+        cmd.CommandText = Queries.InsertUser(cmd.Parameters);
         cmd.Prepare();
-        CarefulInsert(cmd);
-    }
-
-    private static SqliteParameter Parameter(string value, string? name = null) {
-        return new SqliteParameter {
-            ParameterName = name ?? Guid.NewGuid().ToString("N"), // generate name if left out
-            Value = value,
-            DbType = DbType.String,
-            SqliteType = SqliteType.Text
-        };
-    }
-
-    private static SqliteParameter Parameter(long value, string? name = null) {
-        return new SqliteParameter {
-            ParameterName = name ?? Guid.NewGuid().ToString("N"),
-            Value = value,
-            DbType = DbType.Int64,
-            SqliteType = SqliteType.Integer
-        };
-    }
-
-    private static SqliteParameter Parameter(int value, string? name = null) {
-        return new SqliteParameter {
-            ParameterName = name ?? Guid.NewGuid().ToString("N"),
-            Value = value,
-            DbType = DbType.Int32,
-            SqliteType = SqliteType.Integer
-        };
+        return CarefulInsert(cmd);
     }
 
     /** Performs a transaction which can update the database. Returns number of
@@ -244,27 +265,28 @@ public sealed class DBFacade<T> : IDisposable, IDataBaseRepository<T> { // where
             Console.Error.WriteLine("A(n) SQLite error occured during execution of the command.");
             throw; // Throw the exception we caught here.
         }
+
         transaction.Commit();
         return rowsUpdated;
     }
 
     /** Helpful for testing. */
-    private void ReadUsers() {
-        SqliteCommand cmd = _connection.CreateCommand();
-        cmd.CommandText = "SELECT * FROM user";
+    public void ReadUsers() {
+        using SqliteCommand cmd = _connection.CreateCommand();
+        cmd.CommandText = Queries.SelectAllUsers;
         using SqliteDataReader reader = cmd.ExecuteReader();
         while (reader.Read()) {
             for (int i = 0; i < reader.FieldCount; i++) {
                 Console.Write(reader.GetString(i) + "  ");
             }
+
             Console.WriteLine();
         }
     }
-    
-    /** Helpful for testing. */
-    private long GetRecordCount() {
-        SqliteCommand cmd = _connection.CreateCommand();
-        cmd.CommandText = "SELECT COUNT(*) FROM message";
+
+    private long Count(string command) {
+        using SqliteCommand cmd = _connection.CreateCommand();
+        cmd.CommandText = command;
         object? val = cmd.ExecuteScalar();
         if (val != null) {
             return (long)val;
@@ -273,18 +295,14 @@ public sealed class DBFacade<T> : IDisposable, IDataBaseRepository<T> { // where
         return -1;
     }
 
-    public void Store(T record) {
-        List<SqliteParameter> values = PrepareValues(record);
-        values[0].Value = HashUserName(values[0].Value!.ToString()!);
-        if (!DoesUserExist(values[0])) {
-            CreateUser(values[0]);
-        }
-        using SqliteCommand cmd = _connection.CreateCommand();
-        cmd.Parameters.AddRange(values);
-        string[] names = values.Select(p => p.ParameterName).ToArray();
-        cmd.CommandText = PrepareInsertionCommand(names);
-        cmd.Prepare();
-        CarefulInsert(cmd);
+    /** Helpful for testing. */
+    public long GetUserCount() {
+        return Count(Queries.CountUsers);
+    }
+
+    /** Helpful for testing. */
+    public long GetRecordCount() {
+        return Count(Queries.CountMessages);
     }
 
     public void Dispose() {
@@ -292,7 +310,8 @@ public sealed class DBFacade<T> : IDisposable, IDataBaseRepository<T> { // where
         _connection.Dispose();
     }
 
-    public void Reset() {
+    public static void Reset() {
+        Instance.Dispose();
         _instance = null;
     }
 }
