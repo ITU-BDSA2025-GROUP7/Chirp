@@ -12,6 +12,4 @@ public interface IDataBaseRepository<T>
      * It is the caller's responsibility to sanity check the input before
      * passing it to this function. */
     public void Store(T record);
-    
-    public static IDataBaseRepository<T> Instance { get; }
 }
