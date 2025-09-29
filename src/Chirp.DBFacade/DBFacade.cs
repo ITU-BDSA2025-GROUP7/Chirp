@@ -6,6 +6,7 @@ using Chirp.CSVDB;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.FileProviders;
 using SQL = SQLitePCL;
+using static Chirp.DBFacade.SqlHelper;
 
 namespace Chirp.DBFacade;
 
@@ -103,13 +104,15 @@ public sealed class DBFacade<T> : IDisposable, IDataBaseRepository<T> { // where
     public IEnumerable<T> Read(int? limit = null) {
         if (limit is 0) return [];
         if (limit is < 0) throw new ArgumentOutOfRangeException(nameof(limit));
-        
+
         using SqliteCommand command = _connection.CreateCommand();
-        command.CommandText = ReadQuery;
-        if (limit.HasValue) {
-            command.Parameters.Add(Parameter((int)limit, nameof(limit)));
-            command.CommandText += $" LIMIT @{nameof(limit)}";
+        SqliteParameter? p = null;
+        if (limit is > 0) {
+            p = NewParam(limit, nameof(limit));
+            command.Parameters.Add(p);
         }
+
+        command.CommandText = Queries.ReadQuery(p);
         command.Prepare();
         using SqliteDataReader reader = command.ExecuteReader();
 
@@ -119,6 +122,7 @@ public sealed class DBFacade<T> : IDisposable, IDataBaseRepository<T> { // where
                                            ") does not match the number of properties in " +
                                            Name + " (" + Type.GetProperties().Length + ")");
         }
+
         ConstructorInfo constructor = GetConstructor();
 
         var values = new object?[reader.FieldCount];
@@ -133,6 +137,7 @@ public sealed class DBFacade<T> : IDisposable, IDataBaseRepository<T> { // where
 
             data.Add((T)record);
         }
+
         return data;
     }
 
