@@ -3,25 +3,20 @@ using Xunit;
 using Chirp.CSVDBService;
 using Chirp.General;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Chirp.DBFacade;
+
 [assembly: CollectionBehavior(DisableTestParallelization = true)]
 namespace Chirp.ServicesTest;
 
 public class ServicesTest : IClassFixture<WebApplicationFactory<Services>>, IDisposable
 {
     private readonly WebApplicationFactory<Services> _factory;
-    private string _tempPath;
 
-    public ServicesTest(WebApplicationFactory<Services> factory)
-    {
-        _tempPath = Path.Combine(Path.GetTempPath(), Guid.NewGuid() + ".csv");
-        File.WriteAllText(_tempPath, "author,message,timestamp\n");
-
-        _factory = factory.WithWebHostBuilder(builder =>
-        {
-            builder.ConfigureServices(services =>
-            {
-                Chirp.CSVDB.CsvDataBase<Cheep>.Reset();
-                Chirp.CSVDB.CsvDataBase<Cheep>.Instance.SetPath(_tempPath);
+    public ServicesTest(WebApplicationFactory<Services> factory) {
+        _factory = factory.WithWebHostBuilder(builder => {
+            builder.ConfigureServices(services => {
+                Environment.SetEnvironmentVariable(DBEnv.envCHIRPDBPATH, Guid.NewGuid().ToString("N") + ".db");
+                Environment.SetEnvironmentVariable(DBEnv.envDATA, "data/testDump.sql");
             });
         });
 
@@ -96,29 +91,54 @@ public class ServicesTest : IClassFixture<WebApplicationFactory<Services>>, IDis
      */
     [Theory]
     [InlineData("testauthor", "\"Test message, that's the way it is!!\"",
-        "Test message, that's the way it is!!", 1757601000L)]
+        "\"Test message, that's the way it is!!\"", 1757601000L)]
     [InlineData("testauthor", "Test message that's the way it is!!",
         "Test message that's the way it is!!", 1757601000L)]
     [InlineData("", "\"Test message, that's the way it is!!\"",
-        "Test message, that's the way it is!!", 1757601000L)]
+        "\"Test message, that's the way it is!!\"", 1757601000L)]
     [InlineData("testauthor", "", "", 1757601000L)]
-    [InlineData("testauthor", "\"\"", "", 1757601000L)]
-    [InlineData("testauthor", "\"\n\"", "\n", 1757601000L)]
+    [InlineData("testauthor", "\"\"", "\"\"", 1757601000L)]
+    [InlineData("testauthor", "\"\n\"", "\"\n\"", 1757601000L)]
     [InlineData("testauthor", "\"Test message, that's the way it is!!\"",
-        "Test message, that's the way it is!!", -1757601000L)]
+        "\"Test message, that's the way it is!!\"", long.MaxValue)]
+    public async Task write(string author, string writtenMessage, string readMessage, long timestamp) {
+        //Arrange
+        var client = _factory.CreateClient();
+        var message = new Cheep(author, writtenMessage, timestamp);
+
+        var responseBefore = await client.GetAsync("/cheeps"); // Read what the database contains before
+        var resultBefore = await responseBefore.Content.ReadAsStringAsync();
+
+        // act
+        await client.PostAsJsonAsync("/cheep", message);
+
+        // Assert
+        var responseAfter = await client.GetAsync("/cheeps"); // read what the database contains after
+        var resultAfter = await responseAfter.Content.ReadAsStringAsync();
+        var cheeps = await responseAfter.Content.ReadFromJsonAsync<List<Cheep>>();
+        Assert.NotNull(cheeps);
+        Assert.NotEqual(resultBefore, resultAfter);
+
+        var firstCheep = cheeps[0];
+        Assert.Equal(author, firstCheep.Author);
+        Assert.Equal(readMessage, firstCheep.Message);
+        Assert.Equal(timestamp, firstCheep.Timestamp);
+    }
+
+    [Theory]
+    [InlineData("testauthor", "\"Test message, that's the way it is!!\"",
+        "\"Test message, that's the way it is!!\"", -1757601000L)]
     [InlineData("testauthor", "Test message that's the way it is!!",
         "Test message that's the way it is!!", -1757601000L)]
     [InlineData("", "\"Test message, that's the way it is!!\"",
-        "Test message, that's the way it is!!", -1757601000L)]
+        "\"Test message, that's the way it is!!\"", -1757601000L)]
     [InlineData("testauthor", "", "", -1757601000L)]
-    [InlineData("testauthor", "\"\"", "", -1757601000L)]
-    [InlineData("testauthor", "\"\n\"", "\n", -1757601000L)]
+    [InlineData("testauthor", "\"\"", "\"\"", -1757601000L)]
+    [InlineData("testauthor", "\"\n\"", "\"\n\"", -1757601000L)]
     [InlineData("testauthor", "\"Test message, that's the way it is!!\"",
-        "Test message, that's the way it is!!", long.MaxValue)]
-    [InlineData("testauthor", "\"Test message, that's the way it is!!\"",
-        "Test message, that's the way it is!!", long.MinValue)]
-    public async Task write(string author, string writtenMessage, string readMessage, long timestamp)
-    {
+        "\"Test message, that's the way it is!!\"", long.MinValue)]
+    public async Task WriteNegativeTimestamp(string author, string writtenMessage,
+            string readMessage, long timestamp) {
         //Arrange
         var client = _factory.CreateClient();
         var message = new Cheep(author, writtenMessage, timestamp);
@@ -135,14 +155,13 @@ public class ServicesTest : IClassFixture<WebApplicationFactory<Services>>, IDis
         var cheeps = await responseAfter.Content.ReadFromJsonAsync<List<Cheep>>();
         Assert.NotNull(cheeps);
         Assert.NotEqual(resultBefore, resultAfter);
-        
-        var lastCheep = cheeps[cheeps.Count - 1];
+
+        var lastCheep = cheeps[^1];
         Assert.Equal(author, lastCheep.Author);
         Assert.Equal(readMessage, lastCheep.Message);
         Assert.Equal(timestamp, lastCheep.Timestamp);
-        
     }
-    
+
     /** Missing <c>"</c> before and after the message causes a TypeConverterException if the
      * message includes a comma, as the text after the comma will be understood as a long.
      * We test that the programme handles this smoothly without crashing. */
@@ -167,10 +186,10 @@ public class ServicesTest : IClassFixture<WebApplicationFactory<Services>>, IDis
         // Assert
         var responseAfter = await client.GetAsync("/cheeps"); 
         var resultAfter = await responseAfter.Content.ReadAsStringAsync();
-        
-        Assert.Equal(resultBefore, resultAfter);
-        
+
+        Assert.NotEqual(resultBefore, resultAfter);
     }
+
     [Theory]
     [InlineData("testauthor", "\n", 1757601000L)]
     [InlineData("testauthor", "\n", -1757601000L)]
@@ -187,7 +206,7 @@ public class ServicesTest : IClassFixture<WebApplicationFactory<Services>>, IDis
         var responseAfter = await client.GetAsync("/cheeps");
         var resultAfter = await responseAfter.Content.ReadAsStringAsync();
 
-        Assert.Equal(resultBefore, resultAfter); 
+        Assert.NotEqual(resultBefore, resultAfter);
     }
     
     
@@ -210,44 +229,33 @@ public class ServicesTest : IClassFixture<WebApplicationFactory<Services>>, IDis
         var responseAfter = await client.GetAsync("/cheeps");
         var resultAfter = await responseAfter.Content.ReadAsStringAsync();
 
-        Assert.Equal(resultBefore, resultAfter); // nothing gets stored 
+        Assert.NotEqual(resultBefore, resultAfter); // nothing gets stored 
     }
+
     /*test reading of cheeps stored in the database, along with the index*/
-   [Fact]
-    public async Task ReadCheeps()
-    {
+    [Fact]
+    public async Task ReadCheeps() {
         var client = _factory.CreateClient();
-        
         
         var message1 = new Cheep("ropf", "Hello, BDSA students!", 1690891760L);
         await client.PostAsJsonAsync("/cheep", message1);
         var message2 = new Cheep("adho", "Welcome to the course!", 1690978778L);
         await client.PostAsJsonAsync("/cheep", message2);
-        
+
         var response = await client.GetAsync("/cheeps");
         var cheeps = await response.Content.ReadFromJsonAsync<List<Cheep>>() ?? new List<Cheep>();
-        
-        var firstCheep = cheeps[0] ;
-        var secondCheep = cheeps[1] ;
-        
-        
-        Assert.Equal("ropf", firstCheep.Author);
-        Assert.Equal("Hello, BDSA students!", firstCheep.Message);
-        Assert.Equal(1690891760L, firstCheep.Timestamp);
-        
-        Assert.Equal("adho", secondCheep.Author);
-        Assert.Equal("Welcome to the course!", secondCheep.Message);
-        Assert.Equal(1690978778L, secondCheep.Timestamp);
-    }
-    
-    public void Dispose()
-    {
-        Chirp.CSVDB.CsvDataBase<Cheep>.Reset();
-        
-        if (File.Exists(_tempPath))
-            File.Delete(_tempPath);
-        
-    }
-    
-}
 
+        int index1 = cheeps.IndexOf(message1);
+        int index2 = cheeps.IndexOf(message2);
+
+        Assert.True(index1 != -1 && index2 != -1);
+        Assert.True(index2 < index1); // Message2 has higher timestamp, so should come first
+
+        Assert.Equal(message2, cheeps[index2]);
+        Assert.Equal(message1, cheeps[index1]);
+    }
+
+    public void Dispose() {
+        DBFacade<Cheep>.Reset();
+    }
+}

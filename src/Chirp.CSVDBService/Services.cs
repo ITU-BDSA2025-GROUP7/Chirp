@@ -1,9 +1,10 @@
-using Chirp.CSVDB;
+using Chirp.DBFacade;
 using Chirp.General;
 
 namespace Chirp.CSVDBService;
 
-public class Services {
+public class Services : IDisposable, IAsyncDisposable {
+    
     // required to start the server
     public static void Main(string[] args)
     {
@@ -18,6 +19,7 @@ public class Services {
     }
 
     private WebApplication app;
+    private DBFacade<Cheep> db;
     
     public Services(string? port = null)
     {
@@ -33,8 +35,7 @@ public class Services {
             .Build();
         
         // Setup database
-        var db = CsvDataBase<Cheep>.Instance;
-        db.SetPath(config["AppSettings:DatabaseLocation"]);
+        db = DBFacade<Cheep>.Instance;
 
         // setup app
         var builder = WebApplication.CreateBuilder();
@@ -47,6 +48,16 @@ public class Services {
             return "Cheep stored.";
         });
         app.Run(port);
+    }
+
+    public void Dispose() {
+        db.Dispose();
+        ((IDisposable)app).Dispose();
+    }
+
+    public async ValueTask DisposeAsync() {
+        db.Dispose();
+        await app.DisposeAsync();
     }
 }
 

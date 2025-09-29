@@ -29,7 +29,7 @@ read-local:
 
 # Cheep to local server. Set message with n=<message>
 cheep-local:
-	dotnet run --project src/Chirp.CLI.Client ${ENV} cheep ${n}
+	dotnet run --project src/Chirp.CLI.Client ${ENV} cheep "${n}"
 
 # Read from online server. Limit the amount by adding n=<limit>
 read:
@@ -37,7 +37,7 @@ read:
 
 # Cheep to online server. Set message with n=<message>
 cheep:
-	dotnet run --project src/Chirp.CLI.Client cheep ${n}
+	dotnet run --project src/Chirp.CLI.Client cheep "${n}"
 
 # Starts the service application. Override listening port by adding n=<port>
 start:
@@ -57,7 +57,7 @@ tclient:
 
 # Runs database tests
 tdatabase:
-	dotnet test $(ENV) tests/Chirp.CSVDB.Tests
+	dotnet test $(ENV) tests/Chirp.DBFacade.Tests
 
 # Runs service tests
 tservice:
