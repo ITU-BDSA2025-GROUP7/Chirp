@@ -14,5 +14,10 @@
     <None Include="chirp_cli_db.csv" CopyToOutputDirectory="Always" />
     <ProjectReference Include="..\Chirp.DBFacade\Chirp.DBFacade.csproj" />
   </ItemGroup>
+
+
+  <ItemGroup>
+    <None Include="data\Chirp.db" />
+  </ItemGroup>
   
 </Project>
