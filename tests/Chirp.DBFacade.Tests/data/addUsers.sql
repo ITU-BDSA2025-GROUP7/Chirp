@@ -1,0 +1,7 @@
+INSERT INTO user
+VALUES
+    (0, 'ropf', 'ropf@itu.dk', 'SEFHUIEFRSHUIAEFS89345NC7WERN98345'),
+    (1, 'adho', 'adho@itu.dk', 'SEFHUIEFRSHUIAEFS89345NC7WERN98345'),
+    (2, 'louis', 'lofk@itu.dk', 'SEFHUIEFRSHUIAEFS89345NC7WERN98345'),
+    (3, 'bikzi', 'bikzi@itu.dk', 'SEFHUIEFRSHUIAEFS89345NC7WERN98345'),
+    (4, 'pines', 'pines@itu.dk', 'SEFHUIEFRSHUIAEFS89345NC7WERN98345');
