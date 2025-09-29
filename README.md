@@ -60,7 +60,7 @@ make build
 
 To build and start the daemon on the current computer, execute either:
 ```
-dotnet run --project src/Chirp.CSVDBService [<port>]
+dotnet run --project src/Chirp.CSVDBService [<port>] [-e CHIRPDB_PATH=<DB path>]
 ```
 ```
 make start [<port>]
@@ -69,8 +69,18 @@ make start [<port>]
 If a `<port>` is provided, it will start listening on `http://localhost:<port>`.\
 Otherwise, it will default to something like `http://localhost:5000`.
 
+If the environment variable `CHIRPDB_PATH` is set, i.e. `DB path` as seen above,
+the system it will attempt to open the specified file. If it has not been set,
+the default database `src/ChirpCSVDBService/data/Chirp.db` is used instead.
+If the database it looks for cannot be found, it will create a new one of the same name in
+the user's temporary directory.
+
 To stop it listening, you will have to cancel the process (`Ctrl + C`), or close the
 terminal window.
+
+The environment variables `CHIRPDB_SCHEMA` and `CHIRPDB_DATA` can be set
+to override the default .sql files that are executed when initialising
+a new database.
 
 ### Using the Client Locally
 
