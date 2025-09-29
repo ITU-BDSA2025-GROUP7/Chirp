@@ -3,15 +3,18 @@ using System.Reflection;
 using System.Security.Cryptography;
 using System.Text;
 using Chirp.CSVDB;
+using Chirp.General;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.FileProviders;
 using SQL = SQLitePCL;
 using static Chirp.DBFacade.SqlHelper;
 
+// ReSharper disable StaticMemberInGenericType // <-- _instance and Padlock have to be static.
+
 namespace Chirp.DBFacade;
 
 /** Facade to be used for interacting with the SQL database. */
-public sealed class DBFacade<T> : IDisposable, IDataBaseRepository<T> { // where T : Cheep {
+public sealed class DBFacade<T> : IDisposable, IDataBaseRepository<T> where T : Cheep {
     private DBFacade() {
         SQL.raw.SetProvider(new SQL.SQLite3Provider_sqlite3());
         (_connection, bool hasToInitialise) = Connect();
@@ -19,15 +22,13 @@ public sealed class DBFacade<T> : IDisposable, IDataBaseRepository<T> { // where
             Init();
     }
 
-    private bool HashUsernames { get; set; } =
+    private readonly bool _shouldHashUsernames =
         Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") != "Test";
 
-    public string DatabaseLocation { get; private set; } = DEFAULT_DATABASE_DIR 
-                                                           + Path.PathSeparator 
-                                                           + DEFAULT_DATABASE_FILENAME;
+    private string DatabaseLocation { get; set; } = DEFAULT_DATABASE_DIR
+                                                    + Path.PathSeparator
+                                                    + DEFAULT_DATABASE_FILENAME;
 
-    private static readonly Type Type = typeof(T);
-    private static readonly string Name = typeof(T).Name;
     private const string DEFAULT_DATABASE_DIR = "data";
     private const string DEFAULT_DATABASE_FILENAME = "Chirp.db";
     private const string DEFAULT_SCHEMA_PATH = "data/schema.sql";
@@ -35,15 +36,14 @@ public sealed class DBFacade<T> : IDisposable, IDataBaseRepository<T> { // where
 
     private readonly SqliteConnection _connection;
 
-    private static DBFacade<T>? _instance = null;
+    private static DBFacade<Cheep>? _instance = null;
 
-    // ReSharper disable once StaticMemberInGenericType // <- The lock has to be static
     private static readonly Lock Padlock = new();
 
-    public static DBFacade<T> Instance {
+    public static DBFacade<Cheep> Instance {
         get {
             lock (Padlock) {
-                return _instance ??= new DBFacade<T>();
+                return _instance ??= new DBFacade<Cheep>();
             }
         }
     }
@@ -66,14 +66,13 @@ public sealed class DBFacade<T> : IDisposable, IDataBaseRepository<T> { // where
         using SqliteDataReader reader = command.ExecuteReader();
 
         if (!reader.HasRows) return [];
-        if (reader.FieldCount != Type.GetProperties().Length) { // Won't be able to convert
+        if (reader.FieldCount != typeof(T).GetProperties().Length) { // Won't be able to convert
             throw new InvalidCastException("The number of columns returned (" + reader.FieldCount +
                                            ") does not match the number of properties in " +
-                                           Name + " (" + Type.GetProperties().Length + ")");
+                                           typeof(T).Name + " (" + typeof(T).GetProperties().Length + ")");
         }
 
         ConstructorInfo constructor = GetConstructor();
-
         var values = new object?[reader.FieldCount];
         var data = new List<T>();
         while (reader.Read()) {
@@ -81,7 +80,8 @@ public sealed class DBFacade<T> : IDisposable, IDataBaseRepository<T> { // where
             object? record = constructor.Invoke(values); // call constructor with params from 'values'
             if (record == null) {
                 throw new NullReferenceException(
-                    "Record is null; something went wrong while invoking the constructor of " + Name);
+                    "Record is null; something went wrong while invoking the constructor of "
+                    + typeof(T).Name);
             }
 
             data.Add((T)record);
@@ -90,72 +90,105 @@ public sealed class DBFacade<T> : IDisposable, IDataBaseRepository<T> { // where
         return data;
     }
 
+    /** <inheritdoc cref="IDataBaseRepository{T}.Store(T)"/> */
     public void Store(T record) {
-        List<SqliteParameter> values = PrepareValues(record);
-        if (HashUsernames)
-            values[0].Value = HashUserName(values[0].Value!.ToString()!);
-        bool exists = DoesUserExist(values[0]);
+        string username = record.Author;
+        if (_shouldHashUsernames) {
+            username = HashUserName(record.Author);
+        }
+
+        SqliteParameter author = NewParam(username, nameof(record.Author));
+        bool exists = DoesUserExist(author);
         if (!exists) {
-            CreateUser(values[0]);
+            int changes = CreateUser(author);
+            if (changes == 0) {
+                throw new Exception("The user + " + author.Value +
+                                    " did not exist, but also could not be created.");
+            }
         }
 
         using SqliteCommand cmd = _connection.CreateCommand();
-        cmd.Parameters.AddRange(values);
-        string[] names = values.Select(p => p.ParameterName).ToArray();
+        List<SqliteParameter> parameters = [
+            author,
+            NewParam(record.Message, nameof(record.Message)),
+            NewParam(record.Timestamp, nameof(record.Timestamp))
+        ];
+        cmd.Parameters.AddRange(parameters);
+        string[] names = parameters.Select(p => p.ParameterName).ToArray();
         cmd.CommandText = Queries.PrepareInsertionCommand(names);
         cmd.Prepare();
         CarefulInsert(cmd);
     }
 
-    /** Connects to the database. If the file cannot be found or opened, create
-     * a new one in the user's temporary directory.<br/>
-     * Returns a tuple containing the SqliteConnection and whether the file is
-     * new, and therefore needs to be initialised. */
+    /** Connects to the database.<br/>
+     * Attempts to find the path specified by environment variable
+     * <see cref="DBEnv.envCHIRPDBPATH"/> if this is set.<br/>
+     * If it isn't set, the default will be <see cref="DEFAULT_DATABASE_FILENAME"/>
+     * located in <see cref="DEFAULT_DATABASE_DIR"/>.<br/>
+     * If the file cannot be found/opened, one with the given or default name is
+     * opened (created and initialised if need be) in the user's temporary
+     * directory.<br/>
+     * <returns>A tuple containing:<br/>
+     * 1. the SqliteConnection,<br/>
+     * 2. and whether the file is new, and therefore needs to be initialised.</returns>
+     * <exception cref="SqliteException">If the database could be neither opened nor
+     * created.</exception> */
     private (SqliteConnection, bool) Connect() {
-        DatabaseLocation = Environment.GetEnvironmentVariable(DBEnv.envCHIRPDBPATH) ?? 
+        DatabaseLocation = Environment.GetEnvironmentVariable(DBEnv.envCHIRPDBPATH) ??
                            Path.Join(DEFAULT_DATABASE_DIR, DEFAULT_DATABASE_FILENAME);
         var str = $"Data Source={DatabaseLocation}; Mode=ReadWrite";
         var conn = new SqliteConnection(str);
-        Console.WriteLine("Creating SQL connection with connection string:\n  " + conn.ConnectionString);
         try {
             conn.Open();
-            Console.WriteLine("Connection opened.");
+            Console.WriteLine("Opened database:\n  " + conn.DataSource);
             return (conn, false);
         } catch {
-            Console.WriteLine("Unable to open existing database in\n  " + conn.DataSource);
+            Console.WriteLine("Unable to open database:\n  " + conn.DataSource);
         }
-        
+
         string tempDir = Path.GetTempPath();
-        string tempName = Environment.GetEnvironmentVariable(DBEnv.envCHIRPDBPATH) 
-                          ?? DEFAULT_DATABASE_FILENAME;
+        string? tempName = Environment.GetEnvironmentVariable(DBEnv.envCHIRPDBPATH);
+        if (tempName == null) {
+            tempName = DEFAULT_DATABASE_FILENAME;
+        } else {
+            tempName = Path.GetFileName(tempName);
+        }
+
         DatabaseLocation = Path.Join(tempDir, tempName);
-        Console.WriteLine("Creating new database in temporary directory:\n  " + DatabaseLocation);
         conn = new SqliteConnection($"Data Source={DatabaseLocation}");
         try {
             conn.Open();
-            Console.WriteLine("Connection opened.");
+            Console.WriteLine("Opened database:\n  " + conn.DataSource);
             return (conn, true);
         } catch (SqliteException ex) {
             if (ex.SqliteErrorCode == 14) {
-                Console.Error.WriteLine("Failed to open database in temporary directory:\n  " + conn.DataSource);
+                Console.Error.WriteLine("Failed to open database:\n  " + conn.DataSource);
             }
 
             throw;
         }
     }
 
+    /** Initialises the current database. This will execute the
+     * schema and data-dump files, which can be overriden by
+     * setting environment variables whose names are located at
+     * <see cref="DBEnv.envSCHEMA"/> and <see cref="DBEnv.envDATA"/>.
+     * <example>dotnet run ... -e CHIRPDB_SCHEMA=data/empty.sql</example>
+     * <exception cref="FileNotFoundException">If a file wasn't found.</exception> */
     private void Init() {
         IDictionary env = Environment.GetEnvironmentVariables();
-        object? variable = env["CHIRPDB_SCHEMA"];
+        object? variable = env[DBEnv.envSCHEMA];
         string schema = variable?.ToString() ?? DEFAULT_SCHEMA_PATH;
         ExecuteEmbeddedFile(schema);
-        
-        variable = env["CHIRPDB_DATA"];
+
+        variable = env[DBEnv.envDATA];
         string dump = variable?.ToString() ?? DEFAULT_INITIAL_DATA_PATH;
         ExecuteEmbeddedFile(dump);
     }
 
-    /** Execute the given embedded file's SQL command, e.g. inserting schema or initial data. */
+    /** Execute the given embedded file's SQL command, e.g. inserting schema or initial data.
+     * <exception cref="FileNotFoundException">If the file wasn't found.</exception>
+     */
     private void ExecuteEmbeddedFile(string filename) {
         var embeddedProvider = new ManifestEmbeddedFileProvider(Assembly.GetExecutingAssembly());
         IFileInfo f = embeddedProvider.GetFileInfo(filename);
@@ -170,62 +203,22 @@ public sealed class DBFacade<T> : IDisposable, IDataBaseRepository<T> { // where
         CarefulInsert(command);
     }
 
-    /** Deterministically generates 8-character string based on input, with the first
-     * character of the resulting name always being the same as the input. */
-    public static string HashUserName(string input) {
-        if (input.Length == 0) {
-            throw new ArgumentException("Invalid username base: " + input);
-        }
-
-        var username = new List<byte>(32);
-        while (username.Count < 32) { // The hashing algorithm wants reasonably long input
-            username.AddRange(Encoding.UTF8.GetBytes(input));
-        }
-
-        byte[] hash = SHA256.HashData(username.ToArray());
-        for (var i = 0; i < 7; i++) {
-            hash[i] &= 0b0111_1111; // Make it ASCII.
-            hash[i] %= 52; // Map it to values 0-51 (26 letters * 2)
-            hash[i] += (byte)'A'; // Make it minimum A (which is #65 in ASCII).
-            if (hash[i] > (byte)'Z') hash[i] += 'a' - 'Z'; // Skip the characters in-between cases
-        }
-
-        return string.Concat(input[0], Encoding.ASCII.GetString(hash)[..7]);
-    }
-
-    /** Returns the constructor for T. */
+    /** Returns the constructor for T.
+     * Modular like this so that any changes to Cheep later mean that changes
+     * only need happen to the SQL query that reads from the database. */
     private static ConstructorInfo GetConstructor() {
-        Type[] types = Type.GetProperties().Select(p => p.PropertyType).ToArray();
-        ConstructorInfo? constructor = Type.GetConstructor(types);
+        Type[] types = typeof(T).GetProperties().Select(p => p.PropertyType).ToArray();
+        ConstructorInfo? constructor = typeof(T).GetConstructor(types);
         if (constructor == null) {
-            throw new MissingMethodException("Could not find a constructor for " + Name
-                + " which matches its property types.");
+            throw new MissingMethodException("Could not find a constructor for "
+                                             + typeof(T).Name
+                                             + " which matches its property types.");
         }
 
         return constructor;
     }
 
-    /** Automatically create SQL parameters based on the record's properties. */
-    private static List<SqliteParameter> PrepareValues(T record) {
-        PropertyInfo[] properties = Type.GetProperties();
-        var values = new List<SqliteParameter>();
-        foreach (PropertyInfo p in properties) {
-            if (p.GetValue(record) is null) {
-                throw new NullReferenceException("Value of " + p.Name + " is null.");
-            }
-
-            object value = p.GetValue(record)!;
-            if (p.PropertyType == typeof(string)) {
-                values.Add(NewParam((string)value, p.Name));
-            } else if (p.PropertyType == typeof(long)) {
-                values.Add(NewParam((long)value, p.Name));
-            } else
-                throw new ArgumentOutOfRangeException(value.GetType().Name + " not supported.");
-        }
-
-        return values;
-    }
-
+    /** Returns whether the given user exists in the database. */
     private bool DoesUserExist(SqliteParameter user) {
         using SqliteCommand command = _connection.CreateCommand();
         command.Parameters.Add(user);
@@ -238,7 +231,7 @@ public sealed class DBFacade<T> : IDisposable, IDataBaseRepository<T> { // where
         return count > 0;
     }
 
-    /** Insert a new user into the database with the given username. */
+    /** Inserts a new user into the database with the given username. */
     private int CreateUser(SqliteParameter username) {
         using SqliteCommand cmd = _connection.CreateCommand();
         cmd.Parameters.Add(username);
@@ -270,7 +263,8 @@ public sealed class DBFacade<T> : IDisposable, IDataBaseRepository<T> { // where
         return rowsUpdated;
     }
 
-    /** Helpful for testing. */
+    /** Helpful for testing.
+     * Returns a list of all users. */
     public void ReadUsers() {
         using SqliteCommand cmd = _connection.CreateCommand();
         cmd.CommandText = Queries.SelectAllUsers;
@@ -284,6 +278,7 @@ public sealed class DBFacade<T> : IDisposable, IDataBaseRepository<T> { // where
         }
     }
 
+    /** Executes a scalar command based on the input text. */
     private long Count(string command) {
         using SqliteCommand cmd = _connection.CreateCommand();
         cmd.CommandText = command;
@@ -295,21 +290,49 @@ public sealed class DBFacade<T> : IDisposable, IDataBaseRepository<T> { // where
         return -1;
     }
 
-    /** Helpful for testing. */
+    /** Helpful for testing.
+     * Returns the number of users in the database. */
     public long GetUserCount() {
         return Count(Queries.CountUsers);
     }
 
-    /** Helpful for testing. */
+    /** Helpful for testing.
+     * Returns the number of messages in the database. */
     public long GetRecordCount() {
         return Count(Queries.CountMessages);
     }
 
+    /** Deterministically generates 8-character string based on input, with the first
+     * character of the resulting name always being the same as the input. */
+    public static string HashUserName(string input) {
+        if (input.Length == 0) {
+            throw new ArgumentException("Invalid username base: " + input);
+        }
+
+        var username = new List<byte>(32);
+        while (username.Count < 32) { // The hashing algorithm wants reasonably long input
+            username.AddRange(Encoding.UTF8.GetBytes(input));
+        }
+
+        byte[] hash = SHA256.HashData(username.ToArray());
+        for (var i = 0; i < 7; i++) {
+            hash[i] &= 0b0111_1111; // Make it ASCII.
+            hash[i] %= 52; // Map it to values 0-51 (26 letters * 2)
+            hash[i] += (byte)'A'; // Make it minimum A (which is #65 in ASCII).
+            if (hash[i] > (byte)'Z') hash[i] += 'a' - 'Z'; // Skip the characters in-between cases
+        }
+
+        return string.Concat(input[0], Encoding.ASCII.GetString(hash)[..7]);
+    }
+
+    /** <inheritdoc cref="IDisposable.Dispose"/><br/>
+     * Disposes of the database connection. */
     public void Dispose() {
         _connection.Close();
         _connection.Dispose();
     }
 
+    /** Calls <see cref="Dispose"/> and then sets the instance to null. */
     public static void Reset() {
         Instance.Dispose();
         _instance = null;

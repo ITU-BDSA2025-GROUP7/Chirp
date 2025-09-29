@@ -8,8 +8,6 @@ public interface IDataBaseRepository<T>
      * up until that point is returned, excluding the unreadable data. */
     public IEnumerable<T> Read(int? limit = null);
     
-    /** Adds a new record to the database.<br/>
-     * It is the caller's responsibility to sanity check the input before
-     * passing it to this function. */
+    /** Adds a new record to the database. */
     public void Store(T record);
 }
