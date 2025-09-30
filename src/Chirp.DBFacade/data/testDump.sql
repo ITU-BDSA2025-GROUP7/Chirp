@@ -12,4 +12,11 @@ VALUES
 INSERT INTO message (author_id, text, pub_date)
 VALUES
     (0, 'Hello, BDSA students!', 1690891760),
-    (1, 'Welcome to the course!', 1690978778);
+    (1, 'Welcome to the course!', 1690978778),
+    (1, 'I Am Tweeting!', 1690978788),
+    (1, 'This is So cool', 1690978798),
+    (1, 'Much wow', 1690978898),
+    (1,'I hope you had a good summer.',1690979858),
+    (1,'I am hungry',1690989858),
+    (0,'Cheeping cheeps on Chirp :)',1690981487),
+    (2,'Hello, you rascal!',1756464518);

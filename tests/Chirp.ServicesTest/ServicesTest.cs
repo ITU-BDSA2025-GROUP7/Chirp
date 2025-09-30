@@ -256,7 +256,7 @@ public class ServicesTest : IClassFixture<WebApplicationFactory<Services>>, IDis
     
     // test that we can read a page and get a result that is of length PAGE_SIZE
     [Fact]
-    public async Task readPage()
+    public async Task ReadPage()
     {
         // anrange
         var client = _factory.CreateClient();
@@ -271,7 +271,7 @@ public class ServicesTest : IClassFixture<WebApplicationFactory<Services>>, IDis
     
     // test that when changing the page we get differen answers
     [Fact]
-    public async Task pagesAreUnique()
+    public async Task PagesAreUnique()
     {
         // arrange
         var client = _factory.CreateClient();
@@ -295,7 +295,7 @@ public class ServicesTest : IClassFixture<WebApplicationFactory<Services>>, IDis
     
     //test that we can ask for a page witch does not exist
     [Fact]
-    public async Task pagesDoesNotExist()
+    public async Task PagesDoesNotExist()
     {
         // arrange
         var client = _factory.CreateClient();
@@ -311,27 +311,36 @@ public class ServicesTest : IClassFixture<WebApplicationFactory<Services>>, IDis
     
     // test that when changing the page we get differen answers. Even when we ask by name
     [Fact]
-    public async Task pagesAreUniqueButHasSameName()
+    public async Task PagesAreUniqueButHasSameName()
     {
         // arrange
         var client = _factory.CreateClient();
+        string auther = "adho";
         
         // act
-        var response1 = await client.GetAsync("/cheepsWithPage?page=1");
-        var response2 = await client.GetAsync("/cheepsWithPage?page=2");
+        var response1 = await client.GetAsync("/cheepsWithPageFromUser?page=1&auther=" + auther);
+        var response2 = await client.GetAsync("/cheepsWithPageFromUser?page=2&auther=" + auther);
 
         // assert
         var page1 =  await response1.Content.ReadFromJsonAsync<List<Cheep>>() ?? new List<Cheep>();
         var page2 = await response2.Content.ReadFromJsonAsync<List<Cheep>>() ?? new List<Cheep>();
-        Assert.Equal(page1.Count, page2.Count);
-        for (var i = 0; i < page1.Count; i++)
+        Assert.True(page1.Count >= 3);
+        Assert.True(page2.Count >= 3);
+        for (var i = 0; i < 3; i++)
         {
             bool equalAuthor = page1[i].Author == page2[i].Author;
             bool equalMessage = page1[i].Message == page2[i].Message;
             bool equalTimestamp = page1[i].Timestamp == page2[i].Timestamp;
-            Assert.False(equalAuthor &&  equalMessage && equalTimestamp); // they should not be equal
+            Assert.False(equalAuthor && equalMessage && equalTimestamp); // they should not be the same post
         }
+
+        // All authors should be of the requested author
+        foreach (var cheep in page1) Assert.Equal(auther, cheep.Author);
+        foreach (var cheep in page2) Assert.Equal(auther, cheep.Author);
+        
     }
+    
+    
 
     public void Dispose() {
         DBFacade<Cheep>.Reset();
