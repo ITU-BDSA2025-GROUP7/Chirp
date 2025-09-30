@@ -59,13 +59,8 @@ public class Services : IDisposable, IAsyncDisposable {
             int.TryParse(pageQuery, out pageNr);
             if  (pageNr == 0) pageNr = 1; // if parsing failed, set page number to 1 as requested by session_05 1.b)
 
-            // temperary solution until SQL is added
-            var cheeps = db.Read(null);
-            int startIndex = (pageNr -1) * PAGE_SIZE;
-            var enumerable = cheeps.ToList();
-            var returnCheeps = enumerable.Skip(startIndex).Take(PAGE_SIZE);
+            return db.ReadPage(pageNr);
             
-            return returnCheeps;
         });
         app.MapGet("/cheepsWithPageFromUser", (HttpRequest request) =>
         {

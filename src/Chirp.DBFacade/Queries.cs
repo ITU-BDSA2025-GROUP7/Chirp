@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization.Metadata;
 using Microsoft.Data.Sqlite;
 
 namespace Chirp.DBFacade;
@@ -10,6 +11,16 @@ public static class Queries {
                              "ORDER BY pub_date desc, username ";
         if (p is null) return query;
         return query + $"LIMIT @{p.ParameterName}";
+    }
+
+    public static string ReadPageQuery(SqliteParameter? p = null)
+    {
+        const string query = "SELECT username, text, pub_date " +
+                             "FROM message JOIN user ON author_id=user_id " +
+                             "ORDER BY pub_date desc, username ";
+        
+        return query + $"LIMIT @{p.ParameterName},32";
+        ;
     }
 
     public static string PrepareInsertionCommand(string[] p) {

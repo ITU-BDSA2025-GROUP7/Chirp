@@ -81,6 +81,35 @@ public sealed class DBFacade<T> : IDisposable, IDataBaseRepository<T> where T : 
         }
     }
 
+    public IEnumerable<T> ReadPage(int page = 1)
+    {
+        if (page < 1) page = 1;
+        int? startingEntry = (page-1) * 32; // 32 is based on Service.PAGE_SIZE
+        
+        using SqliteCommand command = _connection.CreateCommand();
+        SqliteParameter p = NewParam(startingEntry, nameof(startingEntry)); 
+        command.Parameters.Add(p);
+        command.CommandText = Queries.ReadPageQuery(p);
+        command.Prepare();
+        using SqliteDataReader reader = command.ExecuteReader();
+        
+        if (!reader.HasRows) yield break;
+        if (reader.FieldCount != typeof(T).GetProperties().Length) { // Won't be able to convert
+            throw new InvalidCastException("The number of columns returned (" + reader.FieldCount +
+                                           ") does not match the number of properties in " +
+                                           typeof(T).Name + " (" + typeof(T).GetProperties().Length + ")");
+        }
+
+        ConstructorInfo constructor = GetConstructor();
+        var values = new object?[reader.FieldCount];
+        while (reader.Read()) {
+            Console.WriteLine("In Read");
+            reader.GetValues(values); // stores current row in 'values'
+            object record = constructor.Invoke(values); // call constructor with params from 'values'
+            yield return (T)record;
+        }
+    }
+
     /** <inheritdoc cref="IDataBaseRepository{T}.Store(T)"/> */
     public void Store(T record) {
         string username = record.Author;
