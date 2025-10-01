@@ -24,10 +24,10 @@ jobs:
           dotnet-version: '9.x'
 
       - name: Build with dotnet
-        run: dotnet build src/Chirp.CSVDBService/ --configuration Release
+        run: dotnet build --configuration Release
 
       - name: dotnet publish
-        run: dotnet publish src/Chirp.CSVDBService/ -c Release -o ${{env.DOTNET_ROOT}}/myapp
+        run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
@@ -51,9 +51,9 @@ jobs:
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_4C4D4F5226D24ABEB50EF0E3B99CF4C6 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_0BF305DE7F72427F91003D4796FE6FA0 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_75D37DB911CA4853A6DC63EADD5C7B46 }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_088B9D16F6464EACBCDC4FEE3BA32A06 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_E6BCC424EC84443B9158BCDA85F5FCC7 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_53DA457E5CF6402A99C8A605866A3AE1 }}
 
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
@@ -62,5 +62,4 @@ jobs:
           app-name: 'bdsagroup7chirpremotedb'
           slot-name: 'Production'
           package: .
-          clean: true
           
