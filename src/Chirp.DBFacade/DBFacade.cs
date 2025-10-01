@@ -64,20 +64,10 @@ public sealed class DBFacade<T> : IDisposable, IDataBaseRepository<T> where T : 
         command.CommandText = Queries.ReadQuery(p);
         command.Prepare();
         using SqliteDataReader reader = command.ExecuteReader();
-
-        if (!reader.HasRows) yield break;
-        if (reader.FieldCount != typeof(T).GetProperties().Length) { // Won't be able to convert
-            throw new InvalidCastException("The number of columns returned (" + reader.FieldCount +
-                                           ") does not match the number of properties in " +
-                                           typeof(T).Name + " (" + typeof(T).GetProperties().Length + ")");
-        }
-
-        ConstructorInfo constructor = GetConstructor();
-        var values = new object?[reader.FieldCount];
-        while (reader.Read()) {
-            reader.GetValues(values); // stores current row in 'values'
-            object record = constructor.Invoke(values); // call constructor with params from 'values'
-            yield return (T)record;
+        
+        foreach (var item in GetFromReader(reader))
+        {
+            yield return item;
         }
     }
 
