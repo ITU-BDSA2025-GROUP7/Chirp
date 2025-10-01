@@ -62,12 +62,14 @@ public class Services : IDisposable, IAsyncDisposable {
             int.TryParse(pageQuery, out pageNr);
             if  (pageNr == 0) pageNr = 1; // if parsing failed, set page number to 1 as requested by session_05 1.b)
             
-            var result = db.ReadPage(pageNr);
-            var list = result.ToList();
-            Console.WriteLine("Number to return: " + list.Count);
+            StringValues author = request.Query["author"];
+            IEnumerable<Cheep> result;
+            if (author.ToString().Equals("")) result = db.ReadPage(pageNr);
+            else result = db.ReadPage(pageNr, author);
             return result;
             
         });
+        /*
         app.MapGet("/cheepsWithPageFromUser", (HttpRequest request) =>
         {
             StringValues pageQuery = request.Query["page"];
@@ -79,18 +81,7 @@ public class Services : IDisposable, IAsyncDisposable {
             Console.WriteLine("page nr " + pageNr + " auther: " +  auther);
 
             return db.ReadPage(pageNr, auther);
-            
-
-            /*
-            // temperary solution until SQL is added
-            var cheeps = db.Read(null);
-            var cheepsWithNameRestriction = cheeps.Where(x => x.Author == auther);
-            int startIndex = (pageNr -1) * PAGE_SIZE;
-            var returnCheeps = cheepsWithNameRestriction.Skip(startIndex).Take(PAGE_SIZE);
-            
-            return returnCheeps;
-            */
-        });
+        }); */
         
         
         app.Run(port);

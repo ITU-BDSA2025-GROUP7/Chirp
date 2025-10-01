@@ -81,7 +81,12 @@ public sealed class DBFacade<T> : IDisposable, IDataBaseRepository<T> where T : 
         }
     }
 
-    public IEnumerable<T> ReadPage(int page = 1, string? name = null)
+    /**
+     Returns a page og cheeps. Each page is of size 32.
+     - The page argument describes what page nr to return 
+     - If the userName argument is set, then ownly entries from that user will be retuned
+     */
+    public IEnumerable<T> ReadPage(int page = 1, string? userName = null)
     {
         if (page < 1) page = 1;
         int? startingEntry = (page-1) * 32; // 32 is based on Service.PAGE_SIZE
@@ -91,7 +96,7 @@ public sealed class DBFacade<T> : IDisposable, IDataBaseRepository<T> where T : 
         SqliteParameter startingEntryPer = NewParam(startingEntry, nameof(startingEntry)); 
         command.Parameters.Add(startingEntryPer);
         
-        if (name == null)
+        if (userName == null)
         {
             command.CommandText = Queries.ReadPageQuery(startingEntryPer);
             command.Prepare();
@@ -104,16 +109,13 @@ public sealed class DBFacade<T> : IDisposable, IDataBaseRepository<T> where T : 
         }
         else
         {
-            Console.WriteLine(name + " made it to this line 1");
-            SqliteParameter namePar = NewParam(name, nameof(name)); 
+            SqliteParameter namePar = NewParam(userName, nameof(userName)); 
             command.Parameters.Add(namePar);
-            Console.WriteLine(name + " made it to this line 2");
+            
             command.CommandText = Queries.ReadPageQueryByName(namePar,startingEntryPer);
-            Console.WriteLine(name + " made it to this line 3");
             command.Prepare();
-            Console.WriteLine(name + " made it to this line 4");
-            Console.WriteLine("Variable contens is: '" + namePar.Value + "' for " + namePar.ParameterName);
             using SqliteDataReader reader = command.ExecuteReader();
+            
             foreach (var item in GetFromReader(reader))
             {
                 yield return item;
@@ -121,7 +123,10 @@ public sealed class DBFacade<T> : IDisposable, IDataBaseRepository<T> where T : 
         }
     }
 
-    public IEnumerable<T> GetFromReader(SqliteDataReader reader)
+    /** Helper method
+     *  takes a reader and read all of it's results
+     */
+    private IEnumerable<T> GetFromReader(SqliteDataReader reader)
     {
         if (!reader.HasRows)
         {

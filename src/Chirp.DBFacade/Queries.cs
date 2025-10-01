@@ -13,7 +13,7 @@ public static class Queries {
         return query + $"LIMIT @{p.ParameterName}";
     }
 
-    public static string ReadPageQuery(SqliteParameter? p = null)
+    public static string ReadPageQuery(SqliteParameter p)
     {
         const string query = "SELECT username, text, pub_date " +
                              "FROM message JOIN user ON author_id=user_id " +

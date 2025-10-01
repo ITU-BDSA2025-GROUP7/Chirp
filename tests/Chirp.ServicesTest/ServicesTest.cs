@@ -318,8 +318,8 @@ public class ServicesTest : IClassFixture<WebApplicationFactory<Services>>, IDis
         string author = "Jacqualine Gilcoine";
         
         // act
-        var response1 = await client.GetAsync("/cheepsWithPageFromUser?page=1&author=" + author);
-        var response2 = await client.GetAsync("/cheepsWithPageFromUser?page=2&author=" + author);
+        var response1 = await client.GetAsync("/cheepsWithPage?page=1&author=" + author);
+        var response2 = await client.GetAsync("/cheepsWithPage?page=2&author=" + author);
 
         // assert
         var page1 =  await response1.Content.ReadFromJsonAsync<List<Cheep>>() ?? new List<Cheep>();
