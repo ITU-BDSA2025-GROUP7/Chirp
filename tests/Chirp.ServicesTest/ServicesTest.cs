@@ -335,6 +335,35 @@ public class ServicesTest : IClassFixture<WebApplicationFactory<Services>>, IDis
         Assert.Empty(page);
     }
     
+    //test that reading a negetive page gives the same page as page 1
+    [Theory]
+    [InlineData(0)]
+    [InlineData(-1)]
+    [InlineData(-2)]
+    [InlineData(-3)]
+    public async Task ReadingNegativePages(int pageToRead)
+    {
+        // arrange
+        var client = _factory.CreateClient();
+        
+        // act
+        var response = await client.GetAsync("/cheepsPage?page=" + pageToRead);
+        
+        // assert
+        var page = await response.Content.ReadFromJsonAsync<List<Cheep>>() ?? new  List<Cheep>();
+        var expected = await client.GetAsync("/cheepsPage?page=1");
+        var ExpactedPage = await expected.Content.ReadFromJsonAsync<List<Cheep>>() ?? new  List<Cheep>();
+        
+        Assert.Equal(ExpactedPage.Count, page.Count);
+        for (int i = 0; i < page.Count; i++)
+        {
+            bool sameAuthor = page[i].Author.Equals(ExpactedPage[i].Author);
+            bool sameMessage = page[i].Message.Equals(ExpactedPage[i].Message);
+            bool sameTimestamp = page[i].Timestamp == ExpactedPage[i].Timestamp;
+            Assert.True(sameAuthor && sameMessage && sameTimestamp);
+        }
+    }
+    
     // test that when changing the page we get different answers. Even when we ask by name
     [Fact]
     public async Task PagesAreUniqueButHasSameName()

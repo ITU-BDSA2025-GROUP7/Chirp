@@ -75,7 +75,7 @@ public class Services : IDisposable, IAsyncDisposable {
             if (pageNr == 0) pageNr = 1; // if parsing failed, set page number to 1 as requested by session_05 1.b)
 
             StringValues author = request.Query["author"];
-            return db.ReadPage(pageNr, author);
+            return db.ReadPageWithUser( author, pageNr);
         });
         
         
