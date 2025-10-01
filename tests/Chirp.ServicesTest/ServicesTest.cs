@@ -269,12 +269,14 @@ public class ServicesTest : IClassFixture<WebApplicationFactory<Services>>, IDis
         Assert.Equal(Services.PAGE_SIZE, page1.Count);
     }
 
+    // Tests that the api /cheepsPageWithAuthor finds results that are only of the chosen author
+    // Also tests that if a invalid input is given, that the output shpuld be empty
     [Theory]
     [InlineData("Jacqualine Gilcoine", false)]
     [InlineData("Adrian", false)]
     [InlineData("", true)]
     [InlineData("\n", true)]
-    [InlineData("NOT IN YOU DATABSE288282882827172672", true)]
+    [InlineData("THIS USER IS NOT IN DATABASE 288282882827172672", true)]
     public async Task ReadPageUser(string author, bool shouldBeEmpty)
     {
         // arrange 
@@ -283,6 +285,7 @@ public class ServicesTest : IClassFixture<WebApplicationFactory<Services>>, IDis
         // act
         var response = await client.GetAsync("/cheepsPageWithAuthor?page=1&author=" + author);
         
+        // assert
         var page = await response.Content.ReadFromJsonAsync<List<Cheep>>() ?? new List<Cheep>();
         Assert.True(response.IsSuccessStatusCode);
         foreach (var cheep in page)
@@ -322,7 +325,7 @@ public class ServicesTest : IClassFixture<WebApplicationFactory<Services>>, IDis
     {
         // arrange
         var client = _factory.CreateClient();
-        int max = Int32.MaxValue / 32;
+        int max = Int32.MaxValue / Services.PAGE_SIZE;
         
         // act
         var response = await client.GetAsync("/cheepsPage?page=" + max);
@@ -332,7 +335,7 @@ public class ServicesTest : IClassFixture<WebApplicationFactory<Services>>, IDis
         Assert.Empty(page);
     }
     
-    // test that when changing the page we get differen answers. Even when we ask by name
+    // test that when changing the page we get different answers. Even when we ask by name
     [Fact]
     public async Task PagesAreUniqueButHasSameName()
     {
