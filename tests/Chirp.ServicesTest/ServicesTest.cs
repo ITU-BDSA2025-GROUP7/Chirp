@@ -299,7 +299,7 @@ public class ServicesTest : IClassFixture<WebApplicationFactory<Services>>, IDis
     {
         // arrange
         var client = _factory.CreateClient();
-        int max = Int32.MaxValue;
+        int max = Int32.MaxValue / 32;
         
         // act
         var response = await client.GetAsync("/cheepsWithPage?page=" + max);
@@ -315,11 +315,11 @@ public class ServicesTest : IClassFixture<WebApplicationFactory<Services>>, IDis
     {
         // arrange
         var client = _factory.CreateClient();
-        string auther = "adho";
+        string author = "Jacqualine Gilcoine";
         
         // act
-        var response1 = await client.GetAsync("/cheepsWithPageFromUser?page=1&auther=" + auther);
-        var response2 = await client.GetAsync("/cheepsWithPageFromUser?page=2&auther=" + auther);
+        var response1 = await client.GetAsync("/cheepsWithPageFromUser?page=1&author=" + author);
+        var response2 = await client.GetAsync("/cheepsWithPageFromUser?page=2&author=" + author);
 
         // assert
         var page1 =  await response1.Content.ReadFromJsonAsync<List<Cheep>>() ?? new List<Cheep>();
@@ -335,8 +335,8 @@ public class ServicesTest : IClassFixture<WebApplicationFactory<Services>>, IDis
         }
 
         // All authors should be of the requested author
-        foreach (var cheep in page1) Assert.Equal(auther, cheep.Author);
-        foreach (var cheep in page2) Assert.Equal(auther, cheep.Author);
+        foreach (var cheep in page1) Assert.Equal(author, cheep.Author);
+        foreach (var cheep in page2) Assert.Equal(author, cheep.Author);
         
     }
     

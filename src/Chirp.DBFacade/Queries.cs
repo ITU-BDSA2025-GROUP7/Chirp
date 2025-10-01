@@ -22,6 +22,26 @@ public static class Queries {
         return query + $"LIMIT @{p.ParameterName},32";
         ;
     }
+    
+    public static string ReadPageQueryByName(SqliteParameter name ,SqliteParameter? startingEntryPer = null)
+    {
+        string query = "";
+        query += "SELECT username, text, pub_date ";
+        query += "FROM message JOIN user ON author_id=user_id ";
+        query += $"WHERE user.username = @{name.ParameterName} ";
+        query += "ORDER BY pub_date desc, user.username ";
+        if (startingEntryPer is not null)
+        {
+            Console.WriteLine("StartingEntryPer is not null");
+            query += $"LIMIT @{startingEntryPer.ParameterName},32 ";
+        }
+        else
+        {
+            Console.WriteLine("StartingEntryPer is null");
+            query += $"LIMIT 32 ";
+        }
+        return query;
+    }
 
     public static string PrepareInsertionCommand(string[] p) {
         return "INSERT OR ROLLBACK INTO message (author_id, text, pub_date) " +

@@ -81,20 +81,55 @@ public sealed class DBFacade<T> : IDisposable, IDataBaseRepository<T> where T : 
         }
     }
 
-    public IEnumerable<T> ReadPage(int page = 1)
+    public IEnumerable<T> ReadPage(int page = 1, string? name = null)
     {
         if (page < 1) page = 1;
         int? startingEntry = (page-1) * 32; // 32 is based on Service.PAGE_SIZE
         
         using SqliteCommand command = _connection.CreateCommand();
-        SqliteParameter p = NewParam(startingEntry, nameof(startingEntry)); 
-        command.Parameters.Add(p);
-        command.CommandText = Queries.ReadPageQuery(p);
-        command.Prepare();
-        using SqliteDataReader reader = command.ExecuteReader();
         
-        if (!reader.HasRows) yield break;
+        SqliteParameter startingEntryPer = NewParam(startingEntry, nameof(startingEntry)); 
+        command.Parameters.Add(startingEntryPer);
+        
+        if (name == null)
+        {
+            command.CommandText = Queries.ReadPageQuery(startingEntryPer);
+            command.Prepare();
+            using SqliteDataReader reader = command.ExecuteReader();
+            
+            foreach (var item in GetFromReader(reader))
+            {
+                yield return item;
+            }
+        }
+        else
+        {
+            Console.WriteLine(name + " made it to this line 1");
+            SqliteParameter namePar = NewParam(name, nameof(name)); 
+            command.Parameters.Add(namePar);
+            Console.WriteLine(name + " made it to this line 2");
+            command.CommandText = Queries.ReadPageQueryByName(namePar,startingEntryPer);
+            Console.WriteLine(name + " made it to this line 3");
+            command.Prepare();
+            Console.WriteLine(name + " made it to this line 4");
+            Console.WriteLine("Variable contens is: '" + namePar.Value + "' for " + namePar.ParameterName);
+            using SqliteDataReader reader = command.ExecuteReader();
+            foreach (var item in GetFromReader(reader))
+            {
+                yield return item;
+            }
+        }
+    }
+
+    public IEnumerable<T> GetFromReader(SqliteDataReader reader)
+    {
+        if (!reader.HasRows)
+        {
+            Console.WriteLine("Here1");
+            yield break;
+        }
         if (reader.FieldCount != typeof(T).GetProperties().Length) { // Won't be able to convert
+            Console.WriteLine("Here2");
             throw new InvalidCastException("The number of columns returned (" + reader.FieldCount +
                                            ") does not match the number of properties in " +
                                            typeof(T).Name + " (" + typeof(T).GetProperties().Length + ")");
@@ -103,7 +138,6 @@ public sealed class DBFacade<T> : IDisposable, IDataBaseRepository<T> where T : 
         ConstructorInfo constructor = GetConstructor();
         var values = new object?[reader.FieldCount];
         while (reader.Read()) {
-            Console.WriteLine("In Read");
             reader.GetValues(values); // stores current row in 'values'
             object record = constructor.Invoke(values); // call constructor with params from 'values'
             yield return (T)record;

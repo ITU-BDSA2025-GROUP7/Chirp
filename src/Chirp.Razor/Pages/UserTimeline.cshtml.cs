@@ -9,11 +9,11 @@ public class UserTimelineModel : CheepTimelineModel
     {
     }
     
-    public async Task<IActionResult> OnGet(string author)
+    public async Task<IActionResult> OnGet([FromRoute] string author)
     {
         int  pageNr = getPageNr(Request);
         
-        Console.WriteLine("pageQuery: " + pageNr);
+        Console.WriteLine("pageQuery: " + pageNr + " author: " + author);
         
         Cheeps = await _service.GetCheepsFromAuthor(author,pageNr);
         return Page();

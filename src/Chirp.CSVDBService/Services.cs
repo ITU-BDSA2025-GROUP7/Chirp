@@ -1,12 +1,14 @@
+using System.Web;
 using Chirp.DBFacade;
 using Chirp.General;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.Extensions.Primitives;
 
 namespace Chirp.CSVDBService;
 
 public class Services : IDisposable, IAsyncDisposable {
     
-    public static int PAGE_SIZE = 3;
+    public static int PAGE_SIZE = 32;
     
     // required to start the server
     public static void Main(string[] args)
@@ -54,23 +56,32 @@ public class Services : IDisposable, IAsyncDisposable {
         //Temporary Api's for development that should no longer be here after issue #44 is fixed
         app.MapGet("/cheepsWithPage", (HttpRequest request) =>
         {
+            // parse the page variable from the HttpRequest
             StringValues pageQuery = request.Query["page"];
             int pageNr;
             int.TryParse(pageQuery, out pageNr);
             if  (pageNr == 0) pageNr = 1; // if parsing failed, set page number to 1 as requested by session_05 1.b)
-
-            return db.ReadPage(pageNr);
+            
+            var result = db.ReadPage(pageNr);
+            var list = result.ToList();
+            Console.WriteLine("Number to return: " + list.Count);
+            return result;
             
         });
         app.MapGet("/cheepsWithPageFromUser", (HttpRequest request) =>
         {
             StringValues pageQuery = request.Query["page"];
             int pageNr;
-            int.TryParse(pageQuery, out pageNr);
+            int.TryParse(pageQuery.ToString(), out pageNr);
             if  (pageNr == 0) pageNr = 1; // if parsing failed, set page number to 1 as requested by session_05 1.b)
             
-            StringValues auther = request.Query["auther"];
+            StringValues auther = request.Query["author"];
+            Console.WriteLine("page nr " + pageNr + " auther: " +  auther);
 
+            return db.ReadPage(pageNr, auther);
+            
+
+            /*
             // temperary solution until SQL is added
             var cheeps = db.Read(null);
             var cheepsWithNameRestriction = cheeps.Where(x => x.Author == auther);
@@ -78,6 +89,7 @@ public class Services : IDisposable, IAsyncDisposable {
             var returnCheeps = cheepsWithNameRestriction.Skip(startIndex).Take(PAGE_SIZE);
             
             return returnCheeps;
+            */
         });
         
         
