@@ -62,12 +62,20 @@ public class Services : IDisposable, IAsyncDisposable {
             int.TryParse(pageQuery, out pageNr);
             if  (pageNr == 0) pageNr = 1; // if parsing failed, set page number to 1 as requested by session_05 1.b)
             
-            StringValues author = request.Query["author"];
-            IEnumerable<Cheep> result;
-            if (author.ToString().Equals("")) result = db.ReadPage(pageNr);
-            else result = db.ReadPage(pageNr, author);
-            return result;
+            return db.ReadPage(pageNr);
             
+        });
+
+        app.MapGet("/cheepsPageWithAuthor", (HttpRequest request) =>
+        {
+            // parse the page variable from the HttpRequest
+            StringValues pageQuery = request.Query["page"];
+            int pageNr;
+            int.TryParse(pageQuery, out pageNr);
+            if (pageNr == 0) pageNr = 1; // if parsing failed, set page number to 1 as requested by session_05 1.b)
+
+            StringValues author = request.Query["author"];
+            return db.ReadPage(pageNr, author);
         });
         
         

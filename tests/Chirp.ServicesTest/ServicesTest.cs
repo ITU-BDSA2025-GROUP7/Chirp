@@ -268,6 +268,29 @@ public class ServicesTest : IClassFixture<WebApplicationFactory<Services>>, IDis
         var page1 = await response.Content.ReadFromJsonAsync<List<Cheep>>() ?? new List<Cheep>();
         Assert.Equal(Services.PAGE_SIZE, page1.Count);
     }
+
+    [Theory]
+    [InlineData("Jacqualine Gilcoine", false)]
+    [InlineData("Adrian", false)]
+    [InlineData("", true)]
+    [InlineData("\n", true)]
+    [InlineData("NOT IN YOU DATABSE288282882827172672", true)]
+    public async Task ReadPageUser(string author, bool shouldBeEmpty)
+    {
+        // arrange 
+        var client = _factory.CreateClient();
+        
+        // act
+        var response = await client.GetAsync("/cheepsPageWithAuthor?page=1&author=" + author);
+        
+        var page = await response.Content.ReadFromJsonAsync<List<Cheep>>() ?? new List<Cheep>();
+        Assert.True(response.IsSuccessStatusCode);
+        foreach (var cheep in page)
+        {
+            Assert.Equal(author, cheep.Author);
+        }
+        Assert.Equal(shouldBeEmpty, page.Count == 0);
+    }
     
     // test that when changing the page we get differen answers
     [Fact]
@@ -318,8 +341,8 @@ public class ServicesTest : IClassFixture<WebApplicationFactory<Services>>, IDis
         string author = "Jacqualine Gilcoine";
         
         // act
-        var response1 = await client.GetAsync("/cheepsPage?page=1&author=" + author);
-        var response2 = await client.GetAsync("/cheepsPage?page=2&author=" + author);
+        var response1 = await client.GetAsync("/cheepsPageWithAuthor?page=1&author=" + author);
+        var response2 = await client.GetAsync("/cheepsPageWithAuthor?page=2&author=" + author);
 
         // assert
         var page1 =  await response1.Content.ReadFromJsonAsync<List<Cheep>>() ?? new List<Cheep>();
