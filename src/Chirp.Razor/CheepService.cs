@@ -38,7 +38,7 @@ public class CheepService : ICheepService
      */
     public async Task<List<CheepViewModel>> GetCheeps(int pageNr)
     {
-        var cheeps = await _httpClient.GetFromJsonAsync<List<Cheep>>("/cheepsWithPage" + "?page=" + pageNr) ??
+        var cheeps = await _httpClient.GetFromJsonAsync<List<Cheep>>("/cheepsPage" + "?page=" + pageNr) ??
                      new List<Cheep>();
         ;
         return cheeps.Select(c => new CheepViewModel(
@@ -53,8 +53,7 @@ public class CheepService : ICheepService
      */
     public async Task<List<CheepViewModel>> GetCheepsFromAuthor(string author, int pageNr)
     {
-        Console.WriteLine("Author: " + author);
-        var cheeps = await _httpClient.GetFromJsonAsync<List<Cheep>>("/cheepsWithPage" +"?author=" + author + "&page="+pageNr) ?? new List<Cheep>();;
+        var cheeps = await _httpClient.GetFromJsonAsync<List<Cheep>>("/cheepsPage" +"?author=" + author + "&page="+pageNr) ?? new List<Cheep>();;
         return cheeps.Select(c => new CheepViewModel(
             c.Author,
             c.Message,

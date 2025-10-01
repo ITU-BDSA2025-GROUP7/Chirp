@@ -32,7 +32,6 @@ public static class Queries {
         query += "ORDER BY pub_date desc, user.username ";
         if (startingEntryPer is not null)
         {
-            Console.WriteLine("StartingEntryPer is not null");
             query += $"LIMIT @{startingEntryPer.ParameterName},32 ";
         }
         else

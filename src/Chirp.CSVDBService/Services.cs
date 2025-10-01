@@ -54,7 +54,7 @@ public class Services : IDisposable, IAsyncDisposable {
         });
         
         //Temporary Api's for development that should no longer be here after issue #44 is fixed
-        app.MapGet("/cheepsWithPage", (HttpRequest request) =>
+        app.MapGet("/cheepsPage", (HttpRequest request) =>
         {
             // parse the page variable from the HttpRequest
             StringValues pageQuery = request.Query["page"];
@@ -69,19 +69,6 @@ public class Services : IDisposable, IAsyncDisposable {
             return result;
             
         });
-        /*
-        app.MapGet("/cheepsWithPageFromUser", (HttpRequest request) =>
-        {
-            StringValues pageQuery = request.Query["page"];
-            int pageNr;
-            int.TryParse(pageQuery.ToString(), out pageNr);
-            if  (pageNr == 0) pageNr = 1; // if parsing failed, set page number to 1 as requested by session_05 1.b)
-            
-            StringValues auther = request.Query["author"];
-            Console.WriteLine("page nr " + pageNr + " auther: " +  auther);
-
-            return db.ReadPage(pageNr, auther);
-        }); */
         
         
         app.Run(port);
