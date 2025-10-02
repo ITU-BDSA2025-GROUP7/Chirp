@@ -12,6 +12,7 @@
     <ProjectReference Include="../Chirp.General/Chirp.General.csproj" />
     <None Include="chirp_cli_db_Testing.csv" CopyToOutputDirectory="Always" />
     <None Include="chirp_cli_db.csv" CopyToOutputDirectory="Always" />
+    <InternalsVisibleTo Include="../../tests/Chirp.Razor.Tests" />
     <ProjectReference Include="..\Chirp.DBFacade\Chirp.DBFacade.csproj" />
   </ItemGroup>
 

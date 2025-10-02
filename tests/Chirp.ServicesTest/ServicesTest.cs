@@ -22,8 +22,7 @@ public class ServicesTest : IClassFixture<WebApplicationFactory<Services>>, IDis
 
         Console.SetOut(new StringWriter());
     }
-
-  
+    
     
     // read tests 
     private async Task<List<Cheep>> GetCheepsAsync()
@@ -254,7 +253,148 @@ public class ServicesTest : IClassFixture<WebApplicationFactory<Services>>, IDis
         Assert.Equal(message2, cheeps[index2]);
         Assert.Equal(message1, cheeps[index1]);
     }
+    
+    // test that we can read a page and get a result that is of length PAGE_SIZE
+    [Fact]
+    public async Task ReadPage()
+    {
+        // anrange
+        var client = _factory.CreateClient();
+        
+        // act
+        var response = await client.GetAsync("/cheepsPage?page=1");
+        
+        //assert
+        var page1 = await response.Content.ReadFromJsonAsync<List<Cheep>>() ?? new List<Cheep>();
+        Assert.Equal(Services.PAGE_SIZE, page1.Count);
+    }
 
+    // Tests that the api /cheepsPageWithAuthor finds results that are only of the chosen author
+    // Also tests that if a invalid input is given, that the output shpuld be empty
+    [Theory]
+    [InlineData("Jacqualine Gilcoine", false)]
+    [InlineData("Adrian", false)]
+    [InlineData("", true)]
+    [InlineData("\n", true)]
+    [InlineData("THIS USER IS NOT IN DATABASE 288282882827172672", true)]
+    public async Task ReadPageUser(string author, bool shouldBeEmpty)
+    {
+        // arrange 
+        var client = _factory.CreateClient();
+        
+        // act
+        var response = await client.GetAsync("/cheepsPageWithAuthor?page=1&author=" + author);
+        
+        // assert
+        var page = await response.Content.ReadFromJsonAsync<List<Cheep>>() ?? new List<Cheep>();
+        Assert.True(response.IsSuccessStatusCode);
+        foreach (var cheep in page)
+        {
+            Assert.Equal(author, cheep.Author);
+        }
+        Assert.Equal(shouldBeEmpty, page.Count == 0);
+    }
+    
+    // test that when changing the page we get differen answers
+    [Fact]
+    public async Task PagesAreUnique()
+    {
+        // arrange
+        var client = _factory.CreateClient();
+        
+        // act
+        var response1 = await client.GetAsync("/cheepsPage?page=1");
+        var response2 = await client.GetAsync("/cheepsPage?page=2");
+
+        // assert
+        var page1 =  await response1.Content.ReadFromJsonAsync<List<Cheep>>() ?? new List<Cheep>();
+        var page2 = await response2.Content.ReadFromJsonAsync<List<Cheep>>() ?? new List<Cheep>();
+        Assert.Equal(page1.Count, page2.Count);
+        for (var i = 0; i < page1.Count; i++)
+        {
+            bool equalAuthor = page1[i].Author == page2[i].Author;
+            bool equalMessage = page1[i].Message == page2[i].Message;
+            bool equalTimestamp = page1[i].Timestamp == page2[i].Timestamp;
+            Assert.False(equalAuthor &&  equalMessage && equalTimestamp); // they should not be equal
+        }
+    }
+    
+    //test that we can ask for a page witch does not exist
+    [Fact]
+    public async Task PagesDoesNotExist()
+    {
+        // arrange
+        var client = _factory.CreateClient();
+        int max = Int32.MaxValue / Services.PAGE_SIZE;
+        
+        // act
+        var response = await client.GetAsync("/cheepsPage?page=" + max);
+        
+        // assert
+        var page = await response.Content.ReadFromJsonAsync<List<Cheep>>() ?? new  List<Cheep>();
+        Assert.Empty(page);
+    }
+    
+    //test that reading a negetive page gives the same page as page 1
+    [Theory]
+    [InlineData(0)]
+    [InlineData(-1)]
+    [InlineData(-2)]
+    [InlineData(-3)]
+    public async Task ReadingNegativePages(int pageToRead)
+    {
+        // arrange
+        var client = _factory.CreateClient();
+        
+        // act
+        var response = await client.GetAsync("/cheepsPage?page=" + pageToRead);
+        
+        // assert
+        var page = await response.Content.ReadFromJsonAsync<List<Cheep>>() ?? new  List<Cheep>();
+        var expected = await client.GetAsync("/cheepsPage?page=1");
+        var ExpactedPage = await expected.Content.ReadFromJsonAsync<List<Cheep>>() ?? new  List<Cheep>();
+        
+        Assert.Equal(ExpactedPage.Count, page.Count);
+        for (int i = 0; i < page.Count; i++)
+        {
+            bool sameAuthor = page[i].Author.Equals(ExpactedPage[i].Author);
+            bool sameMessage = page[i].Message.Equals(ExpactedPage[i].Message);
+            bool sameTimestamp = page[i].Timestamp == ExpactedPage[i].Timestamp;
+            Assert.True(sameAuthor && sameMessage && sameTimestamp);
+        }
+    }
+    
+    // test that when changing the page we get different answers. Even when we ask by name
+    [Fact]
+    public async Task PagesAreUniqueButHasSameName()
+    {
+        // arrange
+        var client = _factory.CreateClient();
+        string author = "Jacqualine Gilcoine";
+        
+        // act
+        var response1 = await client.GetAsync("/cheepsPageWithAuthor?page=1&author=" + author);
+        var response2 = await client.GetAsync("/cheepsPageWithAuthor?page=2&author=" + author);
+
+        // assert
+        var page1 =  await response1.Content.ReadFromJsonAsync<List<Cheep>>() ?? new List<Cheep>();
+        var page2 = await response2.Content.ReadFromJsonAsync<List<Cheep>>() ?? new List<Cheep>();
+        Assert.True(page1.Count >= 3);
+        Assert.True(page2.Count >= 3);
+        for (var i = 0; i < 3; i++)
+        {
+            bool equalAuthor = page1[i].Author == page2[i].Author;
+            bool equalMessage = page1[i].Message == page2[i].Message;
+            bool equalTimestamp = page1[i].Timestamp == page2[i].Timestamp;
+            Assert.False(equalAuthor && equalMessage && equalTimestamp); // they should not be the same post
+        }
+
+        // All authors should be of the requested author
+        foreach (var cheep in page1) Assert.Equal(author, cheep.Author);
+        foreach (var cheep in page2) Assert.Equal(author, cheep.Author);
+        
+    }
+    
     public void Dispose() {
         DBFacade<Cheep>.Reset();
     }

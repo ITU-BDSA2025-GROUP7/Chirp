@@ -1,9 +1,14 @@
+using System.Web;
 using Chirp.DBFacade;
 using Chirp.General;
+using Microsoft.AspNetCore.Http.Extensions;
+using Microsoft.Extensions.Primitives;
 
 namespace Chirp.CSVDBService;
 
 public class Services : IDisposable, IAsyncDisposable {
+    
+    public static int PAGE_SIZE = 32;
     
     // required to start the server
     public static void Main(string[] args)
@@ -47,6 +52,34 @@ public class Services : IDisposable, IAsyncDisposable {
             db.Store(cheep);
             return "Cheep stored.";
         });
+        
+        //Temporary Api's for development that should no longer be here after issue #44 is fixed
+        app.MapGet("/cheepsPage", (HttpRequest request) =>
+        {
+            // parse the page variable from the HttpRequest
+            StringValues pageQuery = request.Query["page"];
+            int pageNr;
+            int.TryParse(pageQuery, out pageNr);
+            if  (pageNr == 0) pageNr = 1; // if parsing failed, set page number to 1 as requested by session_05 1.b)
+            
+            return db.ReadPage(pageNr);
+            
+        });
+
+        app.MapGet("/cheepsPageWithAuthor", (HttpRequest request) =>
+        {
+            // parse the page variable from the HttpRequest
+            StringValues pageQuery = request.Query["page"];
+            int pageNr;
+            int.TryParse(pageQuery, out pageNr);
+            if (pageNr == 0) pageNr = 1; // if parsing failed, set page number to 1 as requested by session_05 1.b)
+
+            StringValues authorValue = request.Query["author"];
+            string author = authorValue.ToString() ?? ""; 
+            return db.ReadPageWithUser(author, pageNr);
+        });
+        
+        
         app.Run(port);
     }
 

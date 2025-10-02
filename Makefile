@@ -39,9 +39,17 @@ read:
 cheep:
 	dotnet run --project src/Chirp.CLI.Client cheep "${n}"
 
-# Starts the service application. Override listening port by adding n=<port>
-start:
+# Starts the services application on local host. Override listening port by adding n=<port>
+start-services:
 	dotnet run --project src/Chirp.CSVDBService ${n}
+
+# starts the razer application on local host that's connected to the assure services application
+start-razor:
+	dotnet run --project src/Chirp.Razor
+
+# starts the razer application on local host that's connected to the localHost:5000 services application
+start-razor-local:
+	dotnet run --project src/Chirp.Razor ${ENV}
 
 # Runs all the tests in the solution
 test:

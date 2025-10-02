@@ -65,9 +65,74 @@ public sealed class DBFacade<T> : IDisposable, IDataBaseRepository<T> where T : 
         command.CommandText = Queries.ReadQuery(p);
         command.Prepare();
         using SqliteDataReader reader = command.ExecuteReader();
+        
+        foreach (var item in GetFromReader(reader))
+        {
+            yield return item;
+        }
+    }
 
-        if (!reader.HasRows) yield break;
+    /**
+     Returns a page og cheeps. Each page is of size 32.
+     - The page argument describes what page nr to return 
+     - If the userName argument is set, then ownly entries from that user will be retuned
+     */
+    public IEnumerable<T> ReadPage(int page = 1)
+    {
+        if (page < 1) page = 1;
+        int? startingEntry = (page-1) * 32; // 32 is based on Service.PAGE_SIZE
+        
+        using SqliteCommand command = _connection.CreateCommand();
+        
+        SqliteParameter startingEntryPer = NewParam(startingEntry, nameof(startingEntry)); 
+        command.Parameters.Add(startingEntryPer);
+        
+        command.CommandText = Queries.ReadPageQuery(startingEntryPer);
+        command.Prepare();
+        using SqliteDataReader reader = command.ExecuteReader();
+            
+        foreach (var item in GetFromReader(reader))
+        {
+            yield return item;
+        }
+    }
+
+    public IEnumerable<T> ReadPageWithUser(string userName, int page = 1)
+    {
+        if (page < 1) page = 1;
+        int? startingEntry = (page-1) * 32; // 32 is based on Service.PAGE_SIZE
+        
+        using SqliteCommand command = _connection.CreateCommand();
+        
+        SqliteParameter startingEntryPer = NewParam(startingEntry, nameof(startingEntry)); 
+        command.Parameters.Add(startingEntryPer);
+        SqliteParameter namePar = NewParam(userName, nameof(userName)); 
+        command.Parameters.Add(namePar);
+            
+        command.CommandText = Queries.ReadPageQueryByName(namePar,startingEntryPer);
+        command.Prepare();
+        using SqliteDataReader reader = command.ExecuteReader();
+            
+        foreach (var item in GetFromReader(reader))
+        {
+            yield return item;
+        }
+        
+    }
+    
+
+    /** Helper method
+     *  takes a reader and read all of it's results
+     */
+    private IEnumerable<T> GetFromReader(SqliteDataReader reader)
+    {
+        if (!reader.HasRows)
+        {
+            Console.WriteLine("Here1");
+            yield break;
+        }
         if (reader.FieldCount != typeof(T).GetProperties().Length) { // Won't be able to convert
+            Console.WriteLine("Here2");
             throw new InvalidCastException("The number of columns returned (" + reader.FieldCount +
                                            ") does not match the number of properties in " +
                                            typeof(T).Name + " (" + typeof(T).GetProperties().Length + ")");

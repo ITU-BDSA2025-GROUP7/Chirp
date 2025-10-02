@@ -21,15 +21,6 @@
 
     <ItemGroup>
         <EmbeddedResource Include="data/**/*" />
-        <!-- Remove these -->
-        <!--<<EmbeddedResource Include="sqlite3.def">
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </EmbeddedResource>
-        <EmbeddedResource Include="sqlite3.dll">
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </EmbeddedResource>/>-->
-    </ItemGroup>
-    <ItemGroup>
         <PackageReference Include="Microsoft.Data.Sqlite" Version="9.*" />
         <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="2.*" />
     </ItemGroup>
