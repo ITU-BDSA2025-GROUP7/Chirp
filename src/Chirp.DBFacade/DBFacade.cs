@@ -17,7 +17,7 @@ namespace Chirp.DBFacade;
 public sealed class DBFacade<T> : IDisposable, IDataBaseRepository<T> where T : Cheep {
     private DBFacade() {
         //SQL.raw.SetProvider(new SQL.SQLite3Provider_sqlite3());
-        SQL.raw.SetProvider(new SQL.SQLite3Provider_sqlite3());
+        //SQL.raw.SetProvider(new SQL.SQLite3Provider_sqlite3());
         (_connection, bool hasToInitialise) = Connect();
         if (hasToInitialise)
             Init();
