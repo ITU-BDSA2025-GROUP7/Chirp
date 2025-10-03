@@ -6,7 +6,6 @@ using Chirp.CSVDB;
 using Chirp.General;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.FileProviders;
-using SQL = SQLitePCL;
 using static Chirp.DBFacade.SqlHelper;
 
 // ReSharper disable StaticMemberInGenericType // <-- _instance and Padlock have to be static.

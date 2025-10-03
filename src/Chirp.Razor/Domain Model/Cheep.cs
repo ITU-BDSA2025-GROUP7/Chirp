@@ -1,0 +1,7 @@
+namespace Chirp.Razor.Domain_Model;
+
+public class Cheep {
+    public string Text { get; set; }
+    public DateTime Timestamp { get; set; }
+    public Author Author { get; set; }
+}
