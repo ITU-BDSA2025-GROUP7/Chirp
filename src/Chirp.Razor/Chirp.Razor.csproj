@@ -7,6 +7,7 @@
       
   </PropertyGroup>
 <ItemGroup>
+    <ProjectReference Include="..\Chirp.DBFacade\Chirp.DBFacade.csproj" />
     <ProjectReference Include="..\Chirp.General\Chirp.General.csproj" />
 </ItemGroup>
 

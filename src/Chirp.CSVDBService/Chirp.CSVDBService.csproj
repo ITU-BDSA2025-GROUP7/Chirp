@@ -15,10 +15,5 @@
     <InternalsVisibleTo Include="../../tests/Chirp.Razor.Tests" />
     <ProjectReference Include="..\Chirp.DBFacade\Chirp.DBFacade.csproj" />
   </ItemGroup>
-
-
-  <ItemGroup>
-    <None Include="data\Chirp.db" />
-  </ItemGroup>
   
 </Project>

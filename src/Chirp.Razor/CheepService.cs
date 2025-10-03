@@ -1,5 +1,5 @@
 using System.Net.Http.Headers;
-using System.Net.Http.Json;
+using Chirp.DBFacade;
 using Chirp.General;
 
 
@@ -16,6 +16,8 @@ public class CheepService : ICheepService
     private static string? baseURL;
     private static string? URLwithPort;
     private readonly HttpClient _httpClient;
+    private DBFacade<Cheep> db;
+
 
     // default constructor
     public CheepService(HttpClient httpClient)
@@ -24,6 +26,7 @@ public class CheepService : ICheepService
         _httpClient.DefaultRequestHeaders.Accept.Clear();
         _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         _httpClient.BaseAddress = new Uri(GetUrlWithPort());
+        db = DBFacade<Cheep>.Instance;
     }
 
     // extra constructor that calls the default constructor
@@ -31,34 +34,29 @@ public class CheepService : ICheepService
     {
     }
 
-    private static readonly List<CheepViewModel>? _cheeps = new();
-
     /**
      * Calls on the Services to get all cheeps within the given page nr
      */
-    public async Task<List<CheepViewModel>> GetCheeps(int pageNr)
+    public Task<List<CheepViewModel>> GetCheeps(int pageNr)
     {
-        var cheeps = await _httpClient.GetFromJsonAsync<List<Cheep>>("/cheepsPage" + "?page=" + pageNr) ??
-                     new List<Cheep>();
-        ;
-        return cheeps.Select(c => new CheepViewModel(
+        return Task.FromResult(db.ReadPage(pageNr).Select(c => new CheepViewModel(
             c.Author,
             c.Message,
             UnixTimeStampToDateTimeString(c.Timestamp)
-        )).ToList();
+        )).ToList());
     }
 
     /**
      * Calls on the Services to get all cheeps within the given page nr that have the given author
      */
-    public async Task<List<CheepViewModel>> GetCheepsFromAuthor(string author, int pageNr)
+    public Task<List<CheepViewModel>> GetCheepsFromAuthor(string author, int pageNr)
     {
-        var cheeps = await _httpClient.GetFromJsonAsync<List<Cheep>>("/cheepsPageWithAuthor" +"?author=" + author + "&page="+pageNr) ?? new List<Cheep>();;
-        return cheeps.Select(c => new CheepViewModel(
+        IEnumerable<Cheep> pagesFromAuthor = db.ReadPageWithUser(author, pageNr);
+        return Task.FromResult(pagesFromAuthor.Select(c => new CheepViewModel(
             c.Author,
             c.Message,
             UnixTimeStampToDateTimeString(c.Timestamp)
-        )).ToList();
+        )).ToList());
     }
 
 
