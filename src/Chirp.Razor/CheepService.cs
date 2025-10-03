@@ -1,6 +1,8 @@
 using System.Net.Http.Headers;
 using Chirp.DBFacade;
 using Chirp.General;
+using Chirp.Razor;
+using Microsoft.EntityFrameworkCore;
 
 
 public record CheepViewModel(string Author, string Message, string Timestamp);
@@ -37,13 +39,29 @@ public class CheepService : ICheepService
     /**
      * Calls on the Services to get all cheeps within the given page nr
      */
-    public Task<List<CheepViewModel>> GetCheeps(int pageNr)
+    public async Task<List<CheepViewModel>> GetCheeps(int pageNr)
     {
+        var dbContext = new ChirpDBContext(new DbContextOptions<ChirpDBContext>());
+        var query = 
+            from Cheeps in dbContext.Cheeps
+            select new CheepViewModel(Cheeps.Author.Name, Cheeps.Text, Cheeps.Timestamp.ToString());
+
+        return await query.ToListAsync();
+        /*
+        
+        return result.Select(c => new CheepViewModel(
+            c.Author,
+            c.Message,
+            UnixTimeStampToDateTimeString(c.Timestamp)
+        )).ToList());;
+        
+        /*
         return Task.FromResult(db.ReadPage(pageNr).Select(c => new CheepViewModel(
             c.Author,
             c.Message,
             UnixTimeStampToDateTimeString(c.Timestamp)
         )).ToList());
+        */
     }
 
     /**
