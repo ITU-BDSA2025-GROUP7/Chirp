@@ -6,12 +6,10 @@ using Microsoft.EntityFrameworkCore;
 using Cheep = Chirp.General.Cheep;
 
 
-public record CheepViewModel(string Author, string Message, string Timestamp);
-
 public interface ICheepService
 {
-    public Task<List<CheepViewModel>> GetCheeps(int pageNr);
-    public Task<List<CheepViewModel>> GetCheepsFromAuthor(string author, int pageNr);
+    public Task<List<CheepDTO>> GetCheeps(int pageNr);
+    public Task<List<CheepDTO>> GetCheepsFromAuthor(string author, int pageNr);
 }
 
 public class CheepService : ICheepService
@@ -33,13 +31,13 @@ public class CheepService : ICheepService
     /**
      * Calls on the Services to get all cheeps within the given page nr
      */
-    public async Task<List<CheepViewModel>> GetCheeps(int pageNr)
+    public async Task<List<CheepDTO>> GetCheeps(int pageNr)
     {
         var query = (from cheep in dbContext.Cheeps
             orderby cheep.TimeStamp descending
             select cheep)
             .Skip((pageNr - 1) * 32).Take(32).Select(cheep => 
-                new CheepViewModel(cheep.Author.Name, cheep.Text, cheep.TimeStamp.ToString()));
+                new CheepDTO(cheep.Author.Name, cheep.Text, cheep.TimeStamp.ToString()));
 
         return await query.ToListAsync();
     }
@@ -47,12 +45,12 @@ public class CheepService : ICheepService
     /**
      * Calls on the Services to get all cheeps within the given page nr that have the given author
      */
-    public async Task<List<CheepViewModel>> GetCheepsFromAuthor(string author, int pageNr)
+    public async Task<List<CheepDTO>> GetCheepsFromAuthor(string author, int pageNr)
     {
         var query = (from cheep in dbContext.Cheeps
                 where cheep.Author.Name == author
                 orderby cheep.TimeStamp descending
-                select new CheepViewModel(cheep.Author.Name, cheep.Text, cheep.TimeStamp.ToString()))
+                select new CheepDTO(cheep.Author.Name, cheep.Text, cheep.TimeStamp.ToString()))
             .Skip((pageNr - 1) * 32).Take(32);
 
         return await query.ToListAsync();

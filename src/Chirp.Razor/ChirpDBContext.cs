@@ -10,6 +10,6 @@ public class ChirpDBContext:  DbContext
 
     public ChirpDBContext(DbContextOptions<ChirpDBContext> options) : base(options)
     {
-        
+        DbInitializer.SeedDatabase(this);
     }
 }
