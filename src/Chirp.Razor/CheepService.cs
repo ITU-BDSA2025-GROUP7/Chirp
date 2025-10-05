@@ -50,10 +50,9 @@ public class CheepService : ICheepService
     public async Task<List<CheepViewModel>> GetCheepsFromAuthor(string author, int pageNr)
     {
         var query = (from cheep in dbContext.Cheeps
-                where cheep.Author.Name.Equals(author)
+                where cheep.Author.Name == author
                 orderby cheep.Timestamp descending
                 select new CheepViewModel(cheep.Author.Name, cheep.Text, cheep.Timestamp.ToString()))
-           // .Where(c => c.Author.Name.Equals(author))
             .Skip((pageNr - 1) * 32).Take(32);
 
         return await query.ToListAsync();
