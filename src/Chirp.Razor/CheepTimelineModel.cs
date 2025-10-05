@@ -10,7 +10,7 @@ namespace Chirp.Razor;
 public abstract class CheepTimelineModel : PageModel 
 {
     protected readonly ICheepService _service;
-    public List<CheepViewModel> Cheeps { get; set; } = new();
+    public List<CheepDTO> Cheeps { get; set; } = new();
 
     public CheepTimelineModel(ICheepService service)
     {
