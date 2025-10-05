@@ -36,10 +36,10 @@ public class CheepService : ICheepService
     public async Task<List<CheepViewModel>> GetCheeps(int pageNr)
     {
         var query = (from cheep in dbContext.Cheeps
-            orderby cheep.Timestamp descending
+            orderby cheep.TimeStamp descending
             select cheep)
             .Skip((pageNr - 1) * 32).Take(32).Select(cheep => 
-                new CheepViewModel(cheep.Author.Name, cheep.Text, cheep.Timestamp.ToString()));
+                new CheepViewModel(cheep.Author.Name, cheep.Text, cheep.TimeStamp.ToString()));
 
         return await query.ToListAsync();
     }
@@ -51,8 +51,8 @@ public class CheepService : ICheepService
     {
         var query = (from cheep in dbContext.Cheeps
                 where cheep.Author.Name == author
-                orderby cheep.Timestamp descending
-                select new CheepViewModel(cheep.Author.Name, cheep.Text, cheep.Timestamp.ToString()))
+                orderby cheep.TimeStamp descending
+                select new CheepViewModel(cheep.Author.Name, cheep.Text, cheep.TimeStamp.ToString()))
             .Skip((pageNr - 1) * 32).Take(32);
 
         return await query.ToListAsync();
