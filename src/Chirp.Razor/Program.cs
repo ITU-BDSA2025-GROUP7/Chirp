@@ -5,7 +5,6 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
-builder.Services.AddSingleton<ICheepService, CheepService>();
 
 string environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")!;
 var config = new ConfigurationBuilder()
@@ -15,7 +14,7 @@ var config = new ConfigurationBuilder()
 
 string? connectionString =  config["ConnectionStrings:DefaultConnection"];
 builder.Services.AddDbContext<ChirpDBContext>(options => options.UseSqlite(connectionString));
-
+builder.Services.AddScoped<ICheepService, CheepService>();
 
 var app = builder.Build();
 
