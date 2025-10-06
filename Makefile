@@ -23,33 +23,10 @@ n :=
 
 # ==============================================================================
 
-# Read from local server. Limit the amount by adding n=<limit>
-read-local:
-	dotnet run --project src/Chirp.CLI.Client ${ENV} read ${n}
-
-# Cheep to local server. Set message with n=<message>
-cheep-local:
-	dotnet run --project src/Chirp.CLI.Client ${ENV} cheep "${n}"
-
-# Read from online server. Limit the amount by adding n=<limit>
-read:
-	dotnet run --project src/Chirp.CLI.Client read ${n}
-
-# Cheep to online server. Set message with n=<message>
-cheep:
-	dotnet run --project src/Chirp.CLI.Client cheep "${n}"
-
-# Starts the services application on local host. Override listening port by adding n=<port>
-start-services:
-	dotnet run --project src/Chirp.CSVDBService ${n}
-
-# starts the razer application on local host that's connected to the assure services application
+# starts the razer application on local host
 start-razor:
 	dotnet run --project src/Chirp.Razor
 
-# starts the razer application on local host that's connected to the localHost:5000 services application
-start-razor-local:
-	dotnet run --project src/Chirp.Razor ${ENV}
 
 # Runs all the tests in the solution
 test:
@@ -58,18 +35,6 @@ test:
 #
 test-linux:
 	ASPNETCORE_ENVIRONMENT=Test dotnet test
-
-# Runs client tests
-tclient:
-	dotnet test $(ENV) tests/Chirp.CLI.Tests
-
-# Runs database tests
-tdatabase:
-	dotnet test $(ENV) tests/Chirp.DBFacade.Tests
-
-# Runs service tests
-tservice:
-	dotnet test $(ENV) tests/Chirp.ServicesTest
 
 build:
 	dotnet build
