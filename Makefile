@@ -27,7 +27,6 @@ n :=
 start-razor:
 	dotnet run --project src/Chirp.Razor
 
-
 # Runs all the tests in the solution
 test:
 	dotnet test ${ENV}

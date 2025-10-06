@@ -57,9 +57,6 @@ a new database.
 The program will automaticly uploade and deploy to Azure on https://bdsagroup7chirprazor-buhcfwanakgyaabx.germanywestcentral-01.azurewebsites.net/. This happens whenever new changes are pushed into main.
 
 
-### Running localy
-The program can be run localy using the comand make start-razor
-
 ## Testing
 
 To run all the tests in the solution:
