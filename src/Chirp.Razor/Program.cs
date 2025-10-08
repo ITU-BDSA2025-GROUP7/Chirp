@@ -14,6 +14,7 @@ var config = new ConfigurationBuilder()
 
 string? connectionString =  config["ConnectionStrings:DefaultConnection"];
 builder.Services.AddDbContext<ChirpDBContext>(options => options.UseSqlite(connectionString));
+builder.Services.AddScoped<ICheepRepository, CheepRepository>();
 builder.Services.AddScoped<ICheepService, CheepService>();
 
 var app = builder.Build();

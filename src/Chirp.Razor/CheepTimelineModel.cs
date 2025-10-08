@@ -17,7 +17,7 @@ public abstract class CheepTimelineModel : PageModel
         _service = service;
     }
 
-    /***
+    /**
      * returns the page nr of a given httpRequest
      * the pageNr is withing [1;infinity[
      * if a pageNr could not be found, return 1
