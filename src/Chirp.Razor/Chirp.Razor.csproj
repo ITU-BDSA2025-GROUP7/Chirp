@@ -11,6 +11,7 @@
     <ProjectReference Include="..\Chirp.General\Chirp.General.csproj" />
 </ItemGroup>
 <ItemGroup>
+  <EmbeddedResource Include="data/**/*"/>
   <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.9">
     <PrivateAssets>all</PrivateAssets>
     <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
