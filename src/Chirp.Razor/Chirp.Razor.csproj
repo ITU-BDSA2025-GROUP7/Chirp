@@ -9,6 +9,7 @@
 <ItemGroup>
     <ProjectReference Include="..\Chirp.DBFacade\Chirp.DBFacade.csproj" />
     <ProjectReference Include="..\Chirp.General\Chirp.General.csproj" />
+    <InternalsVisibleTo Include="..\..\tests\Chirp.Razor.Tests\RazorPageTest" />
 </ItemGroup>
 <ItemGroup>
   <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.9">

@@ -21,5 +21,6 @@
         
         <ProjectReference Include="..\..\src\Chirp.General\Chirp.General.csproj" />
         <ProjectReference Include="..\..\src\Chirp.Razor\Chirp.Razor.csproj" />
+        
     </ItemGroup>
 </Project>

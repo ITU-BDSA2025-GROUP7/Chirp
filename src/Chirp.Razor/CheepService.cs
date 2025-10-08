@@ -25,6 +25,7 @@ public class CheepService : ICheepService
     {
         db = DBFacade<Cheep>.Instance;
         this.dbContext = dbContext;
+		
     }
     
 
@@ -33,6 +34,7 @@ public class CheepService : ICheepService
      */
     public async Task<List<CheepDTO>> GetCheeps(int pageNr)
     {
+        
         var query = (from cheep in dbContext.Cheeps
             orderby cheep.TimeStamp descending
             select cheep)
