@@ -12,6 +12,7 @@
     <InternalsVisibleTo Include="..\..\tests\Chirp.Razor.Tests\RazorPageTest" />
 </ItemGroup>
 <ItemGroup>
+  <None Include="data\Chirp.db" CopyToOutputDirectory="Always" />
   <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.9">
     <PrivateAssets>all</PrivateAssets>
     <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
