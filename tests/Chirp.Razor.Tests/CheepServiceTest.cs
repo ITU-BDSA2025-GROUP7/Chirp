@@ -9,7 +9,7 @@ namespace Chirp.Razor;
 public class CheepServiceTest
 {
     
-    private readonly CheepService _cheepService;
+    //private readonly CheepService _cheepService;
     /* needs refactoring
     public CheepServiceTest(WebApplicationFactory<Services> factory)
     {
