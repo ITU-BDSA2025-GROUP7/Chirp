@@ -26,7 +26,13 @@ if (!app.Environment.IsDevelopment())
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
-
+using (var scope = app.Services.CreateScope())
+{  /* moved the seeding of the db initializer out of 
+	the chirpDBContext so it is possible to use a 
+	different test database*/
+    var dbContext = scope.ServiceProvider.GetRequiredService<ChirpDBContext>();
+    DbInitializer.SeedDatabase(dbContext);
+}
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
@@ -35,3 +41,4 @@ app.UseRouting();
 app.MapRazorPages();
 
 app.Run();
+public partial class Program { }
