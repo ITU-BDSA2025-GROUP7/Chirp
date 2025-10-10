@@ -1,3 +1,4 @@
+using Chirp.Razor.Domain_Model;
 using Microsoft.EntityFrameworkCore;
 
 namespace Chirp.Razor;
@@ -5,31 +6,38 @@ namespace Chirp.Razor;
 public class CheepRepository :  ICheepRepository
 {
     private ChirpDBContext dbContext;
-    
+
     public CheepRepository(ChirpDBContext dbContext)
     {
         this.dbContext = dbContext;
     }
-
-    public string GetAuthor(string identifier)
-    {
-        
-    }
     private Author GetAuthorByName(string name)
     {
         var query = (from author in dbContext.Authors
-                orderby author.Name
-                where author.Name == name)
-                    .Select(author => author);
-
+            where author.Name == name
+            orderby author.Name
+            select author);
         return query.First();
     }
 
-    private string GetAuthorByEmail(string email)
+    private Author GetAuthorByEmail(string email)
     {
-        
+        var query = (from author in dbContext.Authors
+            where author.Email == email
+            orderby author.Name
+            select author);
+        return query.First();
     }
-    
+    public void CreateCheep(string author, string message, DateTime timestamp)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Author GetAuthor(string identifier)
+    {
+        throw new NotImplementedException();
+    }
+
     public async Task<List<CheepDTO>> GetCheeps(int pageNr)
     {
         var query = (from cheep in dbContext.Cheeps

@@ -1,15 +1,14 @@
 namespace Chirp.Razor;
 
+using System.Diagnostics.CodeAnalysis;
+using Domain_Model;
+
 public interface ICheepRepository
 {
     /**
      * recognizes the string as a name or email and calls the relevant GetAuthor method
      */
     public Author GetAuthor(string identifier);
-    
-    private Author GetAuthorByName(string name);
-
-    private Author GetAuthorByEmail(string email);
     
     /**
      * Gets all cheeps within the given page nr
