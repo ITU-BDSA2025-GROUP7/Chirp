@@ -10,6 +10,25 @@ public class CheepRepository :  ICheepRepository
     {
         this.dbContext = dbContext;
     }
+
+    public string GetAuthor(string identifier)
+    {
+        
+    }
+    private Author GetAuthorByName(string name)
+    {
+        var query = (from author in dbContext.Authors
+                orderby author.Name
+                where author.Name == name)
+                    .Select(author => author);
+
+        return query.First();
+    }
+
+    private string GetAuthorByEmail(string email)
+    {
+        
+    }
     
     public async Task<List<CheepDTO>> GetCheeps(int pageNr)
     {
