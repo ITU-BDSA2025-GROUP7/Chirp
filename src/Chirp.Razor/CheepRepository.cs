@@ -28,6 +28,13 @@ public class CheepRepository :  ICheepRepository
             select author);
         return query.First();
     }
+
+    public void CreateAuthor(string name, string email)
+    {
+        Author author = new Author() {Name  = name, Email = email};
+        dbContext.Authors.Add(author);
+        dbContext.SaveChanges();
+    }
     public void CreateCheep(Author author, string message, DateTime timestamp)
     {
         Cheep cheep = new Cheep() {Author  = author, Text = message, TimeStamp = timestamp};

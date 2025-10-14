@@ -22,6 +22,8 @@ public interface ICheepRepository
     
     public void SendCheep(CheepDTO cheep);
     
+    public void CreateAuthor(string name, string email);
+    
     public void CreateCheep(Author author, string message, DateTime timestamp);
 
     public ChirpDBContext GetDbContext();
