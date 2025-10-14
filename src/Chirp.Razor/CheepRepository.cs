@@ -35,7 +35,11 @@ public class CheepRepository :  ICheepRepository
 
     public Author GetAuthor(string identifier)
     {
-        throw new NotImplementedException();
+        if (identifier.Contains("@"))
+        {
+            return GetAuthorByEmail(identifier);
+        }
+        return GetAuthorByName(identifier);
     }
 
     public async Task<List<CheepDTO>> GetCheeps(int pageNr)
