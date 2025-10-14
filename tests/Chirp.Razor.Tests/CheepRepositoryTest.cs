@@ -34,7 +34,7 @@ public class CheepRepositoryTest
 
 
     /*Test that there is only cheeps from the selected author when getcheepsfromauthor is called
-    and that it doesn't crash if the author doesn't exists
+    and that it doesn't crash if the author doesn't exist
 */
     [Theory]
     [InlineData("Roger Histand")]
@@ -169,14 +169,13 @@ public class CheepRepositoryTest
 
     }
     
-    [Theory]
-    [InlineData("Wendell Ballan")]
-    public void CreateCheepTest(string name)
+    [Fact]
+    public async Task CreateCheepTest()
     {
-        Author author = _cheepRepository.GetAuthor(name);
+        Author author = await _cheepRepository.GetAuthor("Wendell Ballan");
         string message = "I like turtles";
         DateTime date = DateTime.Parse("2023-08-02 13:13:45");
-        _cheepRepository.CreateCheep(author, message, date);
+        await _cheepRepository.CreateCheep(author, message, date);
         var query = (from cheep in _cheepRepository.GetDbContext().Cheeps
             where cheep.Text == message
             select cheep);
@@ -184,5 +183,44 @@ public class CheepRepositoryTest
         Assert.Equal(createdcheep.Text, message);
     }
 
+    [Fact]
+    public async Task CreateAuthorTest()
+    {
+        string name, email;
+        name = "Barton Cooper";
+        email = "cooper@copper.com";
+        await _cheepRepository.CreateAuthor(name, email);
+        var query = (from author in _cheepRepository.GetDbContext().Authors
+            where author.Name == name
+            select author);
+        Author actualAuthor = await query.FirstAsync();
+        Assert.Equal(email, actualAuthor.Email);
+    }
+    
+    [Fact]
+    public async Task CheepOwnershipTest() 
+    {
+        Author user = await _cheepRepository.GetAuthor("Wendell Ballan");
+        string message = "I really like turtles";
+        DateTime date = DateTime.Parse("2023-08-02 14:13:45");
+        await _cheepRepository.CreateCheep(user, message, date);
+        var query = (from author in _cheepRepository.GetDbContext().Authors
+            where author.Name == "Wendell Ballan"
+            select author.Cheeps);
+        string actualmessage = query.First().Last().Text;
+        Assert.Equal(message, actualmessage);
+    }
 
+    [Theory]
+    [InlineData("Wendell Ballan", 3)]
+    [InlineData("Roger Histand", 1)]
+    [InlineData("Luanna Muro", 2)]
+    [InlineData("Roger+Histand@hotmail.com", 1)]
+    [InlineData("Luanna-Muro@ku.dk", 2)]
+    [InlineData("Quintin+Sitts@itu.dk", 5)]
+    public async Task GetAuthorTest(string identifier, int authorId)
+    {
+        Author author =  await _cheepRepository.GetAuthor(identifier);
+        Assert.Equal(author.AuthorId, authorId);
+    }
 }

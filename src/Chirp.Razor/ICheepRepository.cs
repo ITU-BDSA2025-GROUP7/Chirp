@@ -8,7 +8,7 @@ public interface ICheepRepository
     /**
      * recognizes the string as a name or email and calls the relevant GetAuthor method
      */
-    public Author GetAuthor(string identifier);
+    public Task<Author> GetAuthor(string identifier);
     
     /**
      * Gets all cheeps within the given page nr
@@ -22,9 +22,9 @@ public interface ICheepRepository
     
     public void SendCheep(CheepDTO cheep);
     
-    public void CreateAuthor(string name, string email);
+    public Task CreateAuthor(string name, string email);
     
-    public void CreateCheep(Author author, string message, DateTime timestamp);
+    public Task CreateCheep(Author author, string message, DateTime timestamp);
 
     public ChirpDBContext GetDbContext();
 }
