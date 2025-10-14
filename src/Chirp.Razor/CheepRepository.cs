@@ -28,9 +28,11 @@ public class CheepRepository :  ICheepRepository
             select author);
         return query.First();
     }
-    public void CreateCheep(string author, string message, DateTime timestamp)
+    public void CreateCheep(Author author, string message, DateTime timestamp)
     {
-        throw new NotImplementedException();
+        Cheep cheep = new Cheep() {Author  = author, Text = message, TimeStamp = timestamp};
+        dbContext.Cheeps.Add(cheep);
+        dbContext.SaveChanges();
     }
 
     public Author GetAuthor(string identifier)
@@ -69,4 +71,10 @@ public class CheepRepository :  ICheepRepository
     {
         throw new NotImplementedException();
     }
+
+    public ChirpDBContext GetDbContext()
+    {
+        return dbContext;
+    }
+    
 }

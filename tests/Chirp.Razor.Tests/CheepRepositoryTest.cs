@@ -1,4 +1,5 @@
 
+using Chirp.Razor.Domain_Model;
 using Xunit;
 namespace Chirp.Razor;
 using Microsoft.Data.Sqlite;
@@ -56,7 +57,8 @@ public class CheepRepositoryTest
 
 
     }
-
+    
+    
     
 
     /*Testing that the cheeps contain the expeected author, message and timestamp */
@@ -166,8 +168,21 @@ public class CheepRepositoryTest
         Assert.Equivalent(cheeps1, cheepsWeird);
 
     }
-
-
+    
+    [Theory]
+    [InlineData("Wendell Ballan")]
+    public void CreateCheepTest(string name)
+    {
+        Author author = _cheepRepository.GetAuthor(name);
+        string message = "I like turtles";
+        DateTime date = DateTime.Parse("2023-08-02 13:13:45");
+        _cheepRepository.CreateCheep(author, message, date);
+        var query = (from cheep in _cheepRepository.GetDbContext().Cheeps
+            where cheep.Text == message
+            select cheep);
+        Cheep createdcheep = query.First();
+        Assert.Equal(createdcheep.Text, message);
+    }
 
 
 }
