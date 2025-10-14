@@ -1,19 +1,59 @@
+using Chirp.Razor.Domain_Model;
 using Microsoft.EntityFrameworkCore;
 
 namespace Chirp.Razor;
 
 public class CheepRepository :  ICheepRepository
 {
-    private ChirpDBContext dbContext;
-    
+    private ChirpDBContext _dbContext;
+
     public CheepRepository(ChirpDBContext dbContext)
     {
-        this.dbContext = dbContext;
+        this._dbContext = dbContext;
     }
-    
+    private async Task<Author> GetAuthorByName(string name)
+    {
+        var query = (from author in _dbContext.Authors
+            where author.Name == name
+            orderby author.Name
+            select author);
+        return await query.FirstAsync();
+    }
+
+    private async Task<Author> GetAuthorByEmail(string email)
+    {
+        var query = (from author in _dbContext.Authors
+            where author.Email == email
+            orderby author.Name
+            select author);
+        return await query.FirstAsync();
+    }
+
+    public async Task CreateAuthor(string name, string email)
+    {
+        Author author = new Author() {Name  = name, Email = email};
+        await _dbContext.Authors.AddAsync(author);
+        await _dbContext.SaveChangesAsync();
+    }
+    public async Task CreateCheep(Author author, string message, DateTime timestamp)
+    {
+        Cheep cheep = new Cheep() {Author  = author, Text = message, TimeStamp = timestamp};
+        await _dbContext.Cheeps.AddAsync(cheep);
+        await _dbContext.SaveChangesAsync();
+    }
+
+    public async Task<Author> GetAuthor(string identifier)
+    {
+        if (identifier.Contains("@"))
+        {
+            return await GetAuthorByEmail(identifier);
+        }
+        return await GetAuthorByName(identifier);
+    }
+
     public async Task<List<CheepDTO>> GetCheeps(int pageNr)
     {
-        var query = (from cheep in dbContext.Cheeps
+        var query = (from cheep in _dbContext.Cheeps
                 orderby cheep.TimeStamp descending
                 select cheep)
             .Skip((pageNr - 1) * 32).Take(32).Select(cheep => 
@@ -25,7 +65,7 @@ public class CheepRepository :  ICheepRepository
     
     public async Task<List<CheepDTO>> GetCheepsFromAuthor(string author, int pageNr)
     {
-        var query = (from cheep in dbContext.Cheeps
+        var query = (from cheep in _dbContext.Cheeps
                 where cheep.Author.Name == author
                 orderby cheep.TimeStamp descending
                 select new CheepDTO(cheep.Author.Name, cheep.Text, cheep.TimeStamp.ToString()))
@@ -38,4 +78,10 @@ public class CheepRepository :  ICheepRepository
     {
         throw new NotImplementedException();
     }
+
+    public  ChirpDBContext GetDbContext()
+    {
+        return _dbContext;
+    }
+    
 }
