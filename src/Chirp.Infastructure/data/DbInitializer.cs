@@ -1,7 +1,6 @@
 using System;
-using Chirp.Razor;
-using Chirp.Core.Domain_Model;
 using Chirp.Core;
+using Chirp.Core.Domain_Model;
 
 public static class DbInitializer
 {

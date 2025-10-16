@@ -4,6 +4,7 @@ namespace Chirp.Razor;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Chirp.Core;
+using Chirp.Infastructure;
 
 
 public class CheepRepositoryTest
