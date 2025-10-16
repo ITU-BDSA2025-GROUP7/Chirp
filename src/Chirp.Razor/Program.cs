@@ -1,4 +1,5 @@
 using Chirp.Razor;
+using Chirp.Core;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -41,4 +42,3 @@ app.UseRouting();
 app.MapRazorPages();
 
 app.Run();
-public partial class Program { }

@@ -3,6 +3,7 @@ using Xunit;
 namespace Chirp.Razor;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
+using Chirp.Core;
 
 
 public class CheepRepositoryTest
