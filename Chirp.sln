@@ -6,11 +6,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{827E0CD3-B72
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{0AB3BF05-4346-4AA6-1389-037BE0695223}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chirp.Razor", "src\Chirp.Razor\Chirp.Razor.csproj", "{3743CCAF-3041-4AE1-B5F8-A7585AF6BF64}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chirp.Web", "src\Chirp.Web\Chirp.Web.csproj", "{3743CCAF-3041-4AE1-B5F8-A7585AF6BF64}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Chirp.Razor.Tests", "Chirp.Razor.Tests", "{E2DCB908-B846-C2FC-0632-B770FAEDF09E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chirp.Razor.Test", "tests\Chirp.Razor.Tests\Chirp.Razor.Test.csproj", "{6A79521D-EEC4-4BB1-AF79-89642A77019F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chirp.Web.Test", "tests\Chirp.Razor.Tests\Chirp.Web.Test.csproj", "{6A79521D-EEC4-4BB1-AF79-89642A77019F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chirp.Core", "src\Chirp.Core\Chirp.Core.csproj", "{125DE91F-FFAE-485F-86F7-6FCDC2A14299}"
 EndProject

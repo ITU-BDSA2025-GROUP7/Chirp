@@ -25,7 +25,7 @@ n :=
 
 # starts the razer application on local host
 start-razor:
-	dotnet run --project src/Chirp.Razor
+	dotnet run --project src/Chirp.Web
 
 # Runs all the tests in the solution
 test:

@@ -10,8 +10,8 @@ builder.Services.AddRazorPages();
 
 string environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")!;
 var config = new ConfigurationBuilder()
-    .AddJsonFile("appsettings.Razor.json")
-    .AddJsonFile($"appsettings.Razor.{environment}.json", optional:true)
+    .AddJsonFile("appsettings.Web.json")
+    .AddJsonFile($"appsettings.Web.{environment}.json", optional:true)
     .Build();
 
 string? connectionString =  config["ConnectionStrings:DefaultConnection"];

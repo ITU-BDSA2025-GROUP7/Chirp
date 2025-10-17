@@ -6,6 +6,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <AssemblyName>Chirp.ServicesTest</AssemblyName>
+        <RootNamespace>Chirp.Razor.Test</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
@@ -18,7 +19,7 @@
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
         <PackageReference Include="xunit" Version="2.9.2" />
         <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" />
-        <ProjectReference Include="..\..\src\Chirp.Razor\Chirp.Razor.csproj" />
+        <ProjectReference Include="..\..\src\Chirp.Web\Chirp.Web.csproj" />
         
     </ItemGroup>
 </Project>
