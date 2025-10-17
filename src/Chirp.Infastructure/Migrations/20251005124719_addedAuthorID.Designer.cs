@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace Chirp.Core.Migrations
+namespace Chirp.Infastructure.Migrations
 {
     [DbContext(typeof(ChirpDBContext))]
     [Migration("20251005124719_addedAuthorID")]
