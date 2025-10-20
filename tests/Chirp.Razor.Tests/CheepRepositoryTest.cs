@@ -4,7 +4,7 @@ using Xunit;
 namespace Chirp.Razor;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
-
+using SQLitePCL;
 
 public class CheepRepositoryTest
 {
@@ -191,10 +191,40 @@ public class CheepRepositoryTest
         email = "cooper@copper.com";
         await _cheepRepository.CreateAuthor(name, email);
         var query = (from author in _cheepRepository.GetDbContext().Authors
-            where author.Name == name
-            select author);
+                     where author.Name == name
+                     select author);
         Author actualAuthor = await query.FirstAsync();
         Assert.Equal(email, actualAuthor.Email);
+    }
+
+    [Fact]
+    public async Task reusingEmailTest()
+    {
+        string name1, name2, email;
+        name1 = "Barton Cooper";
+        name2 = "Bar2n Cooper";
+        email = "cooper@copper.com";
+        await _cheepRepository.CreateAuthor(name1, email);
+        await Assert.ThrowsAsync<DbUpdateException>(() => _cheepRepository.CreateAuthor(name2, email));
+    }
+
+    [Fact]
+    public async Task sameNameTest()
+    {
+        string name, email1, email2;
+        name = "Barton Cooper";
+        email1 = "TheCakeMaster@copper.com";
+        email2 = "muffinEnjoyer@copper.com";
+        await _cheepRepository.CreateAuthor(name, email1);
+        await _cheepRepository.CreateAuthor(name, email2);
+        List<Author> bartons = await _cheepRepository.GetAuthor("Barton Cooper");
+        Assert.NotEqual(bartons.First(), bartons.Last());
+    }
+    [Fact]
+    public async Task noKnownAuthorTest()
+    {
+        List<Author> authorsFound = await _cheepRepository.GetAuthor("ThisNameorEmailDoesNotExist");
+        Assert.Empty(authorsFound);
     }
     
     [Fact]
