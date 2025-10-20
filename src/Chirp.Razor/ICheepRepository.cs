@@ -8,7 +8,7 @@ public interface ICheepRepository
     /**
      * recognizes the string as a name or email and calls the relevant GetAuthor method
      */
-    public Task<Author> GetAuthor(string identifier);
+    public Task<List<Author>> GetAuthor(string identifier);
     
     /**
      * Gets all cheeps within the given page nr

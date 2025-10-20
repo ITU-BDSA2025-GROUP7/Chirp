@@ -11,22 +11,22 @@ public class CheepRepository :  ICheepRepository
     {
         this._dbContext = dbContext;
     }
-    private async Task<Author> GetAuthorByName(string name)
+    private async Task<List<Author>> GetAuthorByName(string name)
     {
         var query = (from author in _dbContext.Authors
             where author.Name == name
             orderby author.Name
             select author);
-        return await query.FirstAsync();
+        return await query.ToListAsync();
     }
 
-    private async Task<Author> GetAuthorByEmail(string email)
+    private async Task<List<Author>> GetAuthorByEmail(string email)
     {
         var query = (from author in _dbContext.Authors
             where author.Email == email
             orderby author.Name
             select author);
-        return await query.FirstAsync();
+        return await query.ToListAsync();
     }
 
     public async Task CreateAuthor(string name, string email)
@@ -42,7 +42,7 @@ public class CheepRepository :  ICheepRepository
         await _dbContext.SaveChangesAsync();
     }
 
-    public async Task<Author> GetAuthor(string identifier)
+    public async Task<List<Author>> GetAuthor(string identifier)
     {
         if (identifier.Contains("@"))
         {
