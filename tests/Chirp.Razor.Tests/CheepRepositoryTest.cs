@@ -198,7 +198,7 @@ public class CheepRepositoryTest
     }
 
     [Fact]
-    public async Task reusingEmailTest()
+    public async Task authorReusingEmailTest()
     {
         string name1, name2, email;
         name1 = "Barton Cooper";
@@ -209,7 +209,7 @@ public class CheepRepositoryTest
     }
 
     [Fact]
-    public async Task sameNameTest()
+    public async Task authorSameNameTest()
     {
         string name, email1, email2;
         name = "Barton Cooper";
@@ -226,19 +226,32 @@ public class CheepRepositoryTest
         List<Author> authorsFound = await _cheepRepository.GetAuthor("ThisNameorEmailDoesNotExist");
         Assert.Empty(authorsFound);
     }
-    
+
     [Fact]
-    public async Task CheepOwnershipTest() 
+    public async Task CheepOwnershipTest()
     {
         List<Author> users = await _cheepRepository.GetAuthor("Wendell Ballan");
         string message = "I really like turtles";
         DateTime date = DateTime.Parse("2023-08-02 14:13:45");
         await _cheepRepository.CreateCheep(users.First(), message, date);
         var query = (from author in _cheepRepository.GetDbContext().Authors
-            where author.Name == "Wendell Ballan"
-            select author.Cheeps);
+                     where author.Name == "Wendell Ballan"
+                     select author.Cheeps);
         string actualmessage = query.First().Last().Text;
         Assert.Equal(message, actualmessage);
+    }
+    [Fact]
+    public async Task authorBlankName()
+    {
+        string name, email;
+        name = "";
+        email = "cooper@copper.com";
+        await _cheepRepository.CreateAuthor(name, email);
+        var query = (from author in _cheepRepository.GetDbContext().Authors
+                     where author.Name == ""
+                     select author);
+        Author actualAuthor = query.First();
+        Assert.NotNull(actualAuthor);
     }
 
     [Theory]
