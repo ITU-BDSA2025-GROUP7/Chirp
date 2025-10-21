@@ -21,7 +21,7 @@ public class CheepRepository :  ICheepRepository
         return await GetAuthorByName(identifier);
     }
 
-    private async Task<List<Author>> GetAuthorByName(string name)
+    public async Task<List<Author>> GetAuthorByName(string name)
     {
         var query = (from author in _dbContext.Authors
             where author.Name == name
@@ -30,7 +30,7 @@ public class CheepRepository :  ICheepRepository
         return await query.ToListAsync();
     }
 
-    private async Task<List<Author>> GetAuthorByEmail(string email)
+    public async Task<List<Author>> GetAuthorByEmail(string email)
     {
         var query = (from author in _dbContext.Authors
             where author.Email == email
