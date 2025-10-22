@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Chirp.Core;
 using Chirp.Infastructure;
 
+using SQLitePCL;
 
 public class CheepRepositoryTest
 {
@@ -35,7 +36,7 @@ public class CheepRepositoryTest
 
 
     /*Test that there is only cheeps from the selected author when getcheepsfromauthor is called
-    and that it doesn't crash if the author doesn't exists
+    and that it doesn't crash if the author doesn't exist
 */
     [Theory]
     [InlineData("Roger Histand")]
@@ -58,7 +59,8 @@ public class CheepRepositoryTest
 
 
     }
-
+    
+    
     
 
     /*Testing that the cheeps contain the expeected author, message and timestamp */
@@ -169,7 +171,102 @@ public class CheepRepositoryTest
 
     }
 
+    [Fact]
+    public async Task CreateAuthorTest()
+    {
+        string name, email;
+        name = "Barton Cooper";
+        email = "cooper@copper.com";
+        await _cheepRepository.CreateAuthor(name, email);
+        var query = (from author in _cheepRepository.GetDbContext().Authors
+                     where author.Name == name
+                     select author);
+        Author actualAuthor = await query.FirstAsync();
+        Assert.Equal(email, actualAuthor.Email);
+    }
 
+    [Fact]
+    public async Task authorReusingEmailTest()
+    {
+        string name1, name2, email;
+        name1 = "Barton Cooper";
+        name2 = "Bar2n Cooper";
+        email = "cooper@copper.com";
+        await _cheepRepository.CreateAuthor(name1, email);
+        await Assert.ThrowsAsync<DbUpdateException>(() => _cheepRepository.CreateAuthor(name2, email));
+    }
 
+    [Fact]
+    public async Task authorSameNameTest()
+    {
+        string name, email1, email2;
+        name = "Barton Cooper";
+        email1 = "TheCakeMaster@copper.com";
+        email2 = "muffinEnjoyer@copper.com";
+        await _cheepRepository.CreateAuthor(name, email1);
+        await _cheepRepository.CreateAuthor(name, email2);
+        List<Author> bartons = await _cheepRepository.GetAuthor("Barton Cooper");
+        Assert.NotEqual(bartons.First(), bartons.Last());
+    }
+    [Fact]
+    public async Task noKnownAuthorTest()
+    {
+        List<Author> authorsFound = await _cheepRepository.GetAuthor("ThisNameorEmailDoesNotExist");
+        Assert.Empty(authorsFound);
+    }
 
+    [Fact]
+    public async Task authorBlankName()
+    {
+        string name, email;
+        name = "";
+        email = "cooper@copper.com";
+        await _cheepRepository.CreateAuthor(name, email);
+        var query = (from author in _cheepRepository.GetDbContext().Authors
+                     where author.Name == ""
+                     select author);
+        Author actualAuthor = query.First();
+        Assert.NotNull(actualAuthor);
+    }
+
+    [Theory]
+    [InlineData("Wendell Ballan", 3)]
+    [InlineData("Roger Histand", 1)]
+    [InlineData("Luanna Muro", 2)]
+    [InlineData("Roger+Histand@hotmail.com", 1)]
+    [InlineData("Luanna-Muro@ku.dk", 2)]
+    [InlineData("Quintin+Sitts@itu.dk", 5)]
+    public async Task GetAuthorTest(string identifier, int authorId)
+    {
+        List<Author> authors = await _cheepRepository.GetAuthor(identifier);
+        Assert.Equal(authors.First().AuthorId, authorId);
+    }
+
+    [Fact]
+    public async Task CheepOwnershipTest()
+    {
+        List<Author> users = await _cheepRepository.GetAuthor("Wendell Ballan");
+        string message = "I really like turtles";
+        DateTime date = DateTime.Parse("2023-08-02 14:13:45");
+        await _cheepRepository.CreateCheep(users.First(), message, date);
+        var query = (from author in _cheepRepository.GetDbContext().Authors
+                     where author.Name == "Wendell Ballan"
+                     select author.Cheeps);
+        string actualmessage = query.First().Last().Text;
+        Assert.Equal(message, actualmessage);
+    }
+    
+    [Fact]
+    public async Task CreateCheepTest()
+    {
+        List<Author> authors = await _cheepRepository.GetAuthor("Wendell Ballan");
+        string message = "I like turtles";
+        DateTime date = DateTime.Parse("2023-08-02 13:13:45");
+        await _cheepRepository.CreateCheep(authors.First(), message, date);
+        var query = (from cheep in _cheepRepository.GetDbContext().Cheeps
+            where cheep.Text == message
+            select cheep);
+        Cheep createdcheep = query.First();
+        Assert.Equal(createdcheep.Text, message);
+    }
 }
