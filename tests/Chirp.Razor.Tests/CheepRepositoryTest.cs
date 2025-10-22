@@ -321,7 +321,7 @@ public class CheepRepositoryTest
         StringBuilder sb = new StringBuilder(160);
         while (sb.Length <= Cheep.MAX_TEXT_LENGTH)
         {
-            sb.Append("'; DROP TABLE Cheeps;");
+            sb.Append("msg', '2023-08-02 13:13:45'); DROP TABLE Cheeps;");
         }
         string message = sb.ToString();
 
