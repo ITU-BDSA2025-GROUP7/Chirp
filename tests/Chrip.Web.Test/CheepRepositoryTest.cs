@@ -1,4 +1,5 @@
 
+using Chirp.Core.Domain_Model;
 using Xunit;
 namespace Chirp.Razor;
 using Microsoft.Data.Sqlite;
