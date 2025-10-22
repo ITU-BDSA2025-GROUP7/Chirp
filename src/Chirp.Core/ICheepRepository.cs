@@ -29,11 +29,8 @@ public interface ICheepRepository
      */
     public Task<List<CheepDTO>> GetCheepsFromAuthor(string author, int pageNr);
     
-    public void SendCheep(CheepDTO cheep);
-    
     public Task CreateAuthor(string name, string email);
     
     public Task CreateCheep(Author author, string message, DateTime timestamp);
 
-    public ChirpDBContext GetDbContext();
 }

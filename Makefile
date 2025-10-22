@@ -40,3 +40,7 @@ build:
 
 clean:
 	dotnet clean
+	
+# make a new migration for the database. Remember to give the migration a name by also typing 'n=<name>' as shown in this example 'make newMigration n=MyMygration'
+newMigration:
+	dotnet ef migrations add ${n} --project Chirp.Infastructure  --startup-project Chirp.Web

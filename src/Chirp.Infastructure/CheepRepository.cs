@@ -1,6 +1,6 @@
-using Chirp.Razor.Domain_Model;
 using Microsoft.EntityFrameworkCore;
 using Chirp.Core;
+using Chirp.Core.Domain_Model;
 
 namespace Chirp.Infastructure;
 
@@ -76,15 +76,4 @@ public class CheepRepository :  ICheepRepository
 
         return await query.ToListAsync();
     }
-
-    public void SendCheep(CheepDTO cheep)
-    {
-        throw new NotImplementedException();
-    }
-
-    public  ChirpDBContext GetDbContext()
-    {
-        return _dbContext;
-    }
-    
 }
