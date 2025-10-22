@@ -1,9 +1,12 @@
 
-using Chirp.Razor.Domain_Model;
+using Chirp.Core.Domain_Model;
 using Xunit;
 namespace Chirp.Razor;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
+using Chirp.Core;
+using Chirp.Infastructure;
+
 using SQLitePCL;
 
 public class CheepRepositoryTest
@@ -176,7 +179,7 @@ public class CheepRepositoryTest
         name = "Barton Cooper";
         email = "cooper@copper.com";
         await _cheepRepository.CreateAuthor(name, email);
-        var query = (from author in _cheepRepository.GetDbContext().Authors
+        var query = (from author in _context.Authors
                      where author.Name == name
                      select author);
         Author actualAuthor = await query.FirstAsync();
@@ -220,7 +223,7 @@ public class CheepRepositoryTest
         name = "";
         email = "cooper@copper.com";
         await _cheepRepository.CreateAuthor(name, email);
-        var query = (from author in _cheepRepository.GetDbContext().Authors
+        var query = (from author in _context.Authors
                      where author.Name == ""
                      select author);
         Author actualAuthor = query.First();
@@ -247,7 +250,7 @@ public class CheepRepositoryTest
         string message = "I really like turtles";
         DateTime date = DateTime.Parse("2023-08-02 14:13:45");
         await _cheepRepository.CreateCheep(users.First(), message, date);
-        var query = (from author in _cheepRepository.GetDbContext().Authors
+        var query = (from author in _context.Authors
                      where author.Name == "Wendell Ballan"
                      select author.Cheeps);
         string actualmessage = query.First().Last().Text;
@@ -261,7 +264,7 @@ public class CheepRepositoryTest
         string message = "I like turtles";
         DateTime date = DateTime.Parse("2023-08-02 13:13:45");
         await _cheepRepository.CreateCheep(authors.First(), message, date);
-        var query = (from cheep in _cheepRepository.GetDbContext().Cheeps
+        var query = (from cheep in _context.Cheeps
             where cheep.Text == message
             select cheep);
         Cheep createdcheep = query.First();

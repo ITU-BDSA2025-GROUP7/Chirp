@@ -25,7 +25,7 @@ n :=
 
 # starts the razer application on local host
 start-razor:
-	dotnet run --project src/Chirp.Razor
+	dotnet run --project src/Chirp.Web
 
 # Runs all the tests in the solution
 test:
@@ -40,3 +40,7 @@ build:
 
 clean:
 	dotnet clean
+	
+# make a new migration for the database. Remember to give the migration a name by also typing 'n=<name>' as shown in this example 'make newMigration n=MyMygration'
+newMigration:
+	dotnet ef migrations add ${n} --project Chirp.Infastructure  --startup-project Chirp.Web
