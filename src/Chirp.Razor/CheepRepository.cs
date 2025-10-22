@@ -45,26 +45,30 @@ public class CheepRepository :  ICheepRepository
         await _dbContext.Authors.AddAsync(author);
         await _dbContext.SaveChangesAsync();
     }
-    
+
     public async Task CreateCheep(Author author, string message, DateTime timestamp)
     {
+        if (message.Length > Cheep.MAX_TEXT_LENGTH) {
+            throw new ArgumentException("Message is too long. Maximum length is "
+                                        + Cheep.MAX_TEXT_LENGTH);
+        }
         Cheep cheep = new Cheep() {Author  = author, Text = message, TimeStamp = timestamp};
         await _dbContext.Cheeps.AddAsync(cheep);
         await _dbContext.SaveChangesAsync();
-    }    
+    }
 
     public async Task<List<CheepDTO>> GetCheeps(int pageNr)
     {
         var query = (from cheep in _dbContext.Cheeps
                 orderby cheep.TimeStamp descending
                 select cheep)
-            .Skip((pageNr - 1) * 32).Take(32).Select(cheep => 
+            .Skip((pageNr - 1) * 32).Take(32).Select(cheep =>
                 new CheepDTO(cheep.Author.Name, cheep.Text, cheep.TimeStamp.ToString()));
 
         return await query.ToListAsync();
     }
 
-    
+
     public async Task<List<CheepDTO>> GetCheepsFromAuthor(string author, int pageNr)
     {
         var query = (from cheep in _dbContext.Cheeps
@@ -85,5 +89,5 @@ public class CheepRepository :  ICheepRepository
     {
         return _dbContext;
     }
-    
+
 }
