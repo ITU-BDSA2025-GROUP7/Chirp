@@ -253,11 +253,14 @@ public class CheepRepositoryTest
         string actualmessage = query.First().Last().Text;
         Assert.Equal(message, actualmessage);
     }
-    
+
+    /** Tests the outcome of creating a cheep whose message should be acceptable,
+     * whether it is empty, is a normal string, or includes an attempt at SQL injection.
+     */
     [Theory]
     [InlineData("")]
     [InlineData("I like turtles")]
-    [InlineData("msg', '2023-08-02 13:13:45'); DROP TABLE Cheeps;")] // attempts (unsuccessfully) to inject SQL
+    [InlineData("msg', '2023-08-02 13:13:45'); DROP TABLE Cheeps;")]
     public async Task CreateCheepTest(string message)
     {
         var queryBefore = (from cheep in _cheepRepository.GetDbContext().Cheeps
@@ -275,6 +278,9 @@ public class CheepRepositoryTest
         Assert.Equal(createdcheep.Text, message);
     }
 
+    /** Tests that writing a test that is beyond the limit in length fails,
+     * throwing an exception.
+     */
     [Fact]
     public async Task CreateTooLongCheepTest()
     {
@@ -289,6 +295,10 @@ public class CheepRepositoryTest
         await Assert.ThrowsAsync<ArgumentException>(() => _cheepRepository.CreateCheep(authors.First(), message, date));
     }
 
+    /**
+     * Tests the outcome of writing a cheep whose message is exactly the maximum
+     * allowed length.
+     */
     [Fact]
     public async Task CreateCheepAtExactlyLimit()
     {
@@ -314,6 +324,10 @@ public class CheepRepositoryTest
         Assert.Equal(createdcheep.Text, message);
     }
 
+    /**
+     * Tests the outcome of creating a cheep whose message length is greater
+     * than the allowed limit, and which contains an attempt at SQL injecting.
+     */
     [Fact]
     public async Task CreateTooLongSQLInjectionCheepTest()
     {
