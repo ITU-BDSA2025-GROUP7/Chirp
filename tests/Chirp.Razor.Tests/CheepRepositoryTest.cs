@@ -1,10 +1,10 @@
-
+using System.Text;
 using Chirp.Razor.Domain_Model;
-using Xunit;
-namespace Chirp.Razor;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
-using SQLitePCL;
+using Xunit;
+
+namespace Chirp.Razor.Test;
 
 public class CheepRepositoryTest
 {
@@ -254,11 +254,18 @@ public class CheepRepositoryTest
         Assert.Equal(message, actualmessage);
     }
     
-    [Fact]
-    public async Task CreateCheepTest()
+    [Theory]
+    [InlineData("")]
+    [InlineData("I like turtles")]
+    [InlineData("msg', '2023-08-02 13:13:45'); DROP TABLE Cheeps;")] // attempts (unsuccessfully) to inject SQL
+    public async Task CreateCheepTest(string message)
     {
+        var queryBefore = (from cheep in _cheepRepository.GetDbContext().Cheeps
+            where cheep.Text == message
+            select cheep);
+        Assert.Empty(queryBefore);
+
         List<Author> authors = await _cheepRepository.GetAuthor("Wendell Ballan");
-        string message = "I like turtles";
         DateTime date = DateTime.Parse("2023-08-02 13:13:45");
         await _cheepRepository.CreateCheep(authors.First(), message, date);
         var query = (from cheep in _cheepRepository.GetDbContext().Cheeps
@@ -266,5 +273,64 @@ public class CheepRepositoryTest
             select cheep);
         Cheep createdcheep = query.First();
         Assert.Equal(createdcheep.Text, message);
+    }
+
+    [Fact]
+    public async Task CreateTooLongCheepTest()
+    {
+        List<Author> authors = await _cheepRepository.GetAuthor("Wendell Ballan");
+        StringBuilder sb = new StringBuilder(160);
+        while (sb.Length <= Cheep.MAX_TEXT_LENGTH) {
+            sb.Append("Cheep text");
+        }
+        string message = sb.ToString();
+
+        DateTime date = DateTime.Parse("2023-08-02 13:13:45");
+        await Assert.ThrowsAsync<ArgumentException>(() => _cheepRepository.CreateCheep(authors.First(), message, date));
+    }
+
+    [Fact]
+    public async Task CreateCheepAtExactlyLimit()
+    {
+        List<Author> authors = await _cheepRepository.GetAuthor("Wendell Ballan");
+        StringBuilder sb = new StringBuilder(160);
+        while (sb.Length < Cheep.MAX_TEXT_LENGTH) {
+            sb.Append('a');
+        }
+        string message = sb.ToString();
+        Assert.Equal(Cheep.MAX_TEXT_LENGTH, message.Length);
+
+        var queryBefore = (from cheep in _cheepRepository.GetDbContext().Cheeps
+            where cheep.Text == message
+            select cheep);
+        Assert.Empty(queryBefore);
+
+        DateTime date = DateTime.Parse("2023-08-02 13:13:45");
+        await _cheepRepository.CreateCheep(authors.First(), message, date);
+        var query = (from cheep in _cheepRepository.GetDbContext().Cheeps
+            where cheep.Text == message
+            select cheep);
+        Cheep createdcheep = query.First();
+        Assert.Equal(createdcheep.Text, message);
+    }
+
+    [Fact]
+    public async Task CreateTooLongSQLInjectionCheepTest()
+    {
+        List<Author> authors = await _cheepRepository.GetAuthor("Wendell Ballan");
+        StringBuilder sb = new StringBuilder(160);
+        while (sb.Length <= Cheep.MAX_TEXT_LENGTH)
+        {
+            sb.Append("'; DROP TABLE Cheeps;");
+        }
+        string message = sb.ToString();
+
+        DateTime date = DateTime.Parse("2023-08-02 13:13:45");
+        await Assert.ThrowsAsync<ArgumentException>(() => _cheepRepository.CreateCheep(authors.First(), message, date));
+
+        var queryBefore = (from cheep in _cheepRepository.GetDbContext().Cheeps
+            where cheep.Text == message
+            select cheep);
+        Assert.Empty(queryBefore);
     }
 }
