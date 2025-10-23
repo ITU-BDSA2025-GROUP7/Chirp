@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Library</OutputType>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+    
+    <ItemGroup>
+        <None Include="data\Chirp.db" CopyToOutputDirectory="Always" />
+        <ProjectReference Include="..\Chirp.Core\Chirp.Core.csproj" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.9">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.9" />
+    </ItemGroup>
+        
+        
+
+</Project>

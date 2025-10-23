@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.EntityFrameworkCore;
 
-namespace Chirp.Razor.Domain_Model;
+namespace Chirp.Core.Domain_Model;
 
 [Index(nameof(Email), IsUnique = true)]
 public class Author

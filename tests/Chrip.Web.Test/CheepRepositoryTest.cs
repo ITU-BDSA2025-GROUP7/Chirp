@@ -1,5 +1,7 @@
 using System.Text;
-using Chirp.Razor.Domain_Model;
+using Chirp.Core;
+using Chirp.Core.Domain_Model;
+using Chirp.Infastructure;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
@@ -176,7 +178,7 @@ public class CheepRepositoryTest
         name = "Barton Cooper";
         email = "cooper@copper.com";
         await _cheepRepository.CreateAuthor(name, email);
-        var query = (from author in _cheepRepository.GetDbContext().Authors
+        var query = (from author in _context.Authors
                      where author.Name == name
                      select author);
         Author actualAuthor = await query.FirstAsync();
@@ -220,7 +222,7 @@ public class CheepRepositoryTest
         name = "";
         email = "cooper@copper.com";
         await _cheepRepository.CreateAuthor(name, email);
-        var query = (from author in _cheepRepository.GetDbContext().Authors
+        var query = (from author in _context.Authors
                      where author.Name == ""
                      select author);
         Author actualAuthor = query.First();
@@ -247,7 +249,7 @@ public class CheepRepositoryTest
         string message = "I really like turtles";
         DateTime date = DateTime.Parse("2023-08-02 14:13:45");
         await _cheepRepository.CreateCheep(users.First(), message, date);
-        var query = (from author in _cheepRepository.GetDbContext().Authors
+        var query = (from author in _context.Authors
                      where author.Name == "Wendell Ballan"
                      select author.Cheeps);
         string actualmessage = query.First().Last().Text;
@@ -263,7 +265,7 @@ public class CheepRepositoryTest
     [InlineData("msg', '2023-08-02 13:13:45'); DROP TABLE Cheeps;")]
     public async Task CreateCheepTest(string message)
     {
-        var queryBefore = (from cheep in _cheepRepository.GetDbContext().Cheeps
+        var queryBefore = (from cheep in _context.Cheeps
             where cheep.Text == message
             select cheep);
         Assert.Empty(queryBefore);
@@ -271,7 +273,7 @@ public class CheepRepositoryTest
         List<Author> authors = await _cheepRepository.GetAuthor("Wendell Ballan");
         DateTime date = DateTime.Parse("2023-08-02 13:13:45");
         await _cheepRepository.CreateCheep(authors.First(), message, date);
-        var query = (from cheep in _cheepRepository.GetDbContext().Cheeps
+        var query = (from cheep in _context.Cheeps
             where cheep.Text == message
             select cheep);
         Cheep createdcheep = query.First();
@@ -310,14 +312,14 @@ public class CheepRepositoryTest
         string message = sb.ToString();
         Assert.Equal(Cheep.MAX_TEXT_LENGTH, message.Length);
 
-        var queryBefore = (from cheep in _cheepRepository.GetDbContext().Cheeps
+        var queryBefore = (from cheep in _context.Cheeps
             where cheep.Text == message
             select cheep);
         Assert.Empty(queryBefore);
 
         DateTime date = DateTime.Parse("2023-08-02 13:13:45");
         await _cheepRepository.CreateCheep(authors.First(), message, date);
-        var query = (from cheep in _cheepRepository.GetDbContext().Cheeps
+        var query = (from cheep in _context.Cheeps
             where cheep.Text == message
             select cheep);
         Cheep createdcheep = query.First();
@@ -340,9 +342,10 @@ public class CheepRepositoryTest
         string message = sb.ToString();
 
         DateTime date = DateTime.Parse("2023-08-02 13:13:45");
-        await Assert.ThrowsAsync<ArgumentException>(() => _cheepRepository.CreateCheep(authors.First(), message, date));
+        await Assert.ThrowsAsync<ArgumentException>(() =>
+            _cheepRepository.CreateCheep(authors.First(), message, date));
 
-        var queryBefore = (from cheep in _cheepRepository.GetDbContext().Cheeps
+        var queryBefore = (from cheep in _context.Cheeps
             where cheep.Text == message
             select cheep);
         Assert.Empty(queryBefore);

@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace Chirp.Razor.Migrations
+namespace Chirp.Infastructure.Migrations
 {
     /// <inheritdoc />
     public partial class addedAuthorID : Migration

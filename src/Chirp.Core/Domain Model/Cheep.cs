@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Chirp.Razor.Domain_Model;
+namespace Chirp.Core.Domain_Model;
 
 public class Cheep {
     public const int MAX_TEXT_LENGTH = 160;
