@@ -8,8 +8,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{0AB3BF05
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chirp.Web", "src\Chirp.Web\Chirp.Web.csproj", "{3743CCAF-3041-4AE1-B5F8-A7585AF6BF64}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Chirp.Razor.Tests", "Chirp.Razor.Tests", "{E2DCB908-B846-C2FC-0632-B770FAEDF09E}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chirp.Core", "src\Chirp.Core\Chirp.Core.csproj", "{125DE91F-FFAE-485F-86F7-6FCDC2A14299}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chirp.Infastructure", "src\Chirp.Infastructure\Chirp.Infastructure.csproj", "{702170F5-5995-4D72-8FFD-CCED130C3844}"
