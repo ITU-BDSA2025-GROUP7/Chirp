@@ -1,4 +1,3 @@
-using Chirp.Razor;
 using Chirp.Core;
 using Chirp.Infastructure;
 using Microsoft.EntityFrameworkCore;
@@ -14,7 +13,7 @@ var config = new ConfigurationBuilder()
     .AddJsonFile($"appsettings.Web.{environment}.json", optional:true)
     .Build();
 
-string? connectionString =  config["ConnectionStrings:DefaultConnection"];
+string? connectionString = config["ConnectionStrings:DefaultConnection"];
 builder.Services.AddDbContext<ChirpDBContext>(options => options.UseSqlite(connectionString));
 builder.Services.AddScoped<ICheepRepository, CheepRepository>();
 builder.Services.AddScoped<ICheepService, CheepService>();
