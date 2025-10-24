@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Security.Claims;
+using System.Security.Principal;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace Chirp.Razor.Pages;
@@ -16,6 +18,7 @@ public class UserTimelineModel : CheepTimelineModel
         Console.WriteLine("pageQuery: " + pageNr + " author: " + author);
         
         Cheeps = await _service.GetCheepsFromAuthor(author, pageNr);
+        
         return Page();
     }
 }
