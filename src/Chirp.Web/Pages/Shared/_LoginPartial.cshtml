@@ -1,0 +1,27 @@
+﻿@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+
+@if (SignInManager.IsSignedIn(User))
+{
+    <span>
+        <a class="nav-link text-dark" asp-area="Identity"
+           asp-page="/Account/Manage/Index" title="Manage">
+            Hello @User.Identity?.Name!</a>
+        <form class="form-inline" asp-page="/Account/Logout"
+              asp-route-returnUrl="@Url.Page("/", new { area = "" })"
+              asp-area="Identity" method="post">
+            <button class="nav-link btn btn-link text-dark"
+                    type="submit">Logout
+            </button>
+        </form>
+    </span>
+}
+else
+{
+    <span>
+        <a class="nav-link text-dark" asp-area="Identity"
+           asp-page="/Account/Register">Register</a> |
+        <a class="nav-link text-dark" asp-area="Identity"
+           asp-page="/Account/Login">Login</a>
+    </span>
+}
