@@ -1,5 +1,6 @@
-﻿@inject SignInManager<ApplicationUser> SignInManager
-@inject UserManager<ApplicationUser> UserManager
+﻿@using Chirp.Core.Domain_Model
+@inject SignInManager<Author> SignInManager
+@inject UserManager<Author> UserManager
 
 @if (SignInManager.IsSignedIn(User))
 {

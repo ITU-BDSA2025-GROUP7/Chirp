@@ -1,6 +1,7 @@
-﻿
-@inject SignInManager<ApplicationUser> SignInManager
-@inject UserManager<ApplicationUser> UserManager
+﻿@using Chirp.Core.Domain_Model
+
+@inject SignInManager<Author> SignInManager
+@inject UserManager<Author> UserManager
 
 <!DOCTYPE html>
 <html lang="en">
@@ -26,7 +27,7 @@
         {
             <div>
                 <a href="/">Public Timeline</a> |
-                <partial name="_LoginPartial"/> 
+                <partial name="_LoginPartial"/>
             </div>
         }
     </div>

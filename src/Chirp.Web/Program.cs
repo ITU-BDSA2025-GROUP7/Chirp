@@ -1,4 +1,5 @@
 using Chirp.Core;
+using Chirp.Core.Domain_Model;
 using Chirp.Infastructure;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,7 +18,7 @@ string? connectionString = config["ConnectionStrings:DefaultConnection"];
 builder.Services.AddDbContext<ChirpDBContext>(options => options.UseSqlite(connectionString));
 builder.Services.AddScoped<ICheepRepository, CheepRepository>();
 builder.Services.AddScoped<ICheepService, CheepService>();
-builder.Services.AddDefaultIdentity<ApplicationUser>( options => 
+builder.Services.AddDefaultIdentity<Author>( options =>
     options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<ChirpDBContext>();
 
 var app = builder.Build();
@@ -36,6 +37,7 @@ using (var scope = app.Services.CreateScope())
     var dbContext = scope.ServiceProvider.GetRequiredService<ChirpDBContext>();
     DbInitializer.SeedDatabase(dbContext);
 }
+
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
