@@ -3,10 +3,7 @@
 
 #nullable disable
 
-using System;
 using System.ComponentModel.DataAnnotations;
-using System.Text.Encodings.Web;
-using System.Threading.Tasks;
 using Chirp.Core.Domain_Model;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -50,8 +47,8 @@ namespace Chirp.Razor.Areas.Identity.Pages.Account.Manage {
         public class InputModel {
             [Required]
             [DataType(DataType.Text)]
-            [Display(Name = "Name")]
-            public string Name { get; set; }
+            [Display(Name = "Display Name")]
+            public string DisplayName { get; set; }
 
             /// <summary>
             ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
@@ -69,7 +66,7 @@ namespace Chirp.Razor.Areas.Identity.Pages.Account.Manage {
             Username = userName;
 
             Input = new InputModel {
-                Name = user.Name,
+                DisplayName = user.Name,
                 PhoneNumber = phoneNumber
             };
         }
@@ -105,8 +102,8 @@ namespace Chirp.Razor.Areas.Identity.Pages.Account.Manage {
                 }
             }
 
-            if (Input.Name != user.Name) {
-                user.Name = Input.Name;
+            if (Input.DisplayName != user.Name) {
+                user.Name = Input.DisplayName;
             }
 
             await _userManager.UpdateAsync(user);
