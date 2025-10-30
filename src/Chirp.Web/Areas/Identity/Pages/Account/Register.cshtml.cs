@@ -111,9 +111,9 @@ namespace Chirp.Razor.Areas.Identity.Pages.Account {
                 (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
             if (ModelState.IsValid) {
                 Author user = CreateUser();
-
                 user.Name = Input.DisplayName;
 
+                // Setting this to Input.DisplayName instead seems to break things.
                 await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
                 IdentityResult result = await _userManager.CreateAsync(user, Input.Password);
