@@ -65,7 +65,7 @@ public class CheepRepository :  ICheepRepository
                 orderby cheep.TimeStamp descending
                 select cheep)
             .Skip((pageNr - 1) * 32).Take(32).Select(cheep =>
-                new CheepDTO(cheep.Author.Name, cheep.Text, cheep.TimeStamp.ToString(CultureInfo.CurrentCulture)));
+                new CheepDTO(cheep.Author.Name, cheep.Text, cheep.TimeStamp.ToString()));
 
         return await query.ToListAsync();
     }
@@ -75,7 +75,7 @@ public class CheepRepository :  ICheepRepository
         var query = (from cheep in _dbContext.Cheeps
                 where cheep.Author.Name == author
                 orderby cheep.TimeStamp descending
-                select new CheepDTO(cheep.Author.Name, cheep.Text, cheep.TimeStamp.ToString(CultureInfo.CurrentCulture)))
+                select new CheepDTO(cheep.Author.Name, cheep.Text, cheep.TimeStamp.ToString()))
             .Skip((pageNr - 1) * 32).Take(32);
 
         return await query.ToListAsync();
