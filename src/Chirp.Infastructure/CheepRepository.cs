@@ -1,3 +1,4 @@
+using System.Globalization;
 using Microsoft.EntityFrameworkCore;
 using Chirp.Core;
 using Chirp.Core.Domain_Model;
@@ -46,7 +47,7 @@ public class CheepRepository :  ICheepRepository
         await _dbContext.Authors.AddAsync(author);
         await _dbContext.SaveChangesAsync();
     }
-    
+
     public async Task CreateCheep(Author author, string message, DateTime timestamp)
     {
         if (message.Length > Cheep.MAX_TEXT_LENGTH) {
@@ -63,8 +64,8 @@ public class CheepRepository :  ICheepRepository
         var query = (from cheep in _dbContext.Cheeps
                 orderby cheep.TimeStamp descending
                 select cheep)
-            .Skip((pageNr - 1) * 32).Take(32).Select(cheep => 
-                new CheepDTO(cheep.Author.Name, cheep.Text, cheep.TimeStamp.ToString()));
+            .Skip((pageNr - 1) * 32).Take(32).Select(cheep =>
+                new CheepDTO(cheep.Author.Name, cheep.Text, cheep.TimeStamp.ToString(CultureInfo.CurrentCulture)));
 
         return await query.ToListAsync();
     }
@@ -74,7 +75,7 @@ public class CheepRepository :  ICheepRepository
         var query = (from cheep in _dbContext.Cheeps
                 where cheep.Author.Name == author
                 orderby cheep.TimeStamp descending
-                select new CheepDTO(cheep.Author.Name, cheep.Text, cheep.TimeStamp.ToString()))
+                select new CheepDTO(cheep.Author.Name, cheep.Text, cheep.TimeStamp.ToString(CultureInfo.CurrentCulture)))
             .Skip((pageNr - 1) * 32).Take(32);
 
         return await query.ToListAsync();

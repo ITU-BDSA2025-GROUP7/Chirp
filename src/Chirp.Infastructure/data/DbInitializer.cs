@@ -4,20 +4,20 @@ using Chirp.Infastructure;
 public static class DbInitializer {
     public static void SeedDatabase(ChirpDBContext chirpContext) {
         if (!(chirpContext.Authors.Any() && chirpContext.Cheeps.Any())) {
-            var a1 = new Author() { Name = "Roger Histand", Email = "Roger+Histand@hotmail.com", Cheeps = new List<Cheep>() };
-            var a2 = new Author() { Name = "Luanna Muro", Email = "Luanna-Muro@ku.dk", Cheeps = new List<Cheep>() };
-            var a3 = new Author() { Name = "Wendell Ballan", Email = "Wendell-Ballan@gmail.com", Cheeps = new List<Cheep>() };
-            var a4 = new Author() { Name = "Nathan Sirmon", Email = "Nathan+Sirmon@dtu.dk", Cheeps = new List<Cheep>() };
-            var a5 = new Author() { Name = "Quintin Sitts", Email = "Quintin+Sitts@itu.dk", Cheeps = new List<Cheep>() };
-            var a6 = new Author() { Name = "Mellie Yost", Email = "Mellie+Yost@ku.dk", Cheeps = new List<Cheep>() };
-            var a7 = new Author() { Name = "Malcolm Janski", Email = "Malcolm-Janski@gmail.com", Cheeps = new List<Cheep>() };
-            var a8 = new Author() { Name = "Octavio Wagganer", Email = "Octavio.Wagganer@dtu.dk", Cheeps = new List<Cheep>() };
-            var a9 = new Author() { Name = "Johnnie Calixto", Email = "Johnnie+Calixto@itu.dk", Cheeps = new List<Cheep>() };
-            var a10 = new Author() {  Name = "Jacqualine Gilcoine", Email = "Jacqualine.Gilcoine@gmail.com", Cheeps = new List<Cheep>() };
-            var a11 = new Author() {  Name = "Helge", Email = "ropf@itu.dk", Cheeps = new List<Cheep>() };
-            var a12 = new Author() {  Name = "Adrian", Email = "adho@itu.dk", Cheeps = new List<Cheep>() };
+            var a1 = new Author { Name = "Roger Histand", Email = "Roger+Histand@hotmail.com"};
+            var a2 = new Author { Name = "Luanna Muro", Email = "Luanna-Muro@ku.dk"};
+            var a3 = new Author { Name = "Wendell Ballan", Email = "Wendell-Ballan@gmail.com"};
+            var a4 = new Author { Name = "Nathan Sirmon", Email = "Nathan+Sirmon@dtu.dk"};
+            var a5 = new Author { Name = "Quintin Sitts", Email = "Quintin+Sitts@itu.dk"};
+            var a6 = new Author { Name = "Mellie Yost", Email = "Mellie+Yost@ku.dk"};
+            var a7 = new Author { Name = "Malcolm Janski", Email = "Malcolm-Janski@gmail.com"};
+            var a8 = new Author { Name = "Octavio Wagganer", Email = "Octavio.Wagganer@dtu.dk"};
+            var a9 = new Author { Name = "Johnnie Calixto", Email = "Johnnie+Calixto@itu.dk"};
+            var a10 = new Author {  Name = "Jacqualine Gilcoine", Email = "Jacqualine.Gilcoine@gmail.com"};
+            var a11 = new Author {  Name = "Helge", Email = "ropf@itu.dk"};
+            var a12 = new Author {  Name = "Adrian", Email = "adho@itu.dk"};
 
-            var authors = new List<Author>() { a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12 };
+            var authors = new List<Author> { a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12 };
 
             var c1 = new Cheep() { CheepId = 1, Author = a10, Text = "They were married in Chicago, with old Smith, and was expected aboard every day; meantime, the two went past me.", TimeStamp = DateTime.Parse("2023-08-01 13:14:37") };
             var c2 = new Cheep() { CheepId = 2, Author = a10, Text = "And then, as he listened to all that''s left o'' twenty-one people.", TimeStamp = DateTime.Parse("2023-08-01 13:15:21") };
