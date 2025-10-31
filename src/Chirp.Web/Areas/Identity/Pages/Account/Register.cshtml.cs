@@ -69,13 +69,12 @@ namespace Chirp.Razor.Areas.Identity.Pages.Account {
             [Display(Name = "Username")]
             public string UserName { get; set; }
 
-            [Required]
             [DataType(DataType.Text)]
             [StringLength(256,
                 ErrorMessage = "The {0} must be between {2} and {1} characters long.",
                 MinimumLength = 4)]
             [Display(Name = "Display Name")]
-            public string DisplayName { get; set; }
+            public string DisplayName { get; set; } = "";
 
             /// <summary>
             ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
@@ -105,6 +104,7 @@ namespace Chirp.Razor.Areas.Identity.Pages.Account {
             ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
+            [Required]
             [DataType(DataType.Password)]
             [Display(Name = "Confirm password")]
             [Compare("Password",
