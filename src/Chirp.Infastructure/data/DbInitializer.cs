@@ -4,18 +4,18 @@ using Chirp.Infastructure;
 public static class DbInitializer {
     public static void SeedDatabase(ChirpDBContext chirpContext) {
         if (!(chirpContext.Authors.Any() && chirpContext.Cheeps.Any())) {
-            var  a1 = new Author { Name = "Roger Histand", Email = "Roger+Histand@hotmail.com"};
-            var  a2 = new Author { Name = "Luanna Muro", Email = "Luanna-Muro@ku.dk"};
-            var  a3 = new Author { Name = "Wendell Ballan", Email = "Wendell-Ballan@gmail.com"};
-            var  a4 = new Author { Name = "Nathan Sirmon", Email = "Nathan+Sirmon@dtu.dk"};
-            var  a5 = new Author { Name = "Quintin Sitts", Email = "Quintin+Sitts@itu.dk"};
-            var  a6 = new Author { Name = "Mellie Yost", Email = "Mellie+Yost@ku.dk"};
-            var  a7 = new Author { Name = "Malcolm Janski", Email = "Malcolm-Janski@gmail.com"};
-            var  a8 = new Author { Name = "Octavio Wagganer", Email = "Octavio.Wagganer@dtu.dk"};
-            var  a9 = new Author { Name = "Johnnie Calixto", Email = "Johnnie+Calixto@itu.dk"};
-            var a10 = new Author { Name = "Jacqualine Gilcoine", Email = "Jacqualine.Gilcoine@gmail.com"};
-            var a11 = new Author { Name = "Helge", UserName="ropf@itu.dk", Email = "ropf@itu.dk", PasswordHash="AQAAAAIAAYagAAAAEKPXQMvnfuNS4pxtGy6tXdbeldyzDEWAr5QG0nBK2PYZPePB+dpwxCqQnBwks5J3FA==", ConcurrencyStamp="b5b7f191-ef9b-4b0c-a46d-13c7bd9bccf6", EmailConfirmed=true, NormalizedEmail="ROPF@ITU.DK", NormalizedUserName="ROPF@ITU.DK", SecurityStamp="KRY2VBOMPASVDNFJS6O25PXEXY5DUISH"};
-            var a12 = new Author { Name = "Adrian", UserName="adho@itu.dk", Email = "adho@itu.dk", PasswordHash="AQAAAAIAAYagAAAAEJ95jxQR1gKMr+WVxHEoKkRCj+kDOuA9O6XePTmcksMR8fWL9TXNpPquetJCa8NpCw==", ConcurrencyStamp="28806220-362c-4ad2-93bd-efbf048f8345", EmailConfirmed=true, NormalizedEmail="ADHO@ITU.DK", NormalizedUserName="ADHO@ITU.DK", SecurityStamp="ELWNBXHSW66RMV4WC23TW5LB4QRG636W"};
+            var  a1 = new Author { Name = "Roger Histand", UserName = "RogerHistand", Email = "Roger+Histand@hotmail.com"};
+            var  a2 = new Author { Name = "Luanna Muro", UserName = "LuannaMuro", Email = "Luanna-Muro@ku.dk"};
+            var  a3 = new Author { Name = "Wendell Ballan", UserName = "WendellBallan", Email = "Wendell-Ballan@gmail.com"};
+            var  a4 = new Author { Name = "Nathan Sirmon", UserName = "NathanSirmon", Email = "Nathan+Sirmon@dtu.dk"};
+            var  a5 = new Author { Name = "Quintin Sitts", UserName = "QuintinSitts", Email = "Quintin+Sitts@itu.dk"};
+            var  a6 = new Author { Name = "Mellie Yost", UserName = "MellieYost", Email = "Mellie+Yost@ku.dk"};
+            var  a7 = new Author { Name = "Malcolm Janski", UserName = "MalcomJanski", Email = "Malcolm-Janski@gmail.com"};
+            var  a8 = new Author { Name = "Octavio Wagganer", UserName = "OctavioWagganer", Email = "Octavio.Wagganer@dtu.dk"};
+            var  a9 = new Author { Name = "Johnnie Calixto", UserName = "JohnnieCalixto", Email = "Johnnie+Calixto@itu.dk"};
+            var a10 = new Author { Name = "Jacqualine Gilcoine", UserName = "JacqualineGilcoine", Email = "Jacqualine.Gilcoine@gmail.com"};
+            var a11 = new Author { Name = "Helge", UserName="Helge", Email = "ropf@itu.dk", PasswordHash="AQAAAAIAAYagAAAAEKPXQMvnfuNS4pxtGy6tXdbeldyzDEWAr5QG0nBK2PYZPePB+dpwxCqQnBwks5J3FA==", ConcurrencyStamp="b5b7f191-ef9b-4b0c-a46d-13c7bd9bccf6", EmailConfirmed=true, NormalizedEmail="ROPF@ITU.DK", NormalizedUserName="HELGE", SecurityStamp="KRY2VBOMPASVDNFJS6O25PXEXY5DUISH"};
+            var a12 = new Author { Name = "Adrian", UserName="Adrian", Email = "adho@itu.dk", PasswordHash="AQAAAAIAAYagAAAAEJ95jxQR1gKMr+WVxHEoKkRCj+kDOuA9O6XePTmcksMR8fWL9TXNpPquetJCa8NpCw==", ConcurrencyStamp="28806220-362c-4ad2-93bd-efbf048f8345", EmailConfirmed=true, NormalizedEmail="ADHO@ITU.DK", NormalizedUserName="ADRIAN", SecurityStamp="ELWNBXHSW66RMV4WC23TW5LB4QRG636W"};
 
             var authors = new List<Author> { a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12 };
 

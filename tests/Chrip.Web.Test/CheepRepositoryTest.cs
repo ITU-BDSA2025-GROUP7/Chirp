@@ -42,7 +42,7 @@ public class CheepRepositoryTest
         Author author = authors.Single();
         Assert.Equal(name, author.Name);
         Assert.Equal(email, author.Email);
-        Assert.Equal(email, author.UserName);
+        Assert.Equal(name, author.UserName);
         Assert.Equal(author.Email?.ToUpper(), author.NormalizedEmail);
         Assert.Equal(author.UserName?.ToUpper(), author.NormalizedUserName);
         Assert.True(author.EmailConfirmed);
