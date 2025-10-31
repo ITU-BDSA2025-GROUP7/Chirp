@@ -119,7 +119,10 @@ namespace Chirp.Razor.Areas.Identity.Pages.Account {
             Author user = CreateUser();
             user.Name = Input.DisplayName;
 
-            // Setting this to Input.DisplayName instead seems to break things.
+            // Note that the default SignInManager, when called from the default
+            // login page, receives an email address but treats it as a username.
+            // That is why this line is generated to set the username to be equal to
+            // the email that is given during login.
             await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
             await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
             IdentityResult result = await _userManager.CreateAsync(user, Input.Password);

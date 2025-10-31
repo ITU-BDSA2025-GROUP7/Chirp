@@ -18,7 +18,8 @@
             </div>
             <div class="form-floating mb-3">
                 <input asp-for="Input.DisplayName" class="form-control"
-                       placeholder="Please enter your display name."/>
+                       placeholder="Please enter your display name."
+                       pattern="\p{L}+(\s+\p{L}+)*"/>
                 <label asp-for="Input.DisplayName" class="form-label"></label>
             </div>
             <div class="form-floating mb-3">

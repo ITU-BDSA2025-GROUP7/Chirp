@@ -16,7 +16,8 @@
 
             <div class="form-floating mb-3">
                 <input asp-for="Input.DisplayName" class="form-control" autocomplete="name"
-                       aria-required="true" placeholder="display name"/>
+                       aria-required="true" placeholder="display name"
+                       pattern="\p{L}+(\s+\p{L}+)*"/>
                 <label asp-for="Input.DisplayName">Name</label>
                 <span asp-validation-for="Input.DisplayName" class="text-danger"></span>
             </div>
