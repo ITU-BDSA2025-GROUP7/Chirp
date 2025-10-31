@@ -32,7 +32,21 @@ public class CheepRepositoryTest
         _context.SaveChanges();
     }
 
-    
+    [Theory]
+    [InlineData("Helge", "ropf@itu.dk")]
+    [InlineData("Adrian", "adho@itu.dk")]
+    public async Task RequiredAuthorsExist(string name, string email) {
+        List<Author> authors = await _cheepRepository.GetAuthorByName(name);
+        Assert.NotNull(authors);
+        Assert.Single(authors);
+        Author author = authors.Single();
+        Assert.Equal(name, author.Name);
+        Assert.Equal(email, author.Email);
+        Assert.Equal(email, author.UserName);
+        Assert.Equal(author.Email?.ToUpper(), author.NormalizedEmail);
+        Assert.Equal(author.UserName?.ToUpper(), author.NormalizedUserName);
+        Assert.True(author.EmailConfirmed);
+    }
 
 
     /*Test that there is only cheeps from the selected author when getcheepsfromauthor is called
