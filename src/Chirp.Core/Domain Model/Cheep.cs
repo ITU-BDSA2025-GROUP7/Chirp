@@ -8,11 +8,8 @@ public class Cheep {
     [Key]
     public int CheepId { get; set; }
 
-    [MaxLength(160)]
+    [MaxLength(MAX_TEXT_LENGTH)]
     public string Text { get; set; } = "";
     public DateTime TimeStamp { get; set; }
     public required Author Author { get; set; }
-
-    public int AuthorId { get; set; }
-
 }

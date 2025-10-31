@@ -32,8 +32,49 @@ public class CheepRepositoryTest
         _context.SaveChanges();
     }
 
-    
+    [Theory]
+    [InlineData("Helge", "ropf@itu.dk")]
+    [InlineData("Adrian", "adho@itu.dk")]
+    public async Task RequiredAuthorsExist(string name, string email) {
+        List<Author> authors = await _cheepRepository.GetAuthorByName(name);
+        Assert.NotNull(authors);
+        Assert.Single(authors);
+        Author author = authors.Single();
+        Assert.Equal(name, author.Name);
+        Assert.Equal(email, author.Email);
+        Assert.Equal(name, author.UserName);
+        Assert.Equal(author.Email?.ToUpper(), author.NormalizedEmail);
+        Assert.Equal(author.UserName?.ToUpper(), author.NormalizedUserName);
+        Assert.True(author.EmailConfirmed);
+    }
 
+    [Fact]
+    public async Task CheepsDeletedWithAuthor() {
+        var author = new Author
+            { Name = "DisappearingSoon", Email = "test@itu.dk", UserName = "test@itu.dk" };
+        var cheep = new Cheep {
+            CheepId = 90000,
+            Author = author,
+            Text = "This is a cheep",
+            TimeStamp = DateTime.Now
+        };
+        author.Cheeps.Add(cheep);
+
+        Assert.DoesNotContain(author, _context.Authors);
+        Assert.DoesNotContain(cheep, _context.Cheeps);
+
+        _context.Authors.Add(author);
+        await _context.SaveChangesAsync();
+
+        Assert.Contains(author, _context.Authors);
+        Assert.Contains(cheep, _context.Cheeps);
+
+        _context.Authors.Remove(author);
+        await _context.SaveChangesAsync();
+
+        Assert.DoesNotContain(author, _context.Authors);
+        Assert.DoesNotContain(cheep, _context.Cheeps);
+    }
 
     /*Test that there is only cheeps from the selected author when getcheepsfromauthor is called
     and that it doesn't crash if the author doesn't exist
@@ -227,19 +268,6 @@ public class CheepRepositoryTest
                      select author);
         Author actualAuthor = query.First();
         Assert.NotNull(actualAuthor);
-    }
-
-    [Theory]
-    [InlineData("Wendell Ballan", 3)]
-    [InlineData("Roger Histand", 1)]
-    [InlineData("Luanna Muro", 2)]
-    [InlineData("Roger+Histand@hotmail.com", 1)]
-    [InlineData("Luanna-Muro@ku.dk", 2)]
-    [InlineData("Quintin+Sitts@itu.dk", 5)]
-    public async Task GetAuthorTest(string identifier, int authorId)
-    {
-        List<Author> authors = await _cheepRepository.GetAuthor(identifier);
-        Assert.Equal(authors.First().AuthorId, authorId);
     }
 
     [Fact]
