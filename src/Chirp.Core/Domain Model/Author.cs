@@ -6,7 +6,10 @@ namespace Chirp.Core.Domain_Model;
 
 [Index(nameof(Email), IsUnique = true)]
 public class Author : IdentityUser {
-    [MaxLength(256)] public string Name { get; set; } = "";
+    [MaxLength(256)]
+    [PersonalData]
+    public string Name { get; set; } = "";
 
+    [PersonalData]
     public List<Cheep> Cheeps { get; set; } = [];
 }
