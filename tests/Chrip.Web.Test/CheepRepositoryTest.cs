@@ -48,6 +48,33 @@ public class CheepRepositoryTest
         Assert.True(author.EmailConfirmed);
     }
 
+    [Fact]
+    public async Task CheepsDeletedWithAuthor() {
+        var author = new Author
+            { Name = "DisappearingSoon", Email = "test@itu.dk", UserName = "test@itu.dk" };
+        var cheep = new Cheep {
+            CheepId = 90000,
+            Author = author,
+            Text = "This is a cheep",
+            TimeStamp = DateTime.Now
+        };
+        author.Cheeps.Add(cheep);
+
+        Assert.DoesNotContain(author, _context.Authors);
+        Assert.DoesNotContain(cheep, _context.Cheeps);
+
+        _context.Authors.Add(author);
+        await _context.SaveChangesAsync();
+
+        Assert.Contains(author, _context.Authors);
+        Assert.Contains(cheep, _context.Cheeps);
+
+        _context.Authors.Remove(author);
+        await _context.SaveChangesAsync();
+
+        Assert.DoesNotContain(author, _context.Authors);
+        Assert.DoesNotContain(cheep, _context.Cheeps);
+    }
 
     /*Test that there is only cheeps from the selected author when getcheepsfromauthor is called
     and that it doesn't crash if the author doesn't exist
