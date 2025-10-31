@@ -100,9 +100,15 @@ namespace Chirp.Razor.Areas.Identity.Pages.Account {
 
             if (!ModelState.IsValid) return Page();
 
+            Author user = await _signInManager.UserManager.FindByEmailAsync(Input.Email);
+            if (user == null || user.UserName == null) {
+                ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                return Page();
+            }
+
             // This doesn't count login failures towards account lockout
             // To enable password failures to trigger account lockout, set lockoutOnFailure: true
-            SignInResult result = await _signInManager.PasswordSignInAsync(Input.Email,
+            SignInResult result = await _signInManager.PasswordSignInAsync(user.UserName,
                 Input.Password,
                 Input.RememberMe,
                 lockoutOnFailure: false);

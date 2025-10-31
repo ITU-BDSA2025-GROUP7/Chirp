@@ -63,7 +63,16 @@ namespace Chirp.Razor.Areas.Identity.Pages.Account {
         public class InputModel {
             [Required]
             [DataType(DataType.Text)]
-            [StringLength(256, ErrorMessage = "The {0} must be between {2} and {1} characters long.",
+            [StringLength(256,
+                ErrorMessage = "The {0} must be between {2} and {1} characters long.",
+                MinimumLength = 4)]
+            [Display(Name = "Username")]
+            public string UserName { get; set; }
+
+            [Required]
+            [DataType(DataType.Text)]
+            [StringLength(256,
+                ErrorMessage = "The {0} must be between {2} and {1} characters long.",
                 MinimumLength = 4)]
             [Display(Name = "Display Name")]
             public string DisplayName { get; set; }
@@ -75,7 +84,8 @@ namespace Chirp.Razor.Areas.Identity.Pages.Account {
             [Required]
             [EmailAddress]
             [Display(Name = "Email")]
-            [StringLength(256, ErrorMessage = "The {0} must be between {2} and {1} characters long.",
+            [StringLength(256,
+                ErrorMessage = "The {0} must be between {2} and {1} characters long.",
                 MinimumLength = 2)]
             public string Email { get; set; }
 
@@ -85,8 +95,8 @@ namespace Chirp.Razor.Areas.Identity.Pages.Account {
             /// </summary>
             [Required]
             [StringLength(100, ErrorMessage =
-                              "The {0} must be at least {2} and at most {1} characters long.",
-                          MinimumLength = 6)]
+                    "The {0} must be at least {2} and at most {1} characters long.",
+                MinimumLength = 6)]
             [DataType(DataType.Password)]
             [Display(Name = "Password")]
             public string Password { get; set; }
@@ -98,7 +108,7 @@ namespace Chirp.Razor.Areas.Identity.Pages.Account {
             [DataType(DataType.Password)]
             [Display(Name = "Confirm password")]
             [Compare("Password",
-                     ErrorMessage = "The password and confirmation password do not match.")]
+                ErrorMessage = "The password and confirmation password do not match.")]
             public string ConfirmPassword { get; set; }
         }
 
@@ -117,13 +127,13 @@ namespace Chirp.Razor.Areas.Identity.Pages.Account {
                 return Page();
 
             Author user = CreateUser();
-            user.Name = Input.DisplayName;
+            if (string.IsNullOrEmpty(Input.DisplayName)) {
+                user.Name = Input.UserName;
+            } else {
+                user.Name = Input.DisplayName;
+            }
 
-            // Note that the default SignInManager, when called from the default
-            // login page, receives an email address but treats it as a username.
-            // That is why this line is generated to set the username to be equal to
-            // the email that is given during login.
-            await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
+            await _userStore.SetUserNameAsync(user, Input.UserName, CancellationToken.None);
             await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
             IdentityResult result = await _userManager.CreateAsync(user, Input.Password);
 
@@ -147,7 +157,8 @@ namespace Chirp.Razor.Areas.Identity.Pages.Account {
                 if (_userManager.Options.SignIn.RequireConfirmedAccount) {
                     return RedirectToPage("RegisterConfirmation",
                         new { email = Input.Email, returnUrl = returnUrl });
-                } else {
+                }
+                else {
                     await _signInManager.SignInAsync(user, isPersistent: false);
                     return LocalRedirect(returnUrl);
                 }
@@ -159,13 +170,13 @@ namespace Chirp.Razor.Areas.Identity.Pages.Account {
 
             // If we got this far, something failed, redisplay form
             return Page();
-
         }
 
         private Author CreateUser() {
             try {
                 return Activator.CreateInstance<Author>();
-            } catch {
+            }
+            catch {
                 throw new InvalidOperationException(
                     $"Can't create an instance of '{nameof(Author)}'. " +
                     $"Ensure that '{nameof(Author)}' is not an abstract class and has a parameterless constructor, or alternatively " +
