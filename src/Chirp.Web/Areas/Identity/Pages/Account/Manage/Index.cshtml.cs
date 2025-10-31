@@ -48,6 +48,8 @@ namespace Chirp.Razor.Areas.Identity.Pages.Account.Manage {
             [Required]
             [DataType(DataType.Text)]
             [Display(Name = "Display Name")]
+            [StringLength(256, ErrorMessage = "The {0} must be between {2} and {1} characters long.",
+                MinimumLength = 4)]
             public string DisplayName { get; set; }
 
             /// <summary>
@@ -55,15 +57,14 @@ namespace Chirp.Razor.Areas.Identity.Pages.Account.Manage {
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
             [Phone]
+            [DataType(DataType.PhoneNumber)]
             [Display(Name = "Phone number")]
             public string PhoneNumber { get; set; }
         }
 
         private async Task LoadAsync(Author user) {
-            string userName = await _userManager.GetUserNameAsync(user);
+            Username = await _userManager.GetUserNameAsync(user);
             string phoneNumber = await _userManager.GetPhoneNumberAsync(user);
-
-            Username = userName;
 
             Input = new InputModel {
                 DisplayName = user.Name,
