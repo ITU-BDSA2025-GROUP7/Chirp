@@ -19,9 +19,22 @@ string? connectionString = config["ConnectionStrings:DefaultConnection"];
 builder.Services.AddDbContext<ChirpDBContext>(options => options.UseSqlite(connectionString));
 builder.Services.AddScoped<ICheepRepository, CheepRepository>();
 builder.Services.AddScoped<ICheepService, CheepService>();
-builder.Services.AddDefaultIdentity<Author>( options =>
+builder.Services.AddDefaultIdentity<Author>(options =>
     options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<ChirpDBContext>();
-
+builder.Services.AddSession();
+builder.Services.AddAuthentication(options =>
+    {
+        options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+        options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = "GitHub";
+    })
+    .AddCookie()
+    .AddGitHub(o =>
+    {
+        o.ClientId = builder.Configuration["authentication:github:clientId"];
+        o.ClientSecret = builder.Configuration["authentication:github:clientSecret"];
+        o.CallbackPath = "/signin-github";
+    });
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -38,28 +51,14 @@ using (var scope = app.Services.CreateScope())
     var dbContext = scope.ServiceProvider.GetRequiredService<ChirpDBContext>();
     DbInitializer.SeedDatabase(dbContext);
 }
-builder.Services.AddAuthentication(options =>
-    {
-        options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-        options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-        options.DefaultChallengeScheme = "GitHub";
-    })
-    .AddCookie()
-    .AddGitHub(o =>
-    {
-        o.ClientId = builder.Configuration["authentication:github:clientId"];
-        o.ClientSecret = builder.Configuration["authentication:github:clientSecret"];
-        o.CallbackPath = "/signin-github";
-    });
-app.UseAuthentication();
-app.UseAuthorization();
-app.UseSession();
+
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseSession();
 app.MapRazorPages();
 
 app.Run();
