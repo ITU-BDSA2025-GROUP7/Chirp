@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
@@ -6,9 +6,11 @@
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <RootNamespace>Chirp.Razor</RootNamespace>
-    </PropertyGroup>
+      <UserSecretsId>e0d60cd7-3df8-48ff-bbea-678fe4097281</UserSecretsId>
+  </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="AspNet.Security.OAuth.GitHub" Version="9.4.1" />
         <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.10" />
         <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="9.0.10" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.10">

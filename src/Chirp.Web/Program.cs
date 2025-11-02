@@ -20,6 +20,14 @@ builder.Services.AddScoped<ICheepRepository, CheepRepository>();
 builder.Services.AddScoped<ICheepService, CheepService>();
 builder.Services.AddDefaultIdentity<Author>( options =>
     options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<ChirpDBContext>();
+builder.Services.AddAuthentication()
+    
+    .AddGitHub(o =>
+    {
+        o.ClientId = builder.Configuration["authentication:github:clientId"];
+        o.ClientSecret = builder.Configuration["authentication:github:clientSecret"];
+        o.CallbackPath = "/signin-github";
+    });
 
 var app = builder.Build();
 
