@@ -82,10 +82,6 @@ namespace Chirp.Razor.Areas.Identity.Pages.Account {
             }
 
             returnUrl ??= Url.Content("~/");
-
-            // Clear the existing external cookie to ensure a clean login process
-            await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
-
             ExternalLogins =
                 (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
 
@@ -97,7 +93,6 @@ namespace Chirp.Razor.Areas.Identity.Pages.Account {
 
             ExternalLogins =
                 (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
-
             if (!ModelState.IsValid) return Page();
 
             Author user = await _signInManager.UserManager.FindByEmailAsync(Input.Email);
@@ -132,6 +127,11 @@ namespace Chirp.Razor.Areas.Identity.Pages.Account {
             }
 
             // If we got this far, something failed, redisplay form
+        }
+        public Task<IActionResult> OnPostExternalLoginAsync(string provider, string returnUrl = null)
+        {
+            var properties = _signInManager.ConfigureExternalAuthenticationProperties("GitHub", "./");
+            return Task.FromResult<IActionResult>(new ChallengeResult("GitHub", properties));
         }
     }
 }

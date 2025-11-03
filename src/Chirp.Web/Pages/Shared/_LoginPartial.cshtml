@@ -2,7 +2,7 @@
 @inject SignInManager<Author> SignInManager
 @inject UserManager<Author> UserManager
 
-@if (SignInManager.IsSignedIn(User))
+@if (User.Identity.IsAuthenticated)
 {
     <span>
         <a class="nav-link text-dark" asp-area="Identity"

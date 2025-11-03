@@ -1,6 +1,7 @@
 using Chirp.Core;
 using Chirp.Core.Domain_Model;
 using Chirp.Infastructure;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -8,7 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddRazorPages();
 
-string environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")!;
+string environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? throw new InvalidOperationException();
 var config = new ConfigurationBuilder()
     .AddJsonFile("appsettings.Web.json")
     .AddJsonFile($"appsettings.Web.{environment}.json", optional:true)
@@ -20,14 +21,20 @@ builder.Services.AddScoped<ICheepRepository, CheepRepository>();
 builder.Services.AddScoped<ICheepService, CheepService>();
 builder.Services.AddDefaultIdentity<Author>( options =>
     options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<ChirpDBContext>();
-builder.Services.AddAuthentication()
-    
+builder.Services.AddAuthentication(options =>
+    {
+        options.DefaultAuthenticateScheme = IdentityConstants.ApplicationScheme;
+        options.DefaultSignInScheme = IdentityConstants.ApplicationScheme;
+        options.DefaultChallengeScheme = "GitHub";
+    })
+    .AddCookie()
     .AddGitHub(o =>
     {
-        o.ClientId = builder.Configuration["authentication:github:clientId"];
-        o.ClientSecret = builder.Configuration["authentication:github:clientSecret"];
-        o.CallbackPath = "/signin-github";
+        o.ClientId = builder.Configuration["authentication:github:clientId"] ?? throw new InvalidOperationException();
+        o.ClientSecret = builder.Configuration["authentication:github:clientSecret"] ?? throw new InvalidOperationException();
+        o.SignInScheme = IdentityConstants.ApplicationScheme;
     });
+builder.Services.AddSession();
 
 var app = builder.Build();
 
@@ -48,10 +55,11 @@ using (var scope = app.Services.CreateScope())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-
 app.UseRouting();
+app.UseSession();
 app.UseAuthentication();
 app.UseAuthorization();
+
 app.MapRazorPages();
 
 app.Run();
