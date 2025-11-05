@@ -172,6 +172,13 @@ namespace Chirp.Razor.Areas.Identity.Pages.Account {
             return Page();
         }
 
+        public Task<IActionResult> OnPostExternalRegisterAsync(string provider,
+                                                               string returnUrl = null) {
+            AuthenticationProperties properties =
+                _signInManager.ConfigureExternalAuthenticationProperties(provider, returnUrl);
+            return Task.FromResult<IActionResult>(new ChallengeResult(provider, properties));
+        }
+
         private Author CreateUser() {
             try {
                 return Activator.CreateInstance<Author>();
