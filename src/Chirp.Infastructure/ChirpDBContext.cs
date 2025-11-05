@@ -9,6 +9,7 @@ public class ChirpDBContext : IdentityDbContext<Author> {
     public DbSet<Cheep> Cheeps { get; set; }
 
     public ChirpDBContext(DbContextOptions<ChirpDBContext> options) : base(options) {
+        this.Database.EnsureCreated();
         //DbInitializer.SeedDatabase(this);
     }
 }

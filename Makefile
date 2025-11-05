@@ -25,7 +25,7 @@ n :=
 
 # starts the application on local host
 start:
-	dotnet run --project src/Chirp.Web ${ENV}
+	dotnet run --project src/Chirp.Web
 
 # Runs all the tests in the solution
 test:
