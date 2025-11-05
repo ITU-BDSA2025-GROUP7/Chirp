@@ -18,7 +18,7 @@ public class Tests : PageTest
     public async Task SetUp()
     {
         //_factory = new RealServerFactory<Program>();
-        _serverProcess = await EndToEndUtil.StartServer();
+        _serverProcess = await EndToEndUtil.StartServer(ServerUrl);
     }
     
     [TearDown]
