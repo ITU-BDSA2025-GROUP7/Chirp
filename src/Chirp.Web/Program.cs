@@ -35,11 +35,12 @@ builder.Services.AddAuthentication(options => {
             o.LogoutPath = "/signout";
         })
        .AddGitHub(o => {
-            o.ClientId = builder.Configuration["Authentication:Github:clientId"]
+            o.ClientId = builder.Configuration["Authentication:GitHub:ClientId"]
                       ?? throw new InvalidOperationException();
-            o.ClientSecret = builder.Configuration["Authentication:Github:clientSecret"]
+            o.ClientSecret = builder.Configuration["Authentication:GitHub:ClientSecret"]
                           ?? throw new InvalidOperationException();
-            o.CallbackPath = "/signin-github"; //new PathString("/signin-github");
+            o.CallbackPath = "/signin-github";
+            o.Scope.Add("user:email");
         })
        .AddIdentityCookies(o => { });
 builder.Services.AddIdentityCore<Author>(o => {
