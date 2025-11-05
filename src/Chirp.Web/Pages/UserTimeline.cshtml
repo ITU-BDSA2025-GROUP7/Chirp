@@ -7,27 +7,27 @@
 }
 
 <div>
-    <h2> @routeName's Timeline </h2>
+    @if (Model.Author == null) {
+        <h2>No such author found.</h2>
+    } else {
+        <h2> @routeName's Timeline </h2>
 
-    @if (Model.Cheeps.Any())
-    {
-        <ul id="messagelist" class="cheeps">
-            @foreach (var cheep in Model.Cheeps)
-            {
-                <li>
-                    <p>
-                        <strong>
-                            <a href="/@cheep.Author">@cheep.Author</a>
-                        </strong>
-                        @cheep.Message
-                        <small>&mdash; @cheep.TimeStamp</small>
-                    </p>
-                </li>
-            }
-        </ul>
-    }
-    else
-    {
-        <em>There are no cheeps so far.</em>
+        @if (Model.Cheeps.Any()) {
+            <ul id="messagelist" class="cheeps">
+                @foreach (var cheep in Model.Cheeps) {
+                    <li>
+                        <p>
+                            <strong>
+                                <a href="/@cheep.Author">@cheep.Author</a>
+                            </strong>
+                            @cheep.Message
+                            <small>&mdash; @cheep.TimeStamp</small>
+                        </p>
+                    </li>
+                }
+            </ul>
+        } else {
+            <em>There are no cheeps so far.</em>
+        }
     }
 </div>
