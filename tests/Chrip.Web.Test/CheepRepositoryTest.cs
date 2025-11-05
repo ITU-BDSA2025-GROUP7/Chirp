@@ -89,13 +89,13 @@ public class CheepRepositoryTest
         //arrange
 
         // act 
-        var cheeps = await _cheepRepository.GetCheepsFromAuthor(name, 1);
+        var cheeps = await _cheepRepository.GetCheepsFromUserName(name, 1);
 
         //assert
         foreach (var cheep in cheeps)
         {
-            Assert.Equal(name, cheep.Author);
-            Assert.NotEqual("hjdfiluwriu", cheep.Author);
+            Assert.Equal(name, cheep.AuthorDisplayName);
+            Assert.NotEqual("hjdfiluwriu", cheep.AuthorDisplayName);
         }
 
 
@@ -127,7 +127,7 @@ public class CheepRepositoryTest
         var cheep = await _cheepRepository.GetCheeps(1);
 
         //assert
-        Assert.Equal(author, cheep[index].Author);
+        Assert.Equal(author, cheep[index].AuthorDisplayName);
         Assert.Equal(message, cheep[index].Message);
         Assert.Equal(timestamp, cheep[index].TimeStamp);
 
