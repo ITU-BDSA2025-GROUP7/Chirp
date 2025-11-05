@@ -2,14 +2,16 @@
 
 public class CheepDTO
 {
-    public string Author {get; set;}
+    public string AuthorDisplayName {get; set;}
     public string Message {get; set;}
     public string TimeStamp {get; set;}
+    public string AuthorUserName {get; set;}
 
-    public CheepDTO(string author, string message, string timeStamp)
+    public CheepDTO(string authorDisplayName, string message, string timeStamp, string? authorUserName)
     {
-        Author = author;
+        AuthorDisplayName = authorDisplayName;
         Message = message;
         TimeStamp = timeStamp;
+        AuthorUserName = authorUserName ?? authorDisplayName;
     }
 }
