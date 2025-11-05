@@ -8,22 +8,6 @@
 <div>
     <h2>@Model.Header</h2>
     @if (Model.Author != null) {
-        @if (Model.Cheeps.Any()) {
-            <ul id="messagelist" class="cheeps">
-                @foreach (CheepDTO cheep in Model.Cheeps) {
-                    <li>
-                        <p>
-                            <strong>
-                                <a href="/@cheep.AuthorUserName">@cheep.AuthorDisplayName</a>
-                            </strong>
-                            @cheep.Message
-                            <small>&mdash; @cheep.TimeStamp</small>
-                        </p>
-                    </li>
-                }
-            </ul>
-        } else {
-            <em>There are no cheeps so far.</em>
-        }
+        <partial name="Shared/_CheepListPartial" model="@Model"/>
     }
 </div>
