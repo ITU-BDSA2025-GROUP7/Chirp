@@ -27,11 +27,12 @@ public static class EndToEndUtil
         // wait for the server to be started
         using var client = new HttpClient();
         var start = DateTime.Now;
-
+        
         while (DateTime.Now - start < TimeSpan.FromMilliseconds(timeoutMs))
         {
             try
             {
+                Console.Write("cheking for live");
                 var response = await client.GetAsync("http://localhost:5273");
                 if (response.IsSuccessStatusCode) return serverProcess;
             }

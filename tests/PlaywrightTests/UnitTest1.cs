@@ -17,18 +17,16 @@ public class Tests : PageTest
     [SetUp]
     public async Task SetUp()
     {
-        //_factory = new RealServerFactory<Program>();
-        _serverProcess = await EndToEndUtil.StartServer(ServerUrl);
+        //_serverProcess = await EndToEndUtil.StartServer(ServerUrl);
+        //Console.WriteLine("Server started");
     }
     
     [TearDown]
     public void TearDown()
     {
-        _serverProcess.Kill();
-        _serverProcess.Dispose();
+        //_serverProcess.Kill();
+        //_serverProcess.Dispose();
     }
-    
-    
     
     [Test]
     public async Task MyTest()
@@ -47,4 +45,58 @@ public class Tests : PageTest
         await Page.GetByRole(AriaRole.Button, new() { Name = "Log in" }).ClickAsync();
         await Expect(Page.GetByRole(AriaRole.Listitem)).ToContainTextAsync("Invalid login attempt.");
     }
+    
+    
+    [Test]
+    public async Task NavigationBarChangesWhenLogedIn()
+    {
+        await Page.GotoAsync(ServerUrl);
+        await Expect(Page.GetByRole(AriaRole.Heading, new() { Name = "Icon1Chirp!" })).ToBeVisibleAsync();
+
+        await Page.GetByRole(AriaRole.Link, new() { Name = "Login" }).ClickAsync();
+        await Expect(Page.GetByRole(AriaRole.Heading, new() { Name = "Icon1Chirp!" })).ToBeVisibleAsync();
+
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "Email" }).ClickAsync();
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "Email" }).FillAsync("ropf@itu.dk");
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "Password" }).ClickAsync();
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "Password" }).FillAsync("LetM31n!");
+        await Expect(Page.Locator("body")).ToContainTextAsync("Public Timeline");
+        await Expect(Page.Locator("body")).ToContainTextAsync("Register");
+        await Expect(Page.Locator("body")).ToContainTextAsync("Login");
+        await Page.GetByRole(AriaRole.Button, new() { Name = "Log in" }).ClickAsync();
+        await Expect(Page.Locator("body")).ToContainTextAsync("My Timeline");
+        await Expect(Page.Locator("body")).ToContainTextAsync("Public Timeline");
+        await Expect(Page.Locator("span")).ToContainTextAsync("Account");
+        await Expect(Page.GetByRole(AriaRole.Button)).ToContainTextAsync("Logout");
+    }
+    
+    [Test]
+    public async Task HelgeDisplayName()
+    {
+        await Page.GotoAsync(ServerUrl);
+        await Expect(Page.GetByRole(AriaRole.Heading, new() { Name = "Icon1Chirp!" })).ToBeVisibleAsync();
+
+        await Page.GetByRole(AriaRole.Link, new() { Name = "Login" }).ClickAsync();
+        await Expect(Page.GetByRole(AriaRole.Heading, new() { Name = "Icon1Chirp!" })).ToBeVisibleAsync();
+
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "Email" }).ClickAsync();
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "Email" }).FillAsync("ropf@itu.dk");
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "Password" }).ClickAsync();
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "Password" }).FillAsync("LetM31n!");
+        await Page.GetByRole(AriaRole.Button, new() { Name = "Log in" }).ClickAsync();
+        await Expect(Page.GetByRole(AriaRole.Heading, new() { Name = "Icon1Chirp!" })).ToBeVisibleAsync();
+
+        await Expect(Page.GetByRole(AriaRole.Link, new() { Name = "My Timeline" })).ToBeVisibleAsync();
+        await Page.GetByRole(AriaRole.Link, new() { Name = "My Timeline" }).ScrollIntoViewIfNeededAsync();
+        
+        
+        await Page.GetByRole(AriaRole.Link, new() { Name = "My Timeline" }).ClickAsync();
+        await Expect(Page.Locator("h2")).ToContainTextAsync("Helge's Timeline");
+
+        //await Page.GotoAsync("http://localhost:5273/Helge", new() { WaitUntil = WaitUntilState.DOMContentLoaded });
+        //await Page.GetByRole(AriaRole.Link, new() { Name = "My Timeline" }).ClickAsync();
+    }
+
+    
+   
 }
