@@ -21,10 +21,41 @@ string? connectionString = config["ConnectionStrings:DefaultConnection"];
 builder.Services.AddDbContext<ChirpDBContext>(options => options.UseSqlite(connectionString));
 builder.Services.AddScoped<ICheepRepository, CheepRepository>();
 builder.Services.AddScoped<ICheepService, CheepService>();
-//builder.Services.AddDefaultIdentity<Author>(options =>
-//                                                options.SignIn.RequireConfirmedAccount = true)
-//       .AddEntityFrameworkStores<ChirpDBContext>();
+builder.Services.AddDefaultIdentity<Author>(options =>
+                                                options.SignIn.RequireConfirmedAccount = true)
+       .AddEntityFrameworkStores<ChirpDBContext>();
 builder.Services.AddAuthentication(options => {
+    options.DefaultScheme = IdentityConstants.ApplicationScheme;
+
+    // This allows us to log in with Identity:
+    options.DefaultAuthenticateScheme = IdentityConstants.ApplicationScheme;
+    // This does not:
+    //options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+
+    // All of these allow us to log in with Identity:
+    //options.DefaultSignInScheme = IdentityConstants.ApplicationScheme;
+    //options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
+
+    options.DefaultChallengeScheme = "GitHub";
+})
+//.AddCookie()
+.AddCookie(o => {
+    o.LoginPath = "/Identity/Account/Login";
+    o.LogoutPath = "/Identity/Account/Logout";
+})
+.AddGitHub(o => {
+    o.ClientId = builder.Configuration["Authentication:GitHub:ClientId"]
+              ?? throw new InvalidOperationException();
+    o.ClientSecret = builder.Configuration["Authentication:GitHub:ClientSecret"]
+                  ?? throw new InvalidOperationException();
+    // This causes a callback error after registrering, as it tries to go to UserTimeline with the
+    // "/signin-github" route value, i.e. author.
+    //o.CallbackPath = "/signin-github";
+    o.Scope.Add("user:email");
+});
+/*
+ builder.Services.AddAuthentication(options => {
             options.DefaultScheme = IdentityConstants.ApplicationScheme;
             options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
             options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
@@ -43,13 +74,14 @@ builder.Services.AddAuthentication(options => {
             o.Scope.Add("user:email");
         })
        .AddIdentityCookies(o => { });
-builder.Services.AddIdentityCore<Author>(o => {
+       */
+/*builder.Services.AddIdentityCore<Author>(o => {
             o.Stores.MaxLengthForKeys = 128;
             o.SignIn.RequireConfirmedAccount = true;
         })
        .AddDefaultUI()
        .AddDefaultTokenProviders()
-       .AddEntityFrameworkStores<ChirpDBContext>();
+       .AddEntityFrameworkStores<ChirpDBContext>();*/
 builder.Services.AddSession();
 
 var app = builder.Build();

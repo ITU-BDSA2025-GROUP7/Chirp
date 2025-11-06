@@ -26,6 +26,7 @@ public static class DbInitializer {
     }
 
     public static void SeedDatabase(ChirpDBContext chirpContext) {
+        Clear(chirpContext);
         if (!(chirpContext.Authors.Any() && chirpContext.Cheeps.Any())) {
             Author  a1 = CreateUser("Roger Histand", "Roger+Histand@hotmail.com");
             Author  a2 = CreateUser("Luanna Muro", "Luanna-Muro@ku.dk");

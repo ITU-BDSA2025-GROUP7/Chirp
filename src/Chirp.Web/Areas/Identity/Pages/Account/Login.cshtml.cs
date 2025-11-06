@@ -82,6 +82,7 @@ namespace Chirp.Razor.Areas.Identity.Pages.Account {
             }
 
             returnUrl ??= Url.Content("~/");
+            await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
             ExternalLogins =
                 (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
 
