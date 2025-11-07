@@ -39,6 +39,7 @@ jobs:
       - name: download-playwright
         run: |
           pwd
+          ls
           pwsh tests/PlaywrightTests/bin/Debug/net9.0/playwright.ps1 install
       - name: Test
         run: dotnet test -e ASPNETCORE_ENVIRONMENT=Test
