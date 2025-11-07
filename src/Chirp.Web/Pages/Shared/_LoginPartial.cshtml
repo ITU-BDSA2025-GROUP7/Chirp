@@ -9,7 +9,7 @@
            asp-page="/Account/Manage/Index" title="Manage">
             @{
                 Author? user = await UserManager.GetUserAsync(User);
-                <span>@(user?.DisplayName ?? user?.UserName ?? "Unknown user")</span>
+                <span>@(user?.DisplayName ?? User.Identity?.Name ?? "Unknown user")</span>
             }
         </a> |
         <form class="form-inline" asp-page="/Account/Logout"
