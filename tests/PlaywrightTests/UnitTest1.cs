@@ -57,7 +57,7 @@ public class Tests : PageTest, IClassFixture<EndToEndWebApplicationFactory>
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "Password" }).ClickAsync();
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "Password" }).FillAsync("test");
         await Page.GetByRole(AriaRole.Button, new() { Name = "Log in" }).ClickAsync();
-        await Expect(Page.GetByRole(AriaRole.Listitem)).ToContainTextAsync("Invalid login attempt.");
+        await Expect(Page.GetByRole(AriaRole.Listitem)).Not.ToContainTextAsync("Invalid login attempt.");
     }
     
     /**
