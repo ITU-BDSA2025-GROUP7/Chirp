@@ -95,7 +95,6 @@ public class CheepRepositoryTest
         foreach (var cheep in cheeps)
         {
             Assert.Equal(name, cheep.AuthorUserName);
-            Assert.NotEqual("hjdfiluwriu", cheep.AuthorUserName);
         }
     }
 

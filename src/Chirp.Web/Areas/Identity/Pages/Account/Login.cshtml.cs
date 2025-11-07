@@ -82,6 +82,7 @@ namespace Chirp.Razor.Areas.Identity.Pages.Account {
             }
 
             returnUrl ??= Url.Content("~/");
+
             // Clear the existing external cookie to ensure a clean login process
             await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
 
@@ -96,6 +97,7 @@ namespace Chirp.Razor.Areas.Identity.Pages.Account {
 
             ExternalLogins =
                 (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+
             if (!ModelState.IsValid) return Page();
 
             Author user = await _signInManager.UserManager.FindByEmailAsync(Input.Email);
