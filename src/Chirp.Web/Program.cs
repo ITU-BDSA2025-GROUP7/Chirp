@@ -31,13 +31,6 @@ else
     builder.Services.AddDbContext<ChirpDBContext>(options => options.UseSqlite(connectionString));
 }
 
-// Make less chatty start
-/*builder.Services.AddLogging(builder =>
-{
-    builder.AddFilter("Microsoft", LogLevel.Warning);
-    builder.AddFilter("System", LogLevel.Error);
-}); */
-// make less chatty end
 builder.Services.AddScoped<ICheepRepository, CheepRepository>();
 builder.Services.AddScoped<ICheepService, CheepService>();
 builder.Services.AddDefaultIdentity<Author>(options =>
