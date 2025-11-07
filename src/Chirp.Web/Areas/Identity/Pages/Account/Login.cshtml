@@ -1,5 +1,4 @@
 ﻿@page
-@using Microsoft.AspNetCore.Authentication
 @model LoginModel
 
 @{
@@ -63,10 +62,10 @@
                 }
                 else
                 {
-                    <form id="external-account" asp-area="Identity" asp-page="ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="form-horizontal">
+                    <form id="external-account" asp-page="./ExternalLogin" asp-route-returnUrl="@Model.ReturnUrl" method="post" class="form-horizontal">
                         <div>
                             <p>
-                                @foreach (AuthenticationScheme? provider in Model.ExternalLogins!)
+                                @foreach (var provider in Model.ExternalLogins!)
                                 {
                                     <button type="submit" class="btn btn-primary" name="provider" value="@provider.Name" title="Log in using your @provider.DisplayName account">@provider.DisplayName</button>
                                 }
