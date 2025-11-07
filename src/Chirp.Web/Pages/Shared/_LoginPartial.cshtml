@@ -8,11 +8,11 @@
         <a class="nav-link text-dark" asp-area="Identity"
            asp-page="/Account/Manage/Index" title="Manage">
             @if (User.Identity?.Name != null) {
-                string? name = UserManager.FindByNameAsync(User.Identity.Name).Result?.DisplayName;
-                if (string.IsNullOrEmpty(name)) {
-                    <span>Logged in, but user with username @User.Identity?.Name does not exist.</span>
+                Author? author = await UserManager.FindByNameAsync(User.Identity.Name);
+                if (author != null) {
+                    <span>@author.DisplayName;</span>
                 } else {
-                    <span>@name</span>
+                    <span>Unknown user</span>
                 }
             } else {
                 <span>Unknown user</span>
