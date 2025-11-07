@@ -26,7 +26,7 @@ public interface ICheepRepository
     /**
      * Gets all cheeps within the given page nr that have the given author
      */
-    public Task<List<CheepDTO>> GetCheepsFromUserName(string author, int pageNr);
+    public Task<List<CheepDTO>> GetCheepsFromUserName(string username, int pageNr);
 
     public Task CreateAuthor(string name, string email);
 

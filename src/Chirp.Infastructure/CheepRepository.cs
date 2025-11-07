@@ -72,10 +72,10 @@ public class CheepRepository :  ICheepRepository
         return await query.ToListAsync();
     }
 
-    public async Task<List<CheepDTO>> GetCheepsFromUserName(string author, int pageNr)
+    public async Task<List<CheepDTO>> GetCheepsFromUserName(string username, int pageNr)
     {
         var query = (from cheep in _dbContext.Cheeps
-             where cheep.Author.UserName == author
+             where cheep.Author.UserName == username
              orderby cheep.TimeStamp descending
              select cheep)
            .Skip((pageNr - 1) * 32).Take(32).Select(cheep =>
