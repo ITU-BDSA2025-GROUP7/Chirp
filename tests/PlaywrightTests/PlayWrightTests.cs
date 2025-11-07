@@ -1,11 +1,5 @@
-﻿using System.Diagnostics;
-using System.Text.RegularExpressions;
-using Microsoft.Playwright;
+﻿using Microsoft.Playwright;
 using Microsoft.Playwright.NUnit;
-using Microsoft.AspNetCore.Mvc.Testing;
-using NUnit.Framework;
-using System.Threading.Tasks;
-using NUnit.Framework.Internal;
 using Xunit;
 
 namespace PlaywrightTests;
