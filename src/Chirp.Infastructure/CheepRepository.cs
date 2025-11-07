@@ -13,8 +13,10 @@ public class CheepRepository :  ICheepRepository
         this._dbContext = dbContext;
     }
 
-    public async Task<List<Author>> GetAuthor(string identifier) {
-        if (identifier.Contains('@')) {
+    public async Task<List<Author>> GetAuthor(string identifier)
+    {
+        if (identifier.Contains("@"))
+        {
             return await GetAuthorByEmail(identifier);
         }
         return await GetAuthorByUserName(identifier);

@@ -82,7 +82,9 @@ namespace Chirp.Razor.Areas.Identity.Pages.Account {
             }
 
             returnUrl ??= Url.Content("~/");
+            // Clear the existing external cookie to ensure a clean login process
             await HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
+
             ExternalLogins =
                 (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
 
@@ -122,17 +124,9 @@ namespace Chirp.Razor.Areas.Identity.Pages.Account {
                 _logger.LogWarning("User account locked out.");
                 return RedirectToPage("./Lockout");
             }
-            else {
-                ModelState.AddModelError(string.Empty, "Invalid login attempt.");
-                return Page();
-            }
-
             // If we got this far, something failed, redisplay form
-        }
-        public Task<IActionResult> OnPostExternalLoginAsync(string provider, string returnUrl = null)
-        {
-            var properties = _signInManager.ConfigureExternalAuthenticationProperties("GitHub", "./");
-            return Task.FromResult<IActionResult>(new ChallengeResult("GitHub", properties));
+            ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+            return Page();
         }
     }
 }

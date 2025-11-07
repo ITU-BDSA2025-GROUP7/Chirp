@@ -13,7 +13,7 @@ string environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT"
                   ?? throw new InvalidOperationException();
 var config = new ConfigurationBuilder()
     .AddJsonFile("appsettings.Web.json")
-    .AddJsonFile($"appsettings.Web.{environment}.json", optional: true)
+    .AddJsonFile($"appsettings.Web.{environment}.json", optional:true)
     .Build();
 
 string? connectionString = config["ConnectionStrings:DefaultConnection"];
@@ -56,7 +56,7 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 using (var scope = app.Services.CreateScope())
-{ /* moved the seeding of the db initializer out of
+{  /* moved the seeding of the db initializer out of
     the chirpDBContext so it is possible to use a
     different test database*/
     var dbContext = scope.ServiceProvider.GetRequiredService<ChirpDBContext>();
