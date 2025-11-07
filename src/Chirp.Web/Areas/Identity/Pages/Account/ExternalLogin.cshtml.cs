@@ -165,7 +165,7 @@ namespace Chirp.Razor.Areas.Identity.Pages.Account {
 
             if (ModelState.IsValid) {
                 Author user = CreateUser();
-                user.Name = string.IsNullOrWhiteSpace(Input.DisplayName)
+                user.DisplayName = string.IsNullOrWhiteSpace(Input.DisplayName)
                     ? Input.UserName
                     : Input.DisplayName;
 

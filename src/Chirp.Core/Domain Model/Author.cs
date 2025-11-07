@@ -8,7 +8,7 @@ namespace Chirp.Core.Domain_Model;
 public class Author : IdentityUser {
     [MaxLength(256)]
     [PersonalData]
-    public string Name { get; set; } = "";
+    public string DisplayName { get; set; } = "";
 
     [PersonalData]
     public List<Cheep> Cheeps { get; set; } = [];

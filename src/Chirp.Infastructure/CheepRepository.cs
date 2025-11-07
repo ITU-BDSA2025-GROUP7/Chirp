@@ -17,14 +17,14 @@ public class CheepRepository :  ICheepRepository
         if (identifier.Contains('@')) {
             return await GetAuthorByEmail(identifier);
         }
-        return await GetAuthorByName(identifier);
+        return await GetAuthorByUserName(identifier);
     }
 
-    public async Task<List<Author>> GetAuthorByName(string name)
+    public async Task<List<Author>> GetAuthorByUserName(string username)
     {
         var query = (from author in _dbContext.Authors
-            where author.Name == name
-            orderby author.Name
+            where author.UserName == username
+            orderby author.DisplayName
             select author);
         return await query.ToListAsync();
     }
@@ -33,7 +33,7 @@ public class CheepRepository :  ICheepRepository
     {
         var query = (from author in _dbContext.Authors
             where author.Email == email
-            orderby author.Name
+            orderby author.DisplayName
             select author);
         return await query.ToListAsync();
     }
@@ -63,7 +63,7 @@ public class CheepRepository :  ICheepRepository
                                     .Skip((pageNr - 1) * 32)
                                     .Take(32)
                                     .Select(cheep => new CheepDTO(
-                                                cheep.Author.Name,
+                                                cheep.Author.DisplayName,
                                                 cheep.Text,
                                                 cheep.TimeStamp.ToString(),
                                                 cheep.Author.UserName));
@@ -79,7 +79,7 @@ public class CheepRepository :  ICheepRepository
              select cheep)
            .Skip((pageNr - 1) * 32)
            .Take(32)
-           .Select(cheep => new CheepDTO(cheep.Author.Name,
+           .Select(cheep => new CheepDTO(cheep.Author.DisplayName,
                                          cheep.Text,
                                          cheep.TimeStamp.ToString(),
                                          cheep.Author.UserName));
@@ -98,7 +98,7 @@ public class CheepRepository :  ICheepRepository
                       select cheep)
                     .Skip((pageNr - 1) * 32)
                     .Take(32)
-                    .Select(c => new CheepDTO(c.Author.Name,
+                    .Select(c => new CheepDTO(c.Author.DisplayName,
                                               c.Text,
                                               c.TimeStamp.ToString(),
                                               c.Author.UserName))

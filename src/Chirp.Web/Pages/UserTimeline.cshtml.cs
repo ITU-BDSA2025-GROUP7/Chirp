@@ -31,9 +31,9 @@ public class UserTimelineModel : CheepTimelineModel {
     }
 
     private static string FormatPageHeader(Author author) {
-        if (author.Name.EndsWith('s')) {
-            return $"{author.Name}' Timeline";
+        if (author.DisplayName.EndsWith('s')) {
+            return $"{author.DisplayName}' Timeline";
         }
-        return $"{author.Name}'s Timeline";
+        return $"{author.DisplayName}'s Timeline";
     }
 }
