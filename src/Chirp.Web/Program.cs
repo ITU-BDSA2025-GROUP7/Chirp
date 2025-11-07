@@ -20,14 +20,14 @@ string? connectionString = config["ConnectionStrings:DefaultConnection"];
 builder.Services.AddDbContext<ChirpDBContext>(options => options.UseSqlite(connectionString));
 builder.Services.AddScoped<ICheepRepository, CheepRepository>();
 builder.Services.AddScoped<ICheepService, CheepService>();
-builder.Services.AddDefaultIdentity<Author>(options =>
-                                                options.SignIn.RequireConfirmedAccount = true)
+builder.Services.AddDefaultIdentity<Author>(options => {
+            options.SignIn.RequireConfirmedAccount = true;
+        })
        .AddEntityFrameworkStores<ChirpDBContext>();
 builder.Services.AddAuthentication(options => {
     options.DefaultScheme = IdentityConstants.ApplicationScheme;
     options.DefaultAuthenticateScheme = IdentityConstants.ApplicationScheme;
     options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
-
     options.DefaultChallengeScheme = "GitHub";
 })
 .AddCookie(o => {
@@ -39,7 +39,8 @@ builder.Services.AddAuthentication(options => {
               ?? throw new InvalidOperationException();
     o.ClientSecret = builder.Configuration["Authentication:GitHub:ClientSecret"]
                   ?? throw new InvalidOperationException();
-    // This is the local path the user gets redirected to after registering with GitHub:
+    // This would allow us to override the local path which the user is redirected
+    // to after registering with specifically GitHub:
     // o.CallbackPath = "/signin-github";
     o.Scope.Add("user:email");
 });

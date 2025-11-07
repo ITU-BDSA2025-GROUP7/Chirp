@@ -7,15 +7,9 @@
     <span>
         <a class="nav-link text-dark" asp-area="Identity"
            asp-page="/Account/Manage/Index" title="Manage">
-            @if (User.Identity?.Name != null) {
-                Author? author = await UserManager.FindByNameAsync(User.Identity.Name);
-                if (author != null) {
-                    <span>@author.DisplayName;</span>
-                } else {
-                    <span>Unknown user</span>
-                }
-            } else {
-                <span>Unknown user</span>
+            @{
+                Author? user = await UserManager.GetUserAsync(User);
+                <span>@(user?.DisplayName ?? user?.UserName ?? "Unknown user")</span>
             }
         </a> |
         <form class="form-inline" asp-page="/Account/Logout"
