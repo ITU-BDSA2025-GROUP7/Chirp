@@ -1,7 +1,6 @@
 using Chirp.Core;
 using Chirp.Core.Domain_Model;
 using Chirp.Infastructure;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -26,20 +25,11 @@ builder.Services.AddDefaultIdentity<Author>(options =>
        .AddEntityFrameworkStores<ChirpDBContext>();
 builder.Services.AddAuthentication(options => {
     options.DefaultScheme = IdentityConstants.ApplicationScheme;
-
-    // This allows us to log in with Identity:
     options.DefaultAuthenticateScheme = IdentityConstants.ApplicationScheme;
-    // This does not:
-    //options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-
-    // All of these allow us to log in with Identity:
-    //options.DefaultSignInScheme = IdentityConstants.ApplicationScheme;
-    //options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
     options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
 
     options.DefaultChallengeScheme = "GitHub";
 })
-//.AddCookie()
 .AddCookie(o => {
     o.LoginPath = "/Identity/Account/Login";
     o.LogoutPath = "/Identity/Account/Logout";
@@ -49,39 +39,10 @@ builder.Services.AddAuthentication(options => {
               ?? throw new InvalidOperationException();
     o.ClientSecret = builder.Configuration["Authentication:GitHub:ClientSecret"]
                   ?? throw new InvalidOperationException();
-    // This causes a callback error after registrering, as it tries to go to UserTimeline with the
-    // "/signin-github" route value, i.e. author.
-    //o.CallbackPath = "/signin-github";
+    // This is the local path the user gets redirected to after registering with GitHub:
+    // o.CallbackPath = "/signin-github";
     o.Scope.Add("user:email");
 });
-/*
- builder.Services.AddAuthentication(options => {
-            options.DefaultScheme = IdentityConstants.ApplicationScheme;
-            options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-            options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
-            options.DefaultChallengeScheme = "GitHub";
-        })
-       .AddCookie(o => {
-            o.LoginPath = "/signin";
-            o.LogoutPath = "/signout";
-        })
-       .AddGitHub(o => {
-            o.ClientId = builder.Configuration["Authentication:GitHub:ClientId"]
-                      ?? throw new InvalidOperationException();
-            o.ClientSecret = builder.Configuration["Authentication:GitHub:ClientSecret"]
-                          ?? throw new InvalidOperationException();
-            o.CallbackPath = "/signin-github";
-            o.Scope.Add("user:email");
-        })
-       .AddIdentityCookies(o => { });
-       */
-/*builder.Services.AddIdentityCore<Author>(o => {
-            o.Stores.MaxLengthForKeys = 128;
-            o.SignIn.RequireConfirmedAccount = true;
-        })
-       .AddDefaultUI()
-       .AddDefaultTokenProviders()
-       .AddEntityFrameworkStores<ChirpDBContext>();*/
 builder.Services.AddSession();
 
 var app = builder.Build();
