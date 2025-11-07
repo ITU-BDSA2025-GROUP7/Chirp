@@ -36,5 +36,7 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 9.0.x
+      - name: download-playwright
+        run: pwsh bin/Debug/netX/playwright.ps1 install
       - name: Test
-        run: dotnet test -e ASPNETCORE_ENVIRONMENT=Test --verbosity normal
+        run: dotnet test -e ASPNETCORE_ENVIRONMENT=Test
