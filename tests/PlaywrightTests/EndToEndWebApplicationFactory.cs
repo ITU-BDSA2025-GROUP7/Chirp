@@ -4,6 +4,9 @@ using Microsoft.AspNetCore.Mvc.Testing;
 
 namespace PlaywrightTests;
 
+/**
+ * 
+ */
 public class EndToEndWebApplicationFactory : WebApplicationFactory<Program>
 {
     
