@@ -37,6 +37,8 @@ jobs:
         with:
           dotnet-version: 9.0.x
       - name: download-playwright
-        run: pwsh tests/PlaywrightTests/bin/Debug/net9.0/playwright.ps1 install
+        run: |
+          dotnet tool update --global PowerShell
+          pwsh tests/PlaywrightTests/bin/Debug/net9.0/playwright.ps1 install
       - name: Test
         run: dotnet test -e ASPNETCORE_ENVIRONMENT=Test
