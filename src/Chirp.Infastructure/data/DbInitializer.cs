@@ -7,42 +7,24 @@ public static class DbInitializer {
         context.Database.EnsureCreated();
     }
 
-    private static Author CreateUser(string name, string email,
-                                     string? passwordHash = null,
-                                     string? concurrencyStamp = null,
-                                     string? securityStamp = null) {
-        string username = name.Replace(" ", "");
-        return new Author {
-            Name = name,
-            UserName = username,
-            NormalizedUserName = username.ToUpper(),
-            Email = email,
-            NormalizedEmail = email.ToUpper(),
-            EmailConfirmed = true,
-            PasswordHash = passwordHash,
-            ConcurrencyStamp = concurrencyStamp,
-            SecurityStamp = securityStamp,
-        };
-    }
-
     public static void SeedDatabase(ChirpDBContext chirpContext) {
         Clear(chirpContext);
         if (!(chirpContext.Authors.Any() && chirpContext.Cheeps.Any())) {
-            Author  a1 = CreateUser("Roger Histand", "Roger+Histand@hotmail.com");
-            Author  a2 = CreateUser("Luanna Muro", "Luanna-Muro@ku.dk");
-            Author  a3 = CreateUser("Wendell Ballan", "Wendell-Ballan@gmail.com");
-            Author  a4 = CreateUser("Nathan Sirmon", "Nathan+Sirmon@dtu.dk");
-            Author  a5 = CreateUser("Quintin Sitts", "Quintin+Sitts@itu.dk");
-            Author  a6 = CreateUser("Mellie Yost", "Mellie+Yost@ku.dk");
-            Author  a7 = CreateUser("Malcolm Janski", "Malcolm-Janski@gmail.com");
-            Author  a8 = CreateUser("Octavio Wagganer", "Octavio.Wagganer@dtu.dk");
-            Author  a9 = CreateUser("Johnnie Calixto", "Johnnie+Calixto@itu.dk");
-            Author a10 = CreateUser("Jacqualine Gilcoine", "Jacqualine.Gilcoine@gmail.com");
-            Author a11 = CreateUser("Helge", "ropf@itu.dk",
+            Author  a1 = Author.Create("Roger Histand", "Roger+Histand@hotmail.com");
+            Author  a2 = Author.Create("Luanna Muro", "Luanna-Muro@ku.dk");
+            Author  a3 = Author.Create("Wendell Ballan", "Wendell-Ballan@gmail.com");
+            Author  a4 = Author.Create("Nathan Sirmon", "Nathan+Sirmon@dtu.dk");
+            Author  a5 = Author.Create("Quintin Sitts", "Quintin+Sitts@itu.dk");
+            Author  a6 = Author.Create("Mellie Yost", "Mellie+Yost@ku.dk");
+            Author  a7 = Author.Create("Malcolm Janski", "Malcolm-Janski@gmail.com");
+            Author  a8 = Author.Create("Octavio Wagganer", "Octavio.Wagganer@dtu.dk");
+            Author  a9 = Author.Create("Johnnie Calixto", "Johnnie+Calixto@itu.dk");
+            Author a10 = Author.Create("Jacqualine Gilcoine", "Jacqualine.Gilcoine@gmail.com");
+            Author a11 = Author.Create("Helge", "ropf@itu.dk", true,
                                 "AQAAAAIAAYagAAAAEKPXQMvnfuNS4pxtGy6tXdbeldyzDEWAr5QG0nBK2PYZPePB+dpwxCqQnBwks5J3FA==",
                                 "b5b7f191-ef9b-4b0c-a46d-13c7bd9bccf6",
                                 "KRY2VBOMPASVDNFJS6O25PXEXY5DUISH");
-            Author a12 = CreateUser("Adrian", "adho@itu.dk",
+            Author a12 = Author.Create("Adrian", "adho@itu.dk", true,
                                 "AQAAAAIAAYagAAAAEJ95jxQR1gKMr+WVxHEoKkRCj+kDOuA9O6XePTmcksMR8fWL9TXNpPquetJCa8NpCw==",
                                 "28806220-362c-4ad2-93bd-efbf048f8345",
                                 "ELWNBXHSW66RMV4WC23TW5LB4QRG636W");

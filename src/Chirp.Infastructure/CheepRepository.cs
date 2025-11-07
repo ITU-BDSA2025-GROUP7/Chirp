@@ -40,7 +40,7 @@ public class CheepRepository :  ICheepRepository
 
     public async Task CreateAuthor(string name, string email)
     {
-        Author author = new Author() { Name = name, Email = email };
+        var author = Author.Create(name, email);
         await _dbContext.Authors.AddAsync(author);
         await _dbContext.SaveChangesAsync();
     }
