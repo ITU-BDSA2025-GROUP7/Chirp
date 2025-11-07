@@ -17,7 +17,7 @@ public interface ICheepRepository
     /**
      * Function used in GetAuthor if its argument is recognized as a name.
      */
-    public Task<List<Author>> GetAuthorByName(string name);
+    public Task<List<Author>> GetAuthorByUserName(string username);
     /**
      * Gets all cheeps within the given page nr
      */
@@ -27,8 +27,6 @@ public interface ICheepRepository
      * Gets all cheeps within the given page nr that have the given author
      */
     public Task<List<CheepDTO>> GetCheepsFromUserName(string author, int pageNr);
-
-    public Task<List<CheepDTO>> GetCheepsFromAuthor(Author? author, int pageNr);
 
     public Task CreateAuthor(string name, string email);
 

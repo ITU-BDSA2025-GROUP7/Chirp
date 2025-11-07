@@ -1,12 +1,9 @@
 using Chirp.Core;
-using Chirp.Core.Domain_Model;
-
 
 public interface ICheepService
 {
     public Task<List<CheepDTO>> GetCheeps(int pageNr);
-    public Task<List<CheepDTO>> GetCheepsFromUserName(string author, int pageNr);
-    public Task<List<CheepDTO>> GetCheepsFromAuthor(Author author, int pageNr);
+    public Task<List<CheepDTO>> GetCheepsFromUserName(string username, int pageNr);
 }
 
 public class CheepService : ICheepService
@@ -30,16 +27,8 @@ public class CheepService : ICheepService
     /**
      * Calls on the Services to get all cheeps within the given page nr that have the given author
      */
-    public async Task<List<CheepDTO>> GetCheepsFromUserName(string author, int pageNr)
+    public async Task<List<CheepDTO>> GetCheepsFromUserName(string username, int pageNr)
     {
-        return await cheepRepository.GetCheepsFromUserName(author, pageNr);
-    }
-
-    /**
-     * Calls on the Services to get all cheeps within the given page nr that have the given author
-     */
-    public async Task<List<CheepDTO>> GetCheepsFromAuthor(Author author, int pageNr)
-    {
-        return await cheepRepository.GetCheepsFromAuthor(author, pageNr);
+        return await cheepRepository.GetCheepsFromUserName(username, pageNr);
     }
 }
