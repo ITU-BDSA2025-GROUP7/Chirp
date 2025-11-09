@@ -25,7 +25,7 @@ public class PublicModel : CheepTimelineModel
     public async Task<IActionResult> OnPostAsync()
     {
         _ = _service.CreateCheep((await _service.GetAuthorByUserName(User.Identity.Name)).First(), this.Text);
-        return Page();
+        return RedirectToPage("Public");
     }
     
 }
