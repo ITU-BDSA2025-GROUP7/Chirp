@@ -1,5 +1,8 @@
+using System.ComponentModel;
 using Chirp.Core;
 using Chirp.Core.Domain_Model;
+using Microsoft.AspNetCore.Builder.Extensions;
+using Microsoft.VisualBasic;
 
 public interface ICheepService
 {
@@ -41,6 +44,7 @@ public class CheepService : ICheepService
     }
     public async Task CreateCheep(Author author, string message)
     {
-        await cheepRepository.CreateCheep(author, message, DateTime.Now);
+        DateTime date = DateTime.Now;
+        await cheepRepository.CreateCheep(author, message, new DateTime(date.Year, date.Month, date.Day, date.Hour, date.Minute, date.Second));
     }
 }
