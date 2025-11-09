@@ -11,6 +11,8 @@ public abstract class CheepTimelineModel : PageModel
 {
     protected readonly ICheepService _service;
     public List<CheepDTO> Cheeps { get; set; } = new();
+    [BindProperty]
+    public string Text { get; set; } = "";
 
     public CheepTimelineModel(ICheepService service)
     {
