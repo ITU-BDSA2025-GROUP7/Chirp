@@ -7,14 +7,6 @@
 
 <div>
     <h2> Public Timeline </h2>
-        @if(User.Identity.Name!=null){
-            <div class="cheepbox">
-            <h3>What's on your mind @(User.Identity.Name)?</h3>
-                <form method="post" asp-action="OnPostAsync">
-                    <input style="float: left" type="text" asp-for="Text">
-                    <input type="submit" value="Share">
-                </form>
-            </div>
-        }
+    <partial name="Shared/_sendCheepPartial" model="@Model"/>
     <partial name="Shared/_CheepListPartial" model="@Model"/>
 </div>

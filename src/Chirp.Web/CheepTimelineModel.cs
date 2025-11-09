@@ -23,13 +23,18 @@ public abstract class CheepTimelineModel : PageModel
      * returns the page nr of a given httpRequest
      * the pageNr is withing [1;infinity[
      * if a pageNr could not be found, return 1
-     */ 
+     */
     protected int getPageNr(HttpRequest request)
     {
         StringValues pageQuery = Request.Query["page"];
         int pageNr;
         int.TryParse(pageQuery, out pageNr);
-        if  (pageNr == 0) pageNr = 1; // if parsing failed, set page number to 1 as requested by session_05 1.b)
+        if (pageNr == 0) pageNr = 1; // if parsing failed, set page number to 1 as requested by session_05 1.b)
         return pageNr;
+    }
+    public async Task<IActionResult> OnPostAsync()
+    {
+        _ = _service.CreateCheep((await _service.GetAuthorByUserName(User.Identity.Name)).First(), this.Text);
+        return RedirectToPage("Public");
     }
 }
