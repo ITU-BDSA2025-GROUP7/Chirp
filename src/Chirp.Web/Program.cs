@@ -9,8 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddRazorPages();
 
-string environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")
-                  ?? throw new InvalidOperationException();
+string environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")!;
 var config = new ConfigurationBuilder()
     .AddJsonFile("appsettings.Web.json")
     .AddJsonFile($"appsettings.Web.{environment}.json", optional:true)
