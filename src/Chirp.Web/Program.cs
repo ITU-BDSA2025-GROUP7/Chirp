@@ -8,8 +8,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
-Console.WriteLine("this should be clientId: "+ builder.Configuration["Authentication.GitHub.ClientId"]);
-Console.WriteLine("this should be clientSecret: "+ builder.Configuration["Authentication.GitHub.ClientSecret"]);
+Console.WriteLine("this should be clientId: "+ builder.Configuration["authenticationGitHubClientId"]);
+Console.WriteLine("this should be clientSecret: "+ builder.Configuration["authenticationGitHubClientSecret"]);
 
 string environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")!;
 var config = new ConfigurationBuilder()
