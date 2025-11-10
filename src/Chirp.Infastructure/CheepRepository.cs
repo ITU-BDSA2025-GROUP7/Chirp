@@ -1,4 +1,3 @@
-using System.Globalization;
 using Microsoft.EntityFrameworkCore;
 using Chirp.Core;
 using Chirp.Core.Domain_Model;
@@ -20,14 +19,14 @@ public class CheepRepository :  ICheepRepository
         {
             return await GetAuthorByEmail(identifier);
         }
-        return await GetAuthorByName(identifier);
+        return await GetAuthorByUserName(identifier);
     }
 
-    public async Task<List<Author>> GetAuthorByName(string name)
+    public async Task<List<Author>> GetAuthorByUserName(string username)
     {
         var query = (from author in _dbContext.Authors
-            where author.Name == name
-            orderby author.Name
+            where author.UserName == username
+            orderby author.DisplayName
             select author);
         return await query.ToListAsync();
     }
@@ -36,14 +35,14 @@ public class CheepRepository :  ICheepRepository
     {
         var query = (from author in _dbContext.Authors
             where author.Email == email
-            orderby author.Name
+            orderby author.DisplayName
             select author);
         return await query.ToListAsync();
     }
 
     public async Task CreateAuthor(string name, string email)
     {
-        Author author = new Author() { Name = name, Email = email };
+        var author = Author.Create(name, email);
         await _dbContext.Authors.AddAsync(author);
         await _dbContext.SaveChangesAsync();
     }
@@ -65,18 +64,25 @@ public class CheepRepository :  ICheepRepository
                 orderby cheep.TimeStamp descending
                 select cheep)
             .Skip((pageNr - 1) * 32).Take(32).Select(cheep =>
-                new CheepDTO(cheep.Author.Name, cheep.Text, cheep.TimeStamp.ToString()));
+                new CheepDTO(cheep.Author.DisplayName,
+                             cheep.Text,
+                             cheep.TimeStamp.ToString(),
+                             cheep.Author.UserName));
 
         return await query.ToListAsync();
     }
 
-    public async Task<List<CheepDTO>> GetCheepsFromAuthor(string author, int pageNr)
+    public async Task<List<CheepDTO>> GetCheepsFromUserName(string username, int pageNr)
     {
         var query = (from cheep in _dbContext.Cheeps
-                where cheep.Author.Name == author
-                orderby cheep.TimeStamp descending
-                select new CheepDTO(cheep.Author.Name, cheep.Text, cheep.TimeStamp.ToString()))
-            .Skip((pageNr - 1) * 32).Take(32);
+             where cheep.Author.UserName == username
+             orderby cheep.TimeStamp descending
+             select cheep)
+           .Skip((pageNr - 1) * 32).Take(32).Select(cheep =>
+               new CheepDTO(cheep.Author.DisplayName,
+                            cheep.Text,
+                            cheep.TimeStamp.ToString(),
+                            cheep.Author.UserName));
 
         return await query.ToListAsync();
     }

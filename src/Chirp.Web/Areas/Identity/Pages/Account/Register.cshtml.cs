@@ -128,9 +128,9 @@ namespace Chirp.Razor.Areas.Identity.Pages.Account {
 
             Author user = CreateUser();
             if (string.IsNullOrEmpty(Input.DisplayName)) {
-                user.Name = Input.UserName;
+                user.DisplayName = Input.UserName;
             } else {
-                user.Name = Input.DisplayName;
+                user.DisplayName = Input.DisplayName;
             }
 
             await _userStore.SetUserNameAsync(user, Input.UserName, CancellationToken.None);

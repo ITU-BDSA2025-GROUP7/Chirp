@@ -67,7 +67,7 @@ namespace Chirp.Razor.Areas.Identity.Pages.Account.Manage {
             string phoneNumber = await _userManager.GetPhoneNumberAsync(user);
 
             Input = new InputModel {
-                DisplayName = user.Name,
+                DisplayName = user.DisplayName,
                 PhoneNumber = phoneNumber
             };
         }
@@ -103,8 +103,8 @@ namespace Chirp.Razor.Areas.Identity.Pages.Account.Manage {
                 }
             }
 
-            if (Input.DisplayName != user.Name) {
-                user.Name = Input.DisplayName;
+            if (Input.DisplayName != user.DisplayName) {
+                user.DisplayName = Input.DisplayName;
             }
 
             await _userManager.UpdateAsync(user);

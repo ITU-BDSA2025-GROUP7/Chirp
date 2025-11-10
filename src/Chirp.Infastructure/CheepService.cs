@@ -1,16 +1,15 @@
 using Chirp.Core;
 
-
 public interface ICheepService
 {
     public Task<List<CheepDTO>> GetCheeps(int pageNr);
-    public Task<List<CheepDTO>> GetCheepsFromAuthor(string author, int pageNr);
+    public Task<List<CheepDTO>> GetCheepsFromUserName(string username, int pageNr);
 }
 
 public class CheepService : ICheepService
 {
     ICheepRepository cheepRepository;
-    
+
     // default constructor
     public CheepService(ICheepRepository cheepRepository)
     {
@@ -28,8 +27,8 @@ public class CheepService : ICheepService
     /**
      * Calls on the Services to get all cheeps within the given page nr that have the given author
      */
-    public async Task<List<CheepDTO>> GetCheepsFromAuthor(string author, int pageNr)
+    public async Task<List<CheepDTO>> GetCheepsFromUserName(string username, int pageNr)
     {
-        return await cheepRepository.GetCheepsFromAuthor(author, pageNr);
+        return await cheepRepository.GetCheepsFromUserName(username, pageNr);
     }
 }
