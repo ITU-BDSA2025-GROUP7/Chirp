@@ -18,9 +18,9 @@ var config = new ConfigurationBuilder()
     .Build();
 
 // use in memory database for testing
-if (environment.Equals("Test"))
+if (environment.Equals("Development"))
 {
-    Console.WriteLine("We are running in Test mode");
+    Console.WriteLine("We are running in Development mode");
     var connection = new SqliteConnection("DataSource=:memory:");
     connection.Open();
     builder.Services.AddDbContext<ChirpDBContext>();

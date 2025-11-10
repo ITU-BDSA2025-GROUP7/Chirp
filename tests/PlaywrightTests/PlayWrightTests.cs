@@ -46,22 +46,22 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
     public async Task NavigationBarChangesWhenLogedIn()
     {
         await Page.GotoAsync(_serverUrl);
-        await Expect(Page.GetByRole(AriaRole.Heading, new() { Name = "Icon1Chirp!" })).ToBeVisibleAsync();
-
+        await Expect(Page.Locator("body")).ToContainTextAsync("Public Timeline");
+        await Expect(Page.Locator("span")).ToContainTextAsync("Register");
+        await Expect(Page.Locator("span")).ToContainTextAsync("Login");
         await Page.GetByRole(AriaRole.Link, new() { Name = "Login" }).ClickAsync();
         await Expect(Page.GetByRole(AriaRole.Heading, new() { Name = "Icon1Chirp!" })).ToBeVisibleAsync();
 
+        await Page.Locator("body").ClickAsync();
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "Email" }).ClickAsync();
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "Email" }).FillAsync("ropf@itu.dk");
+        await Page.Locator("body").ClickAsync();
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "Password" }).ClickAsync();
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "Password" }).FillAsync("LetM31n!");
-        await Expect(Page.Locator("body")).ToContainTextAsync("Public Timeline");
-        await Expect(Page.Locator("body")).ToContainTextAsync("Register");
-        await Expect(Page.Locator("body")).ToContainTextAsync("Login");
         await Page.GetByRole(AriaRole.Button, new() { Name = "Log in" }).ClickAsync();
         await Expect(Page.Locator("body")).ToContainTextAsync("My Timeline");
         await Expect(Page.Locator("body")).ToContainTextAsync("Public Timeline");
-        await Expect(Page.Locator("span")).ToContainTextAsync("Account");
+        await Expect(Page.Locator("body")).ToContainTextAsync("Helge");
         await Expect(Page.GetByRole(AriaRole.Button)).ToContainTextAsync("Logout");
     }
     

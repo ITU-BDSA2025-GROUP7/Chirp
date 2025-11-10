@@ -44,4 +44,4 @@ jobs:
         run: |
           export GitHub__ClientId="${{ secrets.GITHUBCLIENTID }}"
           export GitHub__ClientSecret="${{ secrets.GITHUBCLIENTSECRET }}"
-          dotnet test -e ASPNETCORE_ENVIRONMENT=Test --no-build --verbosity normal
+          dotnet test -e ASPNETCORE_ENVIRONMENT=Development --no-build --verbosity normal
