@@ -36,11 +36,11 @@ public class CheepRepositoryTest
     [InlineData("Helge", "ropf@itu.dk")]
     [InlineData("Adrian", "adho@itu.dk")]
     public async Task RequiredAuthorsExist(string name, string email) {
-        List<Author> authors = await _cheepRepository.GetAuthorByName(name);
+        List<Author> authors = await _cheepRepository.GetAuthorByUserName(name);
         Assert.NotNull(authors);
         Assert.Single(authors);
         Author author = authors.Single();
-        Assert.Equal(name, author.Name);
+        Assert.Equal(name, author.DisplayName);
         Assert.Equal(email, author.Email);
         Assert.Equal(name, author.UserName);
         Assert.Equal(author.Email?.ToUpper(), author.NormalizedEmail);
@@ -51,7 +51,7 @@ public class CheepRepositoryTest
     [Fact]
     public async Task CheepsDeletedWithAuthor() {
         var author = new Author
-            { Name = "DisappearingSoon", Email = "test@itu.dk", UserName = "test@itu.dk" };
+            { DisplayName = "DisappearingSoon", Email = "test@itu.dk", UserName = "test@itu.dk" };
         var cheep = new Cheep {
             CheepId = 90000,
             Author = author,
@@ -80,25 +80,30 @@ public class CheepRepositoryTest
     and that it doesn't crash if the author doesn't exist
 */
     [Theory]
-    [InlineData("Roger Histand")]
-    [InlineData("Luanna Muro")]
-    [InlineData("Wendell Ballan")]
-    [InlineData("dfiuhweiufhwe")] //not an author 
+    [InlineData("RogerHistand")]
+    [InlineData("LuannaMuro")]
+    [InlineData("WendellBallan")]
     public async Task GetCheepsFromAuthor(string name)
     {
         //arrange
 
         // act 
-        var cheeps = await _cheepRepository.GetCheepsFromAuthor(name, 1);
+        var cheeps = await _cheepRepository.GetCheepsFromUserName(name, 1);
 
         //assert
+        Assert.NotEmpty(cheeps);
         foreach (var cheep in cheeps)
         {
-            Assert.Equal(name, cheep.Author);
-            Assert.NotEqual("hjdfiluwriu", cheep.Author);
+            Assert.Equal(name, cheep.AuthorUserName);
         }
+    }
 
-
+    [Theory]
+    [InlineData("dfiuhweiufhwe")]
+    [InlineData("")]
+    public async Task GetCheepsFromNonexistentAuthor(string username) {
+        List<CheepDTO> cheeps = await _cheepRepository.GetCheepsFromUserName(username, 1);
+        Assert.Empty(cheeps);
     }
     
     
@@ -127,7 +132,7 @@ public class CheepRepositoryTest
         var cheep = await _cheepRepository.GetCheeps(1);
 
         //assert
-        Assert.Equal(author, cheep[index].Author);
+        Assert.Equal(author, cheep[index].AuthorDisplayName);
         Assert.Equal(message, cheep[index].Message);
         Assert.Equal(timestamp, cheep[index].TimeStamp);
 
@@ -220,7 +225,7 @@ public class CheepRepositoryTest
         email = "cooper@copper.com";
         await _cheepRepository.CreateAuthor(name, email);
         var query = (from author in _context.Authors
-                     where author.Name == name
+                     where author.DisplayName == name
                      select author);
         Author actualAuthor = await query.FirstAsync();
         Assert.Equal(email, actualAuthor.Email);
@@ -240,14 +245,16 @@ public class CheepRepositoryTest
     [Fact]
     public async Task authorSameNameTest()
     {
-        string name, email1, email2;
-        name = "Barton Cooper";
-        email1 = "TheCakeMaster@copper.com";
-        email2 = "muffinEnjoyer@copper.com";
+        const string name = "Barton Cooper";
+        string username = name.Replace(" ", "");
+        const string email1 = "TheCakeMaster@copper.com";
+        const string email2 = "muffinEnjoyer@copper.com";
         await _cheepRepository.CreateAuthor(name, email1);
-        await _cheepRepository.CreateAuthor(name, email2);
-        List<Author> bartons = await _cheepRepository.GetAuthor("Barton Cooper");
-        Assert.NotEqual(bartons.First(), bartons.Last());
+        await Assert.ThrowsAsync<DbUpdateException>(() => _cheepRepository.CreateAuthor(name, email2));
+        List<Author> bartons = await _cheepRepository.GetAuthor(username);
+        Assert.Equal(name, bartons.Single().DisplayName);
+        Assert.Equal(username, bartons.Single().UserName);
+        Assert.Equal(email1, bartons.Single().Email);
     }
     [Fact]
     public async Task noKnownAuthorTest()
@@ -264,22 +271,24 @@ public class CheepRepositoryTest
         email = "cooper@copper.com";
         await _cheepRepository.CreateAuthor(name, email);
         var query = (from author in _context.Authors
-                     where author.Name == ""
+                     where author.DisplayName == ""
                      select author);
-        Author actualAuthor = query.First();
+        Author actualAuthor = query.Single();
         Assert.NotNull(actualAuthor);
     }
 
     [Fact]
     public async Task CheepOwnershipTest()
     {
-        List<Author> users = await _cheepRepository.GetAuthor("Wendell Ballan");
+        List<Author> users = await _cheepRepository.GetAuthor("WendellBallan");
         string message = "I really like turtles";
         DateTime date = DateTime.Parse("2023-08-02 14:13:45");
-        await _cheepRepository.CreateCheep(users.First(), message, date);
+        await _cheepRepository.CreateCheep(users.Single(), message, date);
         var query = (from author in _context.Authors
-                     where author.Name == "Wendell Ballan"
+                     where author.DisplayName == "Wendell Ballan"
                      select author.Cheeps);
+        Assert.NotEmpty(query);
+        // The first author returned by the query's last cheep.
         string actualmessage = query.First().Last().Text;
         Assert.Equal(message, actualmessage);
     }
@@ -298,13 +307,14 @@ public class CheepRepositoryTest
             select cheep);
         Assert.Empty(queryBefore);
 
-        List<Author> authors = await _cheepRepository.GetAuthor("Wendell Ballan");
+        List<Author> authors = await _cheepRepository.GetAuthor("WendellBallan");
+        Assert.NotEmpty(authors);
         DateTime date = DateTime.Parse("2023-08-02 13:13:45");
         await _cheepRepository.CreateCheep(authors.First(), message, date);
         var query = (from cheep in _context.Cheeps
             where cheep.Text == message
             select cheep);
-        Cheep createdcheep = query.First();
+        Cheep createdcheep = query.Single();
         Assert.Equal(createdcheep.Text, message);
     }
 
@@ -314,7 +324,8 @@ public class CheepRepositoryTest
     [Fact]
     public async Task CreateTooLongCheepTest()
     {
-        List<Author> authors = await _cheepRepository.GetAuthor("Wendell Ballan");
+        List<Author> authors = await _cheepRepository.GetAuthor("WendellBallan");
+        Assert.NotEmpty(authors);
         StringBuilder sb = new StringBuilder(160);
         while (sb.Length <= Cheep.MAX_TEXT_LENGTH) {
             sb.Append("Cheep text");
@@ -332,7 +343,8 @@ public class CheepRepositoryTest
     [Fact]
     public async Task CreateCheepAtExactlyLimit()
     {
-        List<Author> authors = await _cheepRepository.GetAuthor("Wendell Ballan");
+        List<Author> authors = await _cheepRepository.GetAuthor("WendellBallan");
+        Assert.NotEmpty(authors);
         StringBuilder sb = new StringBuilder(160);
         while (sb.Length < Cheep.MAX_TEXT_LENGTH) {
             sb.Append('a');
@@ -346,7 +358,7 @@ public class CheepRepositoryTest
         Assert.Empty(queryBefore);
 
         DateTime date = DateTime.Parse("2023-08-02 13:13:45");
-        await _cheepRepository.CreateCheep(authors.First(), message, date);
+        await _cheepRepository.CreateCheep(authors.Single(), message, date);
         var query = (from cheep in _context.Cheeps
             where cheep.Text == message
             select cheep);
@@ -361,7 +373,8 @@ public class CheepRepositoryTest
     [Fact]
     public async Task CreateTooLongSQLInjectionCheepTest()
     {
-        List<Author> authors = await _cheepRepository.GetAuthor("Wendell Ballan");
+        List<Author> authors = await _cheepRepository.GetAuthor("WendellBallan");
+        Assert.NotEmpty(authors);
         StringBuilder sb = new StringBuilder(160);
         while (sb.Length <= Cheep.MAX_TEXT_LENGTH)
         {
@@ -371,7 +384,7 @@ public class CheepRepositoryTest
 
         DateTime date = DateTime.Parse("2023-08-02 13:13:45");
         await Assert.ThrowsAsync<ArgumentException>(() =>
-            _cheepRepository.CreateCheep(authors.First(), message, date));
+            _cheepRepository.CreateCheep(authors.Single(), message, date));
 
         var queryBefore = (from cheep in _context.Cheeps
             where cheep.Text == message

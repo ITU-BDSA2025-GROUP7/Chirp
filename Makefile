@@ -14,7 +14,7 @@
 
 # Sets the environment name to "Test", which causes some changes in the
 #  client and service programmes.
-ENV := -e ASPNETCORE_ENVIRONMENT=Test
+ENV := -e ASPNETCORE_ENVIRONMENT=Development
 
 # Intentionally left empty so that by default an empty string is inserted in
 #  its place in the commands below.

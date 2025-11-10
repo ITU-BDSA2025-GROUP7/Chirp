@@ -2,15 +2,16 @@ using Chirp.Core;
 using Chirp.Core.Domain_Model;
 using Chirp.Infastructure;
 using Microsoft.Data.Sqlite;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
 
-string environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")!;
+string environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")
+                  ?? throw new InvalidOperationException();
 var config = new ConfigurationBuilder()
     .AddJsonFile("appsettings.Web.json")
     .AddJsonFile($"appsettings.Web.{environment}.json", optional: true)
@@ -33,8 +34,31 @@ else
 
 builder.Services.AddScoped<ICheepRepository, CheepRepository>();
 builder.Services.AddScoped<ICheepService, CheepService>();
-builder.Services.AddDefaultIdentity<Author>(options =>
-    options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<ChirpDBContext>();
+builder.Services.AddDefaultIdentity<Author>(options => {
+            options.SignIn.RequireConfirmedAccount = true;
+        })
+       .AddEntityFrameworkStores<ChirpDBContext>();
+builder.Services.AddAuthentication(options => {
+    options.DefaultScheme = IdentityConstants.ApplicationScheme;
+    options.DefaultAuthenticateScheme = IdentityConstants.ApplicationScheme;
+    options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
+    options.DefaultChallengeScheme = "GitHub";
+})
+.AddCookie(o => {
+    o.LoginPath = "/Identity/Account/Login";
+    o.LogoutPath = "/Identity/Account/Logout";
+})
+.AddGitHub(o => {
+    o.ClientId = builder.Configuration["Authentication:GitHub:ClientId"]
+              ?? throw new InvalidOperationException();
+    o.ClientSecret = builder.Configuration["Authentication:GitHub:ClientSecret"]
+                  ?? throw new InvalidOperationException();
+    // This would allow us to override the local path which the user is redirected
+    // to after registering with specifically GitHub:
+    // o.CallbackPath = "/signin-github";
+    o.Scope.Add("user:email");
+});
+builder.Services.AddSession();
 
 var app = builder.Build();
 
@@ -47,10 +71,9 @@ if (!app.Environment.IsDevelopment())
 }
 
 using (var scope = app.Services.CreateScope())
-{
-    /* moved the seeding of the db initializer out of
-        the chirpDBContext so it is possible to use a
-        different test database*/
+{  /* moved the seeding of the db initializer out of
+    the chirpDBContext so it is possible to use a
+    different test database*/
     var dbContext = scope.ServiceProvider.GetRequiredService<ChirpDBContext>();
     DbInitializer.SeedDatabase(dbContext);
 }
@@ -59,6 +82,7 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+app.UseSession();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapRazorPages();

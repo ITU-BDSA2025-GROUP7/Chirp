@@ -2,20 +2,32 @@ using Chirp.Core.Domain_Model;
 using Chirp.Infastructure;
 
 public static class DbInitializer {
+    public static void Clear(ChirpDBContext context) {
+        context.Database.EnsureDeleted();
+        context.Database.EnsureCreated();
+    }
+
     public static void SeedDatabase(ChirpDBContext chirpContext) {
+        //Clear(chirpContext);
         if (!(chirpContext.Authors.Any() && chirpContext.Cheeps.Any())) {
-            var  a1 = new Author { Name = "Roger Histand", UserName = "RogerHistand", Email = "Roger+Histand@hotmail.com"};
-            var  a2 = new Author { Name = "Luanna Muro", UserName = "LuannaMuro", Email = "Luanna-Muro@ku.dk"};
-            var  a3 = new Author { Name = "Wendell Ballan", UserName = "WendellBallan", Email = "Wendell-Ballan@gmail.com"};
-            var  a4 = new Author { Name = "Nathan Sirmon", UserName = "NathanSirmon", Email = "Nathan+Sirmon@dtu.dk"};
-            var  a5 = new Author { Name = "Quintin Sitts", UserName = "QuintinSitts", Email = "Quintin+Sitts@itu.dk"};
-            var  a6 = new Author { Name = "Mellie Yost", UserName = "MellieYost", Email = "Mellie+Yost@ku.dk"};
-            var  a7 = new Author { Name = "Malcolm Janski", UserName = "MalcomJanski", Email = "Malcolm-Janski@gmail.com"};
-            var  a8 = new Author { Name = "Octavio Wagganer", UserName = "OctavioWagganer", Email = "Octavio.Wagganer@dtu.dk"};
-            var  a9 = new Author { Name = "Johnnie Calixto", UserName = "JohnnieCalixto", Email = "Johnnie+Calixto@itu.dk"};
-            var a10 = new Author { Name = "Jacqualine Gilcoine", UserName = "JacqualineGilcoine", Email = "Jacqualine.Gilcoine@gmail.com"};
-            var a11 = new Author { Name = "Helge", UserName="Helge", Email = "ropf@itu.dk", PasswordHash="AQAAAAIAAYagAAAAEKPXQMvnfuNS4pxtGy6tXdbeldyzDEWAr5QG0nBK2PYZPePB+dpwxCqQnBwks5J3FA==", ConcurrencyStamp="b5b7f191-ef9b-4b0c-a46d-13c7bd9bccf6", EmailConfirmed=true, NormalizedEmail="ROPF@ITU.DK", NormalizedUserName="HELGE", SecurityStamp="KRY2VBOMPASVDNFJS6O25PXEXY5DUISH"};
-            var a12 = new Author { Name = "Adrian", UserName="Adrian", Email = "adho@itu.dk", PasswordHash="AQAAAAIAAYagAAAAEJ95jxQR1gKMr+WVxHEoKkRCj+kDOuA9O6XePTmcksMR8fWL9TXNpPquetJCa8NpCw==", ConcurrencyStamp="28806220-362c-4ad2-93bd-efbf048f8345", EmailConfirmed=true, NormalizedEmail="ADHO@ITU.DK", NormalizedUserName="ADRIAN", SecurityStamp="ELWNBXHSW66RMV4WC23TW5LB4QRG636W"};
+            Author  a1 = Author.Create("Roger Histand", "Roger+Histand@hotmail.com");
+            Author  a2 = Author.Create("Luanna Muro", "Luanna-Muro@ku.dk");
+            Author  a3 = Author.Create("Wendell Ballan", "Wendell-Ballan@gmail.com");
+            Author  a4 = Author.Create("Nathan Sirmon", "Nathan+Sirmon@dtu.dk");
+            Author  a5 = Author.Create("Quintin Sitts", "Quintin+Sitts@itu.dk");
+            Author  a6 = Author.Create("Mellie Yost", "Mellie+Yost@ku.dk");
+            Author  a7 = Author.Create("Malcolm Janski", "Malcolm-Janski@gmail.com");
+            Author  a8 = Author.Create("Octavio Wagganer", "Octavio.Wagganer@dtu.dk");
+            Author  a9 = Author.Create("Johnnie Calixto", "Johnnie+Calixto@itu.dk");
+            Author a10 = Author.Create("Jacqualine Gilcoine", "Jacqualine.Gilcoine@gmail.com");
+            Author a11 = Author.Create("Helge", "ropf@itu.dk", true,
+                                "AQAAAAIAAYagAAAAEKPXQMvnfuNS4pxtGy6tXdbeldyzDEWAr5QG0nBK2PYZPePB+dpwxCqQnBwks5J3FA==",
+                                "b5b7f191-ef9b-4b0c-a46d-13c7bd9bccf6",
+                                "KRY2VBOMPASVDNFJS6O25PXEXY5DUISH");
+            Author a12 = Author.Create("Adrian", "adho@itu.dk", true,
+                                "AQAAAAIAAYagAAAAEJ95jxQR1gKMr+WVxHEoKkRCj+kDOuA9O6XePTmcksMR8fWL9TXNpPquetJCa8NpCw==",
+                                "28806220-362c-4ad2-93bd-efbf048f8345",
+                                "ELWNBXHSW66RMV4WC23TW5LB4QRG636W");
 
             var authors = new List<Author> { a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12 };
 
