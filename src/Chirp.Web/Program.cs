@@ -37,9 +37,9 @@ builder.Services.AddAuthentication(options => {
     o.LogoutPath = "/Identity/Account/Logout";
 })
 .AddGitHub(o => {
-    o.ClientId = builder.Configuration["Authentication.GitHub.ClientId"]
+    o.ClientId = builder.Configuration["authenticationGitHubClientId"]
               ?? throw new InvalidOperationException();
-    o.ClientSecret = builder.Configuration["Authentication.GitHub.ClientSecret"]
+    o.ClientSecret = builder.Configuration["authenticationGitHubClientSecret"]
                   ?? throw new InvalidOperationException();
     // This would allow us to override the local path which the user is redirected
     // to after registering with specifically GitHub:
