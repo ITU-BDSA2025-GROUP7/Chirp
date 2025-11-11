@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Add services to the container. 
 builder.Services.AddRazorPages();
 Console.WriteLine("this should be clientId: "+ builder.Configuration["authenticationGitHubClientId"]);
 Console.WriteLine("this should be clientSecret: " + builder.Configuration["authenticationGitHubClientSecret"]);
