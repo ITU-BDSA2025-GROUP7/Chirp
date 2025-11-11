@@ -18,6 +18,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chrip.Web.Test", "tests\Chr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chrip.Core.Test", "tests\Chrip.Core.Test\Chrip.Core.Test.csproj", "{E96FFEF8-7872-4BCB-9852-06A57E1365BB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlaywrightTests", "tests\PlaywrightTests\PlaywrightTests.csproj", "{D16D7252-E7E8-4C84-A2C7-440FA250BBDD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -100,6 +102,18 @@ Global
 		{E96FFEF8-7872-4BCB-9852-06A57E1365BB}.Release|x64.Build.0 = Release|Any CPU
 		{E96FFEF8-7872-4BCB-9852-06A57E1365BB}.Release|x86.ActiveCfg = Release|Any CPU
 		{E96FFEF8-7872-4BCB-9852-06A57E1365BB}.Release|x86.Build.0 = Release|Any CPU
+		{D16D7252-E7E8-4C84-A2C7-440FA250BBDD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D16D7252-E7E8-4C84-A2C7-440FA250BBDD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D16D7252-E7E8-4C84-A2C7-440FA250BBDD}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{D16D7252-E7E8-4C84-A2C7-440FA250BBDD}.Debug|x64.Build.0 = Debug|Any CPU
+		{D16D7252-E7E8-4C84-A2C7-440FA250BBDD}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{D16D7252-E7E8-4C84-A2C7-440FA250BBDD}.Debug|x86.Build.0 = Debug|Any CPU
+		{D16D7252-E7E8-4C84-A2C7-440FA250BBDD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D16D7252-E7E8-4C84-A2C7-440FA250BBDD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D16D7252-E7E8-4C84-A2C7-440FA250BBDD}.Release|x64.ActiveCfg = Release|Any CPU
+		{D16D7252-E7E8-4C84-A2C7-440FA250BBDD}.Release|x64.Build.0 = Release|Any CPU
+		{D16D7252-E7E8-4C84-A2C7-440FA250BBDD}.Release|x86.ActiveCfg = Release|Any CPU
+		{D16D7252-E7E8-4C84-A2C7-440FA250BBDD}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
