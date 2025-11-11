@@ -42,6 +42,6 @@ jobs:
         run: pwsh ./tests/PlaywrightTests/bin/Debug/net9.0/playwright.ps1 install
       - name: Test
         run: |
-          export GitHub__ClientId="${{ secrets.GITHUBCLIENTID }}"
-          export GitHub__ClientSecret="${{ secrets.GITHUBCLIENTSECRET }}"
+          export authenticationGitHubClientId="${{ secrets.GITHUBCLIENTID }}"
+          export authenticationGitHubClientSecret="${{ secrets.GITHUBCLIENTSECRET }}"
           dotnet test -e ASPNETCORE_ENVIRONMENT=Development --no-build --verbosity normal
