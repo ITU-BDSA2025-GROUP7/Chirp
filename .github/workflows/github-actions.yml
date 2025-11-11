@@ -36,8 +36,12 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 9.0.x
+      - name: build again
+        run: dotnet build 
+      - name: download-playwright
+        run: pwsh ./tests/PlaywrightTests/bin/Debug/net9.0/playwright.ps1 install
       - name: Test
         run: |
-          export GitHub__ClientId="${{ secrets.GITHUBCLIENTID }}"
-          export GitHub__ClientSecret="${{ secrets.GITHUBCLIENTSECRET }}"
-          dotnet test -e ASPNETCORE_ENVIRONMENT=Test --no-build --verbosity normal
+          export authenticationGitHubClientId="${{ secrets.GITHUBCLIENTID }}"
+          export authenticationGitHubClientSecret="${{ secrets.GITHUBCLIENTSECRET }}"
+          dotnet test -e ASPNETCORE_ENVIRONMENT=Development --no-build --verbosity normal
