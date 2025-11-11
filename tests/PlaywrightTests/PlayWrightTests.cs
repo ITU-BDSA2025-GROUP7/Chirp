@@ -96,6 +96,13 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
         await Expect(Page.Locator("h2")).ToContainTextAsync("Helge's Timeline");
     }
     
+    [Test]
+    public async Task PostAreShown()
+    {
+        await Page.GotoAsync(_serverUrl);
+        await Expect(Page.Locator("#messagelist")).ToContainTextAsync("Jacqualine Gilcoine");
+        await Expect(Page.Locator("#messagelist")).ToContainTextAsync("Jacqualine Gilcoine Starbuck now is what we hear the worst. — 2023-08-01 13:17:39");
+    }
 
     #endregion
 
