@@ -9,9 +9,11 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
+Console.WriteLine("this should be clientId: "+ builder.Configuration["authenticationGitHubClientId"]);
+Console.WriteLine("this should be clientSecret: " + builder.Configuration["authenticationGitHubClientSecret"]);
 
-string environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")
-                  ?? throw new InvalidOperationException();
+string environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")!;
+Console.WriteLine("this is the current enviroment: "+environment);
 var config = new ConfigurationBuilder()
     .AddJsonFile("appsettings.Web.json")
     .AddJsonFile($"appsettings.Web.{environment}.json", optional: true)
@@ -49,13 +51,13 @@ builder.Services.AddAuthentication(options => {
     o.LogoutPath = "/Identity/Account/Logout";
 })
 .AddGitHub(o => {
-    o.ClientId = builder.Configuration["Authentication:GitHub:ClientId"]
+    o.ClientId = builder.Configuration["authenticationGitHubClientId"]
               ?? throw new InvalidOperationException();
-    o.ClientSecret = builder.Configuration["Authentication:GitHub:ClientSecret"]
+    o.ClientSecret = builder.Configuration["authenticationGitHubClientSecret"]
                   ?? throw new InvalidOperationException();
     // This would allow us to override the local path which the user is redirected
     // to after registering with specifically GitHub:
-    // o.CallbackPath = "/signin-github";
+    o.CallbackPath = "/signin-github";
     o.Scope.Add("user:email");
 });
 builder.Services.AddSession();
