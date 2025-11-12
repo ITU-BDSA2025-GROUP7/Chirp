@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Chirp.Core;
 using Chirp.Core.Domain_Model;
+using System.Net.Mail;
 
 namespace Chirp.Infastructure;
 
@@ -15,7 +16,7 @@ public class CheepRepository :  ICheepRepository
 
     public async Task<List<Author>> GetAuthor(string identifier)
     {
-        if (identifier.Contains("@"))
+        if (isValidEmail(identifier))
         {
             return await GetAuthorByEmail(identifier);
         }
@@ -85,5 +86,17 @@ public class CheepRepository :  ICheepRepository
                             cheep.Author.UserName));
 
         return await query.ToListAsync();
+    }
+
+    public bool isValidEmail(string input) {
+        try
+        {
+            MailAddress isEmail = new MailAddress(input);
+            return true;
+        }
+        catch (FormatException e)
+        {
+            return false;
+        }
     }
 }
