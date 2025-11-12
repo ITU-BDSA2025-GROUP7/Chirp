@@ -1,6 +1,6 @@
 using Chirp.Core;
 using Chirp.Core.Domain_Model;
-using Chirp.Infastructure;
+using Chirp.Infrastructure;
 using Microsoft.Data.Sqlite;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;

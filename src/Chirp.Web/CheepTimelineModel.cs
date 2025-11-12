@@ -1,13 +1,13 @@
-using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Primitives;
 using Chirp.Core;
+using Chirp.Infrastructure;
+using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.Extensions.Primitives;
 
-namespace Chirp.Razor;
+namespace Chirp.Web;
 
-// abstract class that PublicModel and UserTimelineModel extends. 
+// abstract class that PublicModel and UserTimelineModel extends.
 // this class should contain everything that these classes should share
-public abstract class CheepTimelineModel : PageModel 
+public abstract class CheepTimelineModel : PageModel
 {
     protected readonly ICheepService _service;
     public List<CheepDTO> Cheeps { get; set; } = new();
@@ -21,7 +21,7 @@ public abstract class CheepTimelineModel : PageModel
      * returns the page nr of a given httpRequest
      * the pageNr is withing [1;infinity[
      * if a pageNr could not be found, return 1
-     */ 
+     */
     protected int getPageNr(HttpRequest request)
     {
         StringValues pageQuery = Request.Query["page"];
