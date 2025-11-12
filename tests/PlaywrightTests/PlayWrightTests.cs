@@ -258,7 +258,11 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
         await Page.GetByRole(AriaRole.Button, new() { Name = "Register" }).ClickAsync();
         await Expect(Page.GetByRole(AriaRole.Listitem)).ToContainTextAsync("Username 'TestName' is already taken.");
     }
-    
+
+    /**
+     * Checks if it is possible to perform a xss attack when sending cheeps.
+     * xss attempt is expetected to simply write a new cheep and not a popup
+     */
     [Test]
     public async Task tryXSSAttackOnSendCheep()
     {
