@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
@@ -12,6 +13,10 @@ public abstract class CheepTimelineModel : PageModel
     protected readonly ICheepService _service;
     public List<CheepDTO> Cheeps { get; set; } = new();
     [BindProperty]
+    [StringLength(Core.Domain_Model.Cheep.MAX_TEXT_LENGTH, ErrorMessage =
+            "The {0} must be at least {2} and at most {1} characters long.",
+        MinimumLength = 1)]
+    [Display(Name = "Message")]
     public string Text { get; set; } = "";
 
     public CheepTimelineModel(ICheepService service)
@@ -32,9 +37,9 @@ public abstract class CheepTimelineModel : PageModel
         if (pageNr == 0) pageNr = 1; // if parsing failed, set page number to 1 as requested by session_05 1.b)
         return pageNr;
     }
-    public async Task<IActionResult> OnPostAsync()
+    public async Task<IActionResult> OnPostAsync(string returnUrl = "" )
     {
         _ = _service.CreateCheep((await _service.GetAuthorByUserName(User.Identity.Name)).First(), this.Text);
-        return RedirectToPage("Public");
+        return LocalRedirect(returnUrl);
     }
 }
