@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
 using Chirp.Core;
+using Microsoft.AspNetCore.Http.Extensions;
 
 namespace Chirp.Razor;
 
@@ -37,9 +38,9 @@ public abstract class CheepTimelineModel : PageModel
         if (pageNr == 0) pageNr = 1; // if parsing failed, set page number to 1 as requested by session_05 1.b)
         return pageNr;
     }
-    public async Task<IActionResult> OnPostAsync(string returnUrl = "" )
+    public async Task OnPostAsync()
     {
         _ = _service.CreateCheep((await _service.GetAuthorByUserName(User.Identity.Name)).First(), this.Text);
-        return LocalRedirect(returnUrl);
+        Response.Redirect(Request.GetDisplayUrl());
     }
 }
