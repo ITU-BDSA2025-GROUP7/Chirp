@@ -10,7 +10,6 @@ namespace Chirp.Web.Test;
 
 public class CheepRepositoryTest
 {
-
     private ChirpDBContext _context;
     private SqliteConnection _connection;
     private ICheepRepository _cheepRepository;
@@ -76,9 +75,9 @@ public class CheepRepositoryTest
         Assert.DoesNotContain(cheep, _context.Cheeps);
     }
 
-    /*Test that there is only cheeps from the selected author when getcheepsfromauthor is called
+    /** Test that there is only cheeps from the selected author when getcheepsfromauthor is called
     and that it doesn't crash if the author doesn't exist
-*/
+    */
     [Theory]
     [InlineData("RogerHistand")]
     [InlineData("LuannaMuro")]
@@ -109,7 +108,7 @@ public class CheepRepositoryTest
 
 
 
-    /*Testing that the cheeps contain the expeected author, message and timestamp */
+    /** Testing that the cheeps contain the expeected author, message and timestamp */
     [Theory]
     [InlineData(0, "Jacqualine Gilcoine", "Starbuck now is what we hear the worst.", "2023-08-01 13:17:39")]
     [InlineData(1, "Jacqualine Gilcoine",
@@ -126,45 +125,25 @@ public class CheepRepositoryTest
         "Seems to me of Darmonodes'' elephant that so caused him to the kitchen door.", "2023-08-01 13:17:29")]
     public async Task ReadCheepsTest(int index, string author, string message, string timestamp)
     {
-        //arrange
-
-        // act
         var cheep = await _cheepRepository.GetCheeps(1);
-
-        //assert
         Assert.Equal(author, cheep[index].AuthorDisplayName);
         Assert.Equal(message, cheep[index].Message);
         Assert.Equal(timestamp, cheep[index].TimeStamp);
-
-
-
-
-
     }
 
-    /*tests that we don't get a different result, when querying again after no changes have been made*/
+    /** tests that we don't get a different result, when querying again after no changes have been made*/
     [Fact]
     public async Task SubsequentReadsReturnSameData()
     {
-        //arrange
-
-
-        // act
         var firstRead = await _cheepRepository.GetCheeps(10);
         var secondRead = await _cheepRepository.GetCheeps(10);
-
-        // assert
-
         Assert.Equivalent(firstRead, secondRead);
     }
 
-
-    // Test of pagination
+    /// Test of pagination
     [Fact]
     public async Task PaginationTest()
     {
-
-
         var cheeps1 = await _cheepRepository.GetCheeps(1);
         Assert.Equal(32, cheeps1.Count);
 
@@ -180,7 +159,7 @@ public class CheepRepositoryTest
         Assert.Empty(cheeps400);
     }
 
-    // test of timestamp sorting
+    /// test of timestamp sorting
     [Fact]
     public async Task TimestampSortedTest()
     {
@@ -191,7 +170,6 @@ public class CheepRepositoryTest
         Assert.Equal(32, cheeps.Count);
         string lastTimeStamp = "2050-07-10 21:21:13";
 
-
         foreach (var cheep in cheeps)
         {
             // descending timestamps
@@ -200,7 +178,7 @@ public class CheepRepositoryTest
         }
     }
 
-    // tests that it just returns the first page in case it get negative or weird numbers
+    /// tests that it just returns the first page in case it get negative or weird numbers
     [Theory]
     [InlineData(-1)]
     [InlineData(0)]
@@ -211,10 +189,8 @@ public class CheepRepositoryTest
         var cheeps1 = await _cheepRepository.GetCheeps(1);
         var cheepsWeird = await _cheepRepository.GetCheeps(pagenr);
 
-
         Assert.Equal(32, cheepsWeird.Count);
         Assert.Equivalent(cheeps1, cheepsWeird);
-
     }
 
     [Fact]
@@ -256,6 +232,7 @@ public class CheepRepositoryTest
         Assert.Equal(username, bartons.Single().UserName);
         Assert.Equal(email1, bartons.Single().Email);
     }
+
     [Fact]
     public async Task noKnownAuthorTest()
     {
