@@ -1,7 +1,7 @@
 ﻿
 name: Publish
 
-on: 
+on:
   push:
     tags:
       - v[0-9]+.[0-9]+.[0-9]+
@@ -16,11 +16,13 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 9.0.x
+      - name: Format
+        run: dotnet format --exclude src/Chirp.Infrastructure/Migrations
       - name: Restore dependencies
         run: dotnet restore
       - name: Build
         run: dotnet build --no-restore
-        
+
   test:
     runs-on: ubuntu-latest
     needs: build
@@ -32,7 +34,7 @@ jobs:
           dotnet-version: 9.0.x
       - name: Test
         run: dotnet test -e ASPNETCORE_ENVIRONMENT=Test --no-build --verbosity normal
-        
+
   publish:
     runs-on: ubuntu-latest
     needs: test
@@ -59,10 +61,9 @@ jobs:
           zip -r Chirp-Linux.zip Published/Linux
       - name: Release
         uses: softprops/action-gh-release@v2
-        with: 
+        with:
           files: |
             Chirp-Win.zip
             Chirp-MacOS.zip
             Chirp-Linux.zip
 
-  
