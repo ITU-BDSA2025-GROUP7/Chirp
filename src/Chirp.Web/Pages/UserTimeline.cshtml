@@ -7,6 +7,7 @@
 
 <div>
     <h2>@Model.Header</h2>
+    <partial name="Shared/_sendCheepPartial" model="@Model"/>
     @if (Model.Author != null) {
         <partial name="Shared/_CheepListPartial" model="@Model"/>
     }

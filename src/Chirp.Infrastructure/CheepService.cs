@@ -1,4 +1,5 @@
 using Chirp.Core;
+using Chirp.Core.Domain_Model;
 
 namespace Chirp.Infrastructure;
 
@@ -26,5 +27,15 @@ public class CheepService : ICheepService
     public async Task<List<CheepDTO>> GetCheepsFromUserName(string username, int pageNr)
     {
         return await cheepRepository.GetCheepsFromUserName(username, pageNr);
+    }
+
+    public async Task<List<Author>> GetAuthorByUserName(string username)
+    {
+        return await cheepRepository.GetAuthorByUserName(username);
+    }
+    public async Task CreateCheep(Author author, string message)
+    {
+        DateTime date = DateTime.Now;
+        await cheepRepository.CreateCheep(author, message, new DateTime(date.Year, date.Month, date.Day, date.Hour, date.Minute, date.Second));
     }
 }

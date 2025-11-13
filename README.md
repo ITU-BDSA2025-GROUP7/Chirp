@@ -38,7 +38,7 @@ To build and start the daemon on the current computer, execute either:
 dotnet run --project src/Chirp.Razor
 ```
 ```
-make start-razor
+make start
 ```
 
 Running the program will connect the client to the default database `src/Chirp.Razor/data/Chirp.db`.

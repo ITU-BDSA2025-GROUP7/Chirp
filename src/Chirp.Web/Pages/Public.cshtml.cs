@@ -1,4 +1,4 @@
-﻿using Chirp.Infrastructure;
+using Chirp.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Chirp.Web.Pages;
@@ -16,5 +16,4 @@ public class PublicModel : CheepTimelineModel
         Cheeps = await _service.GetCheeps(pageNr);
         return Page();
     }
-
 }
