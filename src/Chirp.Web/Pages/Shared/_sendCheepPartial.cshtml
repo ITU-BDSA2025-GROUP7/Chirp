@@ -1,0 +1,20 @@
+@using Chirp.Core.Domain_Model
+@inject SignInManager<Author> SignInManager
+@inject UserManager<Author> UserManager
+@model Chirp.Web.CheepTimelineModel
+
+@if(SignInManager.IsSignedIn(User))
+{
+    <div class="cheepbox">
+        @{
+            Author? user = await UserManager.GetUserAsync(User);
+            <h3>What's on your mind, @(user?.DisplayName ?? "Unknown user")?</h3>
+        }
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+            <input style="float: left" type="text" asp-for="Text">
+            <span asp-validation-for="@Model.Text" class="text-danger"></span>
+            <input type="submit" value="Share">
+        </form>
+    </div>
+}

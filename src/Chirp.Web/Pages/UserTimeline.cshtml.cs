@@ -1,8 +1,9 @@
 ﻿using Chirp.Core.Domain_Model;
+using Chirp.Infrastructure;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Chirp.Razor.Pages;
+namespace Chirp.Web.Pages;
 
 public class UserTimelineModel : CheepTimelineModel
 {

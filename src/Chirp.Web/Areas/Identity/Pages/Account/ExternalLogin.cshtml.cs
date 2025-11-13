@@ -17,7 +17,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using SignInResult = Microsoft.AspNetCore.Identity.SignInResult;
 
-namespace Chirp.Razor.Areas.Identity.Pages.Account {
+namespace Chirp.Web.Areas.Identity.Pages.Account {
     [AllowAnonymous]
     public class ExternalLoginModel : PageModel {
         private readonly SignInManager<Author> _signInManager;

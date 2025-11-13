@@ -10,13 +10,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chirp.Web", "src\Chirp.Web\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chirp.Core", "src\Chirp.Core\Chirp.Core.csproj", "{125DE91F-FFAE-485F-86F7-6FCDC2A14299}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chirp.Infastructure", "src\Chirp.Infastructure\Chirp.Infastructure.csproj", "{702170F5-5995-4D72-8FFD-CCED130C3844}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chirp.Infrastructure", "src\Chirp.Infrastructure\Chirp.Infrastructure.csproj", "{702170F5-5995-4D72-8FFD-CCED130C3844}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chirp.Infastructure.Test", "tests\Chirp.Infastructure.Test\Chirp.Infastructure.Test.csproj", "{35C2D552-CD9F-4E36-90C6-C2E7D48477C5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chirp.Infrastructure.Test", "tests\Chirp.Infrastructure.Test\Chirp.Infrastructure.Test.csproj", "{35C2D552-CD9F-4E36-90C6-C2E7D48477C5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chrip.Web.Test", "tests\Chrip.Web.Test\Chrip.Web.Test.csproj", "{519751E8-3DA8-48D6-BC4C-68C5700FF06E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chirp.Web.Test", "tests\Chirp.Web.Test\Chirp.Web.Test.csproj", "{519751E8-3DA8-48D6-BC4C-68C5700FF06E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chrip.Core.Test", "tests\Chrip.Core.Test\Chrip.Core.Test.csproj", "{E96FFEF8-7872-4BCB-9852-06A57E1365BB}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chirp.Core.Test", "tests\Chirp.Core.Test\Chirp.Core.Test.csproj", "{E96FFEF8-7872-4BCB-9852-06A57E1365BB}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlaywrightTests", "tests\PlaywrightTests\PlaywrightTests.csproj", "{D16D7252-E7E8-4C84-A2C7-440FA250BBDD}"
 EndProject
@@ -125,6 +125,7 @@ Global
 		{35C2D552-CD9F-4E36-90C6-C2E7D48477C5} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 		{E96FFEF8-7872-4BCB-9852-06A57E1365BB} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 		{519751E8-3DA8-48D6-BC4C-68C5700FF06E} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
+		{D16D7252-E7E8-4C84-A2C7-440FA250BBDD} = {0AB3BF05-4346-4AA6-1389-037BE0695223}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {93717BEE-4B27-484D-BF88-64821BB11A94}

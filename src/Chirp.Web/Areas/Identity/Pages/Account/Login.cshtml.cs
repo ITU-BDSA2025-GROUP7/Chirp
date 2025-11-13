@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using SignInResult = Microsoft.AspNetCore.Identity.SignInResult;
 
-namespace Chirp.Razor.Areas.Identity.Pages.Account {
+namespace Chirp.Web.Areas.Identity.Pages.Account {
     public class LoginModel : PageModel {
         private readonly SignInManager<Author> _signInManager;
         private readonly ILogger<LoginModel> _logger;

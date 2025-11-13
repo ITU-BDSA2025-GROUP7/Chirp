@@ -5,7 +5,6 @@
         <TargetFramework>net9.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
-        <RootNamespace>Chirp.Razor</RootNamespace>
       <UserSecretsId>e0d60cd7-3df8-48ff-bbea-678fe4097281</UserSecretsId>
   </PropertyGroup>
 
@@ -26,7 +25,7 @@
         </PackageReference>
         <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="9.0.0" />
         <ProjectReference Include="..\Chirp.Core\Chirp.Core.csproj" />
-        <ProjectReference Include="..\Chirp.Infastructure\Chirp.Infastructure.csproj" />
+        <ProjectReference Include="..\Chirp.Infrastructure\Chirp.Infrastructure.csproj" />
     </ItemGroup>
 
 </Project>
