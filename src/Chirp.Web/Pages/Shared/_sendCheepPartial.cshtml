@@ -8,7 +8,7 @@
     <div class="cheepbox">
         @{
             Author? user = await UserManager.GetUserAsync(User);
-            <h3>What's on your mind, @(user?.DisplayName ?? "Unknown user")</h3>
+            <h3>What's on your mind, @(user?.DisplayName ?? "Unknown user")?</h3>
         }
         <form method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
