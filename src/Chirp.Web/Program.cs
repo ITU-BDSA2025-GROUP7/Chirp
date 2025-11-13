@@ -49,9 +49,6 @@ builder.Services.AddAuthentication(options => {
               ?? throw new InvalidOperationException();
     o.ClientSecret = builder.Configuration["authenticationGitHubClientSecret"]
                   ?? throw new InvalidOperationException();
-    // This would allow us to override the local path which the user is redirected
-    // to after registering with specifically GitHub:
-    //o.CallbackPath = "/signin-github";
     o.Scope.Add("user:email");
 });
 builder.Services.AddSession();
