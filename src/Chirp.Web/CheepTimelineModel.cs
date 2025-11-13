@@ -43,7 +43,7 @@ public abstract class CheepTimelineModel : PageModel
 
     public async Task OnPostAsync()
     {
-        _ = _service.CreateCheep((await _service.GetAuthorByUserName(User.Identity.Name)).First(), Text);
+        _ = _service.CreateCheep((await _service.GetAuthorByUserName(User.Identity!.Name!)).First(), Text);
         Response.Redirect(Request.GetDisplayUrl());
     }
 }
