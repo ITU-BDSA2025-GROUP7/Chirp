@@ -33,7 +33,7 @@ test:
 
 #
 test-linux:
-	ASPNETCORE_ENVIRONMENT=Test dotnet test
+	ASPNETCORE_ENVIRONMENT=Development dotnet test
 
 build:
 	dotnet build

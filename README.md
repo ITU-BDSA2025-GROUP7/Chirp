@@ -15,16 +15,19 @@ You will be prompted to download any such missing dependencies when running the 
 
 All commands here and below expect you to be in the main solution directory (i.e. the same as this file).\
 When a `dotnet` and `make` command are listed together, they are equivalent.\
-Executing `make` commands requires you to have GNU Make installed.
+Executing `make` commands requires you to have an implementation of Make installed, such as GNU Make.
 ```
-dotnet run --project src/Chirp.Razor
-make start-razor
+dotnet run --project src/Chirp.Razor -e ASPNETCORE_ENVIRONMENT=Development
+make start
 
-dotnet test
+dotnet test -e ASPNETCORE_ENVIRONMENT=Development
 make test
 
 dotnet build
 make build
+
+dotnet format --exclude src/Chirp.Infrastructure/Migrations
+make format
 ```
 
 ---
@@ -65,6 +68,16 @@ dotnet test
 ```
 ```
 make test
+```
+
+## Formatting
+To automatically format all the code in the repository.
+```
+dotnet format --exclude src/Chirp.Infrastructure/Migrations
+```
+
+```
+make format
 ```
 
 ---
