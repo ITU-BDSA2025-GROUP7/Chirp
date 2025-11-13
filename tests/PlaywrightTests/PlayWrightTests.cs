@@ -160,7 +160,7 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
      * Delete registered user
      */
     [Test]
-    public async Task DeleateARegiteredUser()
+    public async Task DeleteARegisteredUser()
     {
         await Page.GotoAsync(_serverUrl);
         await Expect(Page.GetByRole(AriaRole.Heading, new() { Name = "Icon1Chirp!" })).ToBeVisibleAsync();
