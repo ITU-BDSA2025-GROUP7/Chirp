@@ -16,7 +16,7 @@ public class CheepRepository :  ICheepRepository
 
     public async Task<List<Author>> GetAuthor(string identifier)
     {
-        if (isValidEmail(identifier))
+        if (IsValidEmail(identifier))
         {
             return await GetAuthorByEmail(identifier);
         }
@@ -88,7 +88,7 @@ public class CheepRepository :  ICheepRepository
         return await query.ToListAsync();
     }
 
-    public bool isValidEmail(string input) {
+    public static bool IsValidEmail(string input) {
         try
         {
             MailAddress isEmail = new MailAddress(input);
