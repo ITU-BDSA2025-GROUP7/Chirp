@@ -24,7 +24,7 @@ jobs:
         with:
           dotnet-version: 9.0.x
       - name: Format
-        run: dotnet format --exclude src/Chirp.Infrastructure/Migrations --verify-no-changes diagnostic
+        run: dotnet format --exclude src/Chirp.Infrastructure/Migrations --verify-no-changes --verbosity diagnostic
       - name: Restore dependencies
         run: dotnet restore
       - name: Build
