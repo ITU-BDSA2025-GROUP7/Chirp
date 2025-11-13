@@ -14,7 +14,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 
-namespace Chirp.Razor.Areas.Identity.Pages.Account {
+namespace Chirp.Web.Areas.Identity.Pages.Account {
     public class RegisterModel : PageModel {
         private readonly SignInManager<Author> _signInManager;
         private readonly UserManager<Author> _userManager;
