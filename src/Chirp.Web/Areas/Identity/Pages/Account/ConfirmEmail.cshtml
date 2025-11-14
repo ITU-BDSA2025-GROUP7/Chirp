@@ -1,0 +1,21 @@
+﻿@page
+@model ConfirmEmailModel
+@{
+    ViewData["Title"] = "Confirm email";
+}
+
+<h1>@ViewData["Title"]</h1>
+<partial name="_StatusMessage" model="Model.StatusMessage" />
+
+<form id="redirect-login" asp-page="./Login"
+      method="get"
+      class="form-horizontal">
+<div>
+    <p>
+       
+        <button type="submit" class="btn btn-primary" name="provider"
+        >Login</button>
+        
+    </p>
+</div>
+</form>
