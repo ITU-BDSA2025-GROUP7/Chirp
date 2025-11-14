@@ -108,7 +108,7 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "Password" }).ClickAsync();
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "Password" }).FillAsync("LetM31n!");
         await Page.GetByRole(AriaRole.Button, new() { Name = "Log in" }).ClickAsync();
-        await Expect(Page.Locator("h3")).ToContainTextAsync("What's on your mind Helge?");
+        await Expect(Page.Locator("h3")).ToContainTextAsync("What's on your mind, Helge?");
         await Expect(Page.GetByRole(AriaRole.Button, new() { Name = "Logout" })).ToBeVisibleAsync();
         await Page.GetByRole(AriaRole.Button, new() { Name = "Logout" }).ClickAsync();
         await Expect(Page.GetByRole(AriaRole.Paragraph)).ToContainTextAsync("You have successfully logged out of the application.");
@@ -576,7 +576,7 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "Password" }).ClickAsync();
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "Password" }).FillAsync("LetM31n!");
         await Page.GetByRole(AriaRole.Button, new() { Name = "Log in" }).ClickAsync();
-        await Expect(Page.Locator("h3")).ToContainTextAsync("What's on your mind Helge?");
+        await Expect(Page.Locator("h3")).ToContainTextAsync("What's on your mind, Helge?");
         await Page.Locator("#Text").ClickAsync();
         await Page.Locator("#Text").FillAsync("Cheep from public timeline");
         await Page.GetByRole(AriaRole.Button, new() { Name = "Share" }).ClickAsync();
