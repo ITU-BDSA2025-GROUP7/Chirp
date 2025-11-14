@@ -40,4 +40,6 @@ public interface ICheepRepository
      */
     public Task Unfollow(Author follower, Author followed);
 
+    public Task<List<FollowRelation>> GetFollowedAuthors(Author author);
+
 }

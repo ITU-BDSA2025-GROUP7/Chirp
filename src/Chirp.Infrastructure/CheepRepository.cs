@@ -94,7 +94,7 @@ public class CheepRepository :  ICheepRepository
             return;
         }
         FollowRelation newFollowRelation = new FollowRelation() { Follower = follower, Followed = followed };
-        _dbContext.Add(newFollowRelation);
+        await _dbContext.AddAsync(newFollowRelation);
         _dbContext.SaveChanges();
     }
     public async Task Unfollow(Author followerToDelete, Author followedToDelete)
@@ -102,19 +102,30 @@ public class CheepRepository :  ICheepRepository
         FollowRelation followRelationToDelete = (from followRelation in _dbContext.FollowRelations
         where followRelation.Follower == followerToDelete && followRelation.Followed == followedToDelete
         select followRelation).First();
+        if (followedToDelete == null)
+        {
+            return;
+        }
         _dbContext.FollowRelations.Remove(followRelationToDelete);
+        _dbContext.SaveChanges();
     }
     /**
      * checks if author exists within current context
      */
     private bool ValidifyAuthor(Author follower, Author followed)
     {
-        if (!_dbContext.Authors.Any(a => a.UserName == follower.UserName)&& 
-            !_dbContext.Authors.Any(a => a.UserName == followed.UserName)&& 
-            follower.Id != followed.Id)
+        if (_dbContext.Authors.Any(author => author.UserName == follower.UserName)&& 
+            _dbContext.Authors.Any(author => author.UserName == followed.UserName)&& 
+            follower.Id == followed.Id)
         {
-            return false;
+            return true;
         }
-        return true;
+        return false;
+    }
+    public async Task<List<FollowRelation>> GetFollowedAuthors(Author author)
+    {
+        return await (from followRelation in _dbContext.FollowRelations
+        where followRelation.Follower == author
+        select followRelation).ToListAsync();
     }
 }
