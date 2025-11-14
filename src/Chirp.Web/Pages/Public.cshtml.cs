@@ -1,15 +1,10 @@
-﻿using System.Diagnostics;
-using System.Security.Claims;
+using Chirp.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using NuGet.Packaging.Signing;
 
-namespace Chirp.Razor.Pages;
+namespace Chirp.Web.Pages;
 
 public class PublicModel : CheepTimelineModel
 {
-    
     public PublicModel(ICheepService service) : base(service)
     {
     }
@@ -17,10 +12,8 @@ public class PublicModel : CheepTimelineModel
     public async Task<IActionResult> OnGet()
     {
         int pageNr = getPageNr(Request);
-        Text = Text;
 
         Cheeps = await _service.GetCheeps(pageNr);
         return Page();
     }
-    
 }

@@ -1,35 +1,29 @@
 using Chirp.Core;
 using Chirp.Core.Domain_Model;
-using Chirp.Infastructure;
+using Chirp.Infrastructure;
 using Microsoft.Data.Sqlite;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container. 
+// Add services to the container.
 builder.Services.AddRazorPages();
-Console.WriteLine("this should be clientId: "+ builder.Configuration["authenticationGitHubClientId"]);
-Console.WriteLine("this should be clientSecret: " + builder.Configuration["authenticationGitHubClientSecret"]);
 
 string environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "";
-Console.WriteLine("this is the current enviroment: "+environment);
 var config = new ConfigurationBuilder()
     .AddJsonFile("appsettings.Web.json")
     .AddJsonFile($"appsettings.Web.{environment}.json", optional: true)
     .Build();
 
 // use in memory database for testing
-if (environment.Equals("Development"))
-{
+if (environment.Equals("Development")) {
     Console.WriteLine("We are running in Development mode");
     var connection = new SqliteConnection("DataSource=:memory:");
     connection.Open();
     builder.Services.AddDbContext<ChirpDBContext>();
     builder.Services.AddDbContext<ChirpDBContext>(options => options.UseSqlite(connection));
-}
-else
-{
+} else {
     string? connectionString = config["ConnectionStrings:DefaultConnection"];
     builder.Services.AddDbContext<ChirpDBContext>(options => options.UseSqlite(connectionString));
 }
@@ -55,9 +49,6 @@ builder.Services.AddAuthentication(options => {
               ?? throw new InvalidOperationException();
     o.ClientSecret = builder.Configuration["authenticationGitHubClientSecret"]
                   ?? throw new InvalidOperationException();
-    // This would allow us to override the local path which the user is redirected
-    // to after registering with specifically GitHub:
-    o.CallbackPath = "/signin-github";
     o.Scope.Add("user:email");
 });
 builder.Services.AddSession();
@@ -65,15 +56,14 @@ builder.Services.AddSession();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
-{
+if (!app.Environment.IsDevelopment()) {
     app.UseExceptionHandler("/Error");
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
-using (var scope = app.Services.CreateScope())
-{  /* moved the seeding of the db initializer out of
+using (IServiceScope scope = app.Services.CreateScope()) {
+    /* moved the seeding of the db initializer out of
     the chirpDBContext so it is possible to use a
     different test database*/
     var dbContext = scope.ServiceProvider.GetRequiredService<ChirpDBContext>();
