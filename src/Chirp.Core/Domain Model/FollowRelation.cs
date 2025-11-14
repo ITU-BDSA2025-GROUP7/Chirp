@@ -3,9 +3,11 @@ using System.ComponentModel.DataAnnotations;
 namespace Chirp.Core.Domain_Model;
 
 public class FollowRelation {
+    [Key]
+    public int FollowRelationId { get; set; }
     [Required]
-    public Author follower{get; set;}
+    public required Author Follower{get; set;}
 
     [Required] 
-    public Author followed { get; set; }
+    public required Author Followed { get; set; }
 }

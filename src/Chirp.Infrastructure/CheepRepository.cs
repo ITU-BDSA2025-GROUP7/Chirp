@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Chirp.Core;
 using Chirp.Core.Domain_Model;
+using Microsoft.AspNetCore.Components;
 
 namespace Chirp.Infrastructure;
 
@@ -92,12 +93,16 @@ public class CheepRepository :  ICheepRepository
         {
             return;
         }
-        FollowRelation newFollowRelation = new FollowRelation() { follower = follower, followed = followed };
+        FollowRelation newFollowRelation = new FollowRelation() { Follower = follower, Followed = followed };
         _dbContext.Add(newFollowRelation);
         _dbContext.SaveChanges();
     }
-    public async Task Unfollow(Author follower, Author followed)
+    public async Task Unfollow(Author followerToDelete, Author followedToDelete)
     {
+        FollowRelation followRelationToDelete = (from followRelation in _dbContext.FollowRelations
+        where followRelation.Follower == followerToDelete && followRelation.Followed == followedToDelete
+        select followRelation).First();
+        _dbContext.FollowRelations.Remove(followRelationToDelete);
     }
     /**
      * checks if author exists within current context
