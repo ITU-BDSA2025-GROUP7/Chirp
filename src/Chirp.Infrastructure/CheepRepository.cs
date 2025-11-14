@@ -86,4 +86,30 @@ public class CheepRepository :  ICheepRepository
 
         return await query.ToListAsync();
     }
+    public async Task Follow(Author follower, Author followed)
+    {
+        if ( ValidifyAuthor(follower, followed))
+        {
+            return;
+        }
+        FollowRelation newFollowRelation = new FollowRelation() { follower = follower, followed = followed };
+        _dbContext.Add(newFollowRelation);
+        _dbContext.SaveChanges();
+    }
+    public async Task Unfollow(Author follower, Author followed)
+    {
+    }
+    /**
+     * checks if author exists within current context
+     */
+    private bool ValidifyAuthor(Author follower, Author followed)
+    {
+        if (!_dbContext.Authors.Any(a => a.UserName == follower.UserName)&& 
+            !_dbContext.Authors.Any(a => a.UserName == followed.UserName)&& 
+            follower.Id != followed.Id)
+        {
+            return false;
+        }
+        return true;
+    }
 }

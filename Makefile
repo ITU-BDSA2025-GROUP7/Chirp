@@ -43,7 +43,7 @@ clean:
 
 # make a new migration for the database. Remember to give the migration a name by also typing 'n=<name>' as shown in this example 'make newMigration n=MyMygration'
 newMigration:
-	dotnet ef migrations add ${n} --project src/Chirp.Infastructure  --startup-project src/Chirp.Web
+	dotnet ef migrations add ${n} --project src/Chirp.Infrastructure  --startup-project src/Chirp.Web
 
 # Update the database to reflect changes made by migration.
 dbUpdate:
