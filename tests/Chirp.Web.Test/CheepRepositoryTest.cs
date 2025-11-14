@@ -383,7 +383,7 @@ public class CheepRepositoryTest
         //act
         _ = _cheepRepository.Follow(barton, barton);
         //assert
-        Assert.Empty(await _cheepRepository.GetFollowedAuthors(barton));
+        Assert.Empty(await _cheepRepository.GetFollowRelations(barton));
     }
 
     [Fact]
@@ -401,7 +401,7 @@ public class CheepRepositoryTest
         //act
         _ = _cheepRepository.Follow(barton, Wendell);
         //assert
-        Assert.NotEmpty(await _cheepRepository.GetFollowedAuthors(barton));
+        Assert.NotEmpty(await _cheepRepository.GetFollowRelations(barton));
     }
 
     [Fact]
@@ -419,7 +419,7 @@ public class CheepRepositoryTest
         //act
         _ = _cheepRepository.Follow(barton, Wendell);
         _ = _cheepRepository.Follow(barton, Wendell);
-        List<FollowRelation> myList = await _cheepRepository.GetFollowedAuthors(barton);
+        List<FollowRelation> myList = await _cheepRepository.GetFollowRelations(barton);
         //assert
         Assert.Single(myList);
     }
@@ -440,7 +440,7 @@ public class CheepRepositoryTest
         _ = _cheepRepository.Follow(barton, Wendell);
         _ = _cheepRepository.Unfollow(barton, Wendell);
         //assert
-        Assert.Empty(await _cheepRepository.GetFollowedAuthors(barton));
+        Assert.Empty(await _cheepRepository.GetFollowRelations(barton));
     }
 
     [Fact]
@@ -458,7 +458,7 @@ public class CheepRepositoryTest
         //act
         _ = _cheepRepository.Unfollow(barton, Wendell);
         //assert
-        Assert.Empty(await _cheepRepository.GetFollowedAuthors(barton));
+        Assert.Empty(await _cheepRepository.GetFollowRelations(barton));
     }
 
     [Fact]
@@ -475,7 +475,7 @@ public class CheepRepositoryTest
         //act
         _ = _cheepRepository.Follow(barton, Wendell);
         //assert
-        Assert.Empty(await _cheepRepository.GetFollowedAuthors(barton));
+        Assert.Empty(await _cheepRepository.GetFollowRelations(barton));
     }
     [Fact]
     public async Task followAuthorNotInDBContext()
@@ -491,6 +491,6 @@ public class CheepRepositoryTest
         //act
         _ = _cheepRepository.Follow(barton, myAuthor);
         //assert
-        Assert.Empty(await _cheepRepository.GetFollowedAuthors(barton));
+        Assert.Empty(await _cheepRepository.GetFollowRelations(barton));
     }
 }

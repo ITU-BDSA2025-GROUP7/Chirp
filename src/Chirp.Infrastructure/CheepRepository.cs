@@ -131,7 +131,7 @@ public class CheepRepository :  ICheepRepository
             }
         return false;   
     }
-    public async Task<List<FollowRelation>> GetFollowedAuthors(Author author)
+    public async Task<List<FollowRelation>> GetFollowRelations(Author author)
     {
         return await (from followRelation in _dbContext.FollowRelations
         where followRelation.Follower == author
