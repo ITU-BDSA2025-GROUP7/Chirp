@@ -16,8 +16,6 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 9.0.x
-      - name: Format
-        run: dotnet format --exclude src/Chirp.Infrastructure/Migrations
       - name: Restore dependencies
         run: dotnet restore
       - name: Build
