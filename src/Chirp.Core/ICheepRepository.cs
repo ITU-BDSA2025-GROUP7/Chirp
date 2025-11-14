@@ -32,7 +32,7 @@ public interface ICheepRepository
 
     public Task CreateCheep(Author author, string message, DateTime timestamp);
     /**
-     * Creates a follow relation
+     * Creates a follow relation, and adds a reference of the followed to follower
      */
     public Task Follow(Author follower, Author followed);
     /**

@@ -2,6 +2,8 @@ using Microsoft.EntityFrameworkCore;
 using Chirp.Core;
 using Chirp.Core.Domain_Model;
 using Microsoft.AspNetCore.Components;
+using Microsoft.Net.Http.Headers;
+using System.Dynamic;
 
 namespace Chirp.Infrastructure;
 
@@ -89,12 +91,19 @@ public class CheepRepository :  ICheepRepository
     }
     public async Task Follow(Author follower, Author followed)
     {
-        if ( ValidifyAuthor(follower, followed))
+        if (await ValidifyAuthorAsync(follower, followed))
         {
             return;
         }
+        //add followed to follower >:)
+        Author user = (from author in _dbContext.Authors
+        where author.UserName == follower.UserName
+        select author).First();
+        user.Following.Add(followed);
+        //make relation :)
         FollowRelation newFollowRelation = new FollowRelation() { Follower = follower, Followed = followed };
         await _dbContext.AddAsync(newFollowRelation);
+
         _dbContext.SaveChanges();
     }
     public async Task Unfollow(Author followerToDelete, Author followedToDelete)
@@ -112,15 +121,15 @@ public class CheepRepository :  ICheepRepository
     /**
      * checks if author exists within current context
      */
-    private bool ValidifyAuthor(Author follower, Author followed)
+    private async Task<bool> ValidifyAuthorAsync(Author follower, Author followed)
     {
-        if (_dbContext.Authors.Any(author => author.UserName == follower.UserName)&& 
-            _dbContext.Authors.Any(author => author.UserName == followed.UserName)&& 
-            follower.Id == followed.Id)
-        {
-            return true;
-        }
-        return false;
+        if (!_dbContext.Authors.Any(author => author == follower)||
+            !_dbContext.Authors.Any(author => author == followed)||
+            follower.Id == followed.Id||
+            follower.Following.Contains(followed)) {
+                return true;
+            }
+        return false;   
     }
     public async Task<List<FollowRelation>> GetFollowedAuthors(Author author)
     {
