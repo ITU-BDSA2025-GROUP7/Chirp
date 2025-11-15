@@ -4,6 +4,7 @@ using Chirp.Core.Domain_Model;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Net.Http.Headers;
 using System.Dynamic;
+using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 
 namespace Chirp.Infrastructure;
 
@@ -89,23 +90,18 @@ public class CheepRepository :  ICheepRepository
 
         return await query.ToListAsync();
     }
+
     public async Task Follow(Author follower, Author followed)
     {
-        if (await ValidifyAuthorAsync(follower, followed))
+        if (await ValidifyfollowRelationAsync(follower, followed))
         {
             return;
         }
-        //add followed to follower >:)
-        Author user = (from author in _dbContext.Authors
-        where author.UserName == follower.UserName
-        select author).First();
-        user.Following.Add(followed);
-        //make relation :)
         FollowRelation newFollowRelation = new FollowRelation() { Follower = follower, Followed = followed };
         await _dbContext.AddAsync(newFollowRelation);
-
         _dbContext.SaveChanges();
     }
+
     public async Task Unfollow(Author followerToDelete, Author followedToDelete)
     {
         FollowRelation followRelationToDelete = (from followRelation in _dbContext.FollowRelations
@@ -119,22 +115,36 @@ public class CheepRepository :  ICheepRepository
         _dbContext.SaveChanges();
     }
     /**
-     * checks if author exists within current context
+     * Returns true if breaks rules
      */
-    private async Task<bool> ValidifyAuthorAsync(Author follower, Author followed)
+    private async Task<bool> ValidifyfollowRelationAsync(Author follower, Author followed)
     {
         if (!_dbContext.Authors.Any(author => author == follower)||
             !_dbContext.Authors.Any(author => author == followed)||
-            follower.Id == followed.Id||
-            follower.Following.Contains(followed)) {
-                return true;
-            }
+            follower.Id == followed.Id|| 
+            (await Following(follower)).Contains(followed)) //checks if follower already follows followed :3
+        { 
+            return true;
+        }
         return false;   
     }
+    /**
+     * returns all FollowRelations where `author` is follower 
+     */
     public async Task<List<FollowRelation>> GetFollowRelations(Author author)
     {
         return await (from followRelation in _dbContext.FollowRelations
         where followRelation.Follower == author
         select followRelation).ToListAsync();
+    }
+
+    /**
+     * this is borderline unreadable, but it just gets all Authors which `author` follows
+     */
+    public async Task<List<Author>> Following(Author author)
+    {
+        return(from user in _dbContext.FollowRelations
+                where user.Follower.UserName == author.UserName
+                select user.Followed).ToList();
     }
 }

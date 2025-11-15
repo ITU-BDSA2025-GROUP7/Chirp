@@ -13,8 +13,6 @@ public class Author : IdentityUser {
     [PersonalData]
     public List<Cheep> Cheeps { get; set; } = [];
 
-    public List<Author> Following {get; set;} = [];
-
     /** Create an Author which would be a valid user in the database,
      * generating a username based on the given <c>displayName</c>.<br/>
      * The optional parameter <c>passwordHash</c> needs to be included to

@@ -419,7 +419,7 @@ public class CheepRepositoryTest
         //act
         _ = _cheepRepository.Follow(barton, Wendell);
         _ = _cheepRepository.Follow(barton, Wendell);
-        List<FollowRelation> myList = await _cheepRepository.GetFollowRelations(barton);
+        List<Author> myList= await _cheepRepository.Following(barton);
         //assert
         Assert.Single(myList);
     }
