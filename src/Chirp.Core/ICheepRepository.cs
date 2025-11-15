@@ -31,5 +31,16 @@ public interface ICheepRepository
     public Task CreateAuthor(string name, string email);
 
     public Task CreateCheep(Author author, string message, DateTime timestamp);
+    /**
+     * Creates a follow relation, and adds a reference of the followed to follower
+     */
+    public Task Follow(Author follower, Author followed);
+    /**
+     * Deletes a follow relation
+     */
+    public Task Unfollow(Author follower, Author followed);
+
+    public Task<List<FollowRelation>> GetFollowRelations(Author author);
+    public Task<List<Author>> Following(Author author);
 
 }
