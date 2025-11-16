@@ -40,7 +40,19 @@ public interface ICheepRepository
      */
     public Task Unfollow(Author follower, Author followed);
 
+    /**
+     * returns all FollowRelations where `author` is follower
+     */
     public Task<List<FollowRelation>> GetFollowRelations(Author author);
+    
+    /**
+     * Gets all Authors which `author` follows
+     */
     public Task<List<Author>> Following(Author author);
+
+    /**
+     * Returns true if authorA is following authorB, false otherwise.
+     */
+    public Task<bool> IsFollowing(Author authorA, Author authorB);
 
 }

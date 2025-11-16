@@ -147,4 +147,15 @@ public class CheepRepository :  ICheepRepository
                 where user.Follower.UserName == author.UserName
                 select user.Followed).ToList();
     }
+
+    /**
+     * Returns true if authorA is following authorB, false otherwise.
+     */
+    public async Task<bool> IsFollowing(Author authorA, Author authorB)
+    {
+         var matches= await (from followRelation in _dbContext.FollowRelations
+            where followRelation.Follower == authorA && followRelation.Followed == authorB
+            select followRelation).ToListAsync();
+         return matches.Count > 0;
+    }  
 }
