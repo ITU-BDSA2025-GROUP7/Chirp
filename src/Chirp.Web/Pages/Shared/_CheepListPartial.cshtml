@@ -1,4 +1,7 @@
-﻿@model Chirp.Web.CheepTimelineModel
+﻿@using Chirp.Core.Domain_Model
+@model Chirp.Web.Pages.PublicModel
+@inject SignInManager<Author> SignInManager
+@inject UserManager<Author> UserManager
 
 @if (Model.Cheeps.Any())
 {
@@ -10,8 +13,26 @@
                     <strong>
                         <a href="/@cheep.AuthorUserName">@cheep.AuthorDisplayName</a>
                     </strong>
+                    @if (SignInManager.IsSignedIn(User))
+                    {
+                        Author? user = await UserManager.GetUserAsync(User);
+                        Author? PostUser = await UserManager.FindByNameAsync(cheep.AuthorUserName);
+                        if (await Model.IsFollowing(user,PostUser))
+                        {
+                            <a>Unfollow</a>
+                        }
+                        else
+                        {
+                            <form method="post">
+                                <button type="submit" asp-page-handler="Follow">Follow</button>
+                                <input type="hidden" name="authorA" value="@user"/>
+                                <input type="hidden" name="authorB" value="@PostUser"/>
+                            </form>
+                        }
+                    } 
+                    <small>&mdash; @cheep.TimeStamp <br/></small>
+                    
                     @cheep.Message
-                    <small>&mdash; @cheep.TimeStamp</small>
                 </p>
             </li>
         }
@@ -20,4 +41,5 @@
 else
 {
     <em>There are no cheeps so far.</em>
+}
 }

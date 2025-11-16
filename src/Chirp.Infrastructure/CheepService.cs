@@ -38,4 +38,14 @@ public class CheepService : ICheepService
         DateTime date = DateTime.Now;
         await cheepRepository.CreateCheep(author, message, new DateTime(date.Year, date.Month, date.Day, date.Hour, date.Minute, date.Second));
     }
+
+    public async Task<bool> IsFollowing(Author authorA, Author authorB)
+    {
+        return await cheepRepository.IsFollowing(authorA, authorB);
+    }
+
+    public async Task Follow(Author authorA, Author authorB)
+    {
+        await cheepRepository.Follow(authorA, authorB);
+    }
 }

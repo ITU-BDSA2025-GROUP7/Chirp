@@ -209,7 +209,7 @@ public class CheepRepositoryTest
     }
 
     [Fact]
-    public async Task authorReusingEmailTest()
+    public async Task AuthorReusingEmailTest()
     {
         string name1, name2, email;
         name1 = "Barton Cooper";
@@ -220,7 +220,7 @@ public class CheepRepositoryTest
     }
 
     [Fact]
-    public async Task authorSameNameTest()
+    public async Task AuthorSameNameTest()
     {
         const string name = "Barton Cooper";
         string username = name.Replace(" ", "");
@@ -235,14 +235,14 @@ public class CheepRepositoryTest
     }
 
     [Fact]
-    public async Task noKnownAuthorTest()
+    public async Task NoKnownAuthorTest()
     {
         List<Author> authorsFound = await _cheepRepository.GetAuthor("ThisNameorEmailDoesNotExist");
         Assert.Empty(authorsFound);
     }
 
     [Fact]
-    public async Task authorBlankName()
+    public async Task AuthorBlankName()
     {
         string name, email;
         name = "";
@@ -349,7 +349,7 @@ public class CheepRepositoryTest
      * than the allowed limit, and which contains an attempt at SQL injecting.
      */
     [Fact]
-    public async Task CreateTooLongSQLInjectionCheepTest()
+    public async Task CreateTooLongSqlInjectionCheepTest()
     {
         List<Author> authors = await _cheepRepository.GetAuthor("WendellBallan");
         Assert.NotEmpty(authors);
@@ -371,7 +371,7 @@ public class CheepRepositoryTest
     }
 
     [Fact]
-    public async Task attemptToFollowSelf()
+    public async Task AttemptToFollowSelf()
     {
         //arrange
         const string name = "Barton Cooper";
@@ -387,7 +387,7 @@ public class CheepRepositoryTest
     }
 
     [Fact]
-    public async Task attemptToFollowSomeone()
+    public async Task AttemptToFollowSomeone()
     {
         //arrange
         const string name = "Barton Cooper";
@@ -405,7 +405,7 @@ public class CheepRepositoryTest
     }
 
     [Fact]
-    public async Task attemptToFollowSomeoneAlreadyFollowed()
+    public async Task AttemptToFollowSomeoneAlreadyFollowed()
     {
         //arrange
         const string name = "Barton Cooper";
@@ -425,7 +425,7 @@ public class CheepRepositoryTest
     }
 
     [Fact]
-    public async Task attemptToUnfollowSomeoneFollowed()
+    public async Task AttemptToUnfollowSomeoneFollowed()
     {
         //arrange
         const string name = "Barton Cooper";
@@ -444,7 +444,7 @@ public class CheepRepositoryTest
     }
 
     [Fact]
-    public async Task attemptToUnfollowSomeoneNotFollowed()
+    public async Task AttemptToUnfollowSomeoneNotFollowed()
     {
         //arrange
         const string name = "Barton Cooper";
@@ -462,7 +462,7 @@ public class CheepRepositoryTest
     }
 
     [Fact]
-    public async Task followNull()
+    public async Task FollowNull()
     {
         //arrange
         const string name = "Barton Cooper";
@@ -478,7 +478,7 @@ public class CheepRepositoryTest
         Assert.Empty(await _cheepRepository.GetFollowRelations(barton));
     }
     [Fact]
-    public async Task followAuthorNotInDBContext()
+    public async Task FollowAuthorNotInDbContext()
     {
         //arrange
         const string name = "Barton Cooper";
@@ -492,5 +492,37 @@ public class CheepRepositoryTest
         _ = _cheepRepository.Follow(barton, myAuthor);
         //assert
         Assert.Empty(await _cheepRepository.GetFollowRelations(barton));
+    }
+
+    /**
+     * Test whether Isfollowing behaves as intended 
+     */
+    [Fact]
+    public async Task FollowTest()
+    {
+        //arrange
+        const string nameA = "Barton Cooper";
+        string usernameA = nameA.Replace(" ", "");
+        const string emailA = "TheCakeMaster@copper.com";
+        await _cheepRepository.CreateAuthor(nameA, emailA);
+        Author authorA= (await _cheepRepository.GetAuthor(usernameA)).First();
+        const string nameB = "Abba Booper";
+        string usernameB = nameB.Replace(" ", "");
+        const string emailB = "Abba@Booper.com";
+        await _cheepRepository.CreateAuthor(nameB, emailB);
+        Author authorB = (await _cheepRepository.GetAuthor(usernameB)).First();
+        
+        // act
+        var AFollowBBefore = await _cheepRepository.IsFollowing(authorA,authorB);
+        var BFollowABefore = await _cheepRepository.IsFollowing(authorB,authorA);
+        await _cheepRepository.Follow(authorA, authorB); 
+        var AFollowBAfter = await _cheepRepository.IsFollowing(authorA,authorB);
+        var BFollowAAfter = await _cheepRepository.IsFollowing(authorB,authorA);
+        
+        // Assert
+        Assert.False(AFollowBBefore);
+        Assert.False(BFollowABefore);
+        Assert.True(AFollowBAfter);
+        Assert.False(BFollowAAfter);
     }
 }

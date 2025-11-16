@@ -1,3 +1,4 @@
+using Chirp.Core.Domain_Model;
 using Chirp.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 
@@ -15,5 +16,18 @@ public class PublicModel : CheepTimelineModel
 
         Cheeps = await _service.GetCheeps(pageNr);
         return Page();
+    }
+    
+    public async Task<bool> IsFollowing(Author authorA, Author authorB)
+    {
+        return await _service.IsFollowing(authorA, authorB);
+    }
+
+    public async Task<IActionResult> OnPostFollowAsync(Author authorA, Author authorB)
+    {
+        _service.Follow(authorA, authorB);
+        Console.WriteLine("This funtction does something");
+
+        return RedirectToPage();
     }
 }
