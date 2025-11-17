@@ -35,6 +35,45 @@ public class CheepRepository : ICheepRepository {
         return await query.ToListAsync();
     }
 
+    /** Returns the 32 cheeps on a given page number which either belong to the input author,
+     * or to one of the authors followed by the input author.
+     */
+    public async Task<List<CheepDTO>> GetOwnAndFollowedCheeps(string username, int pageNr = 1) {
+        // Queried separately to avoid performing outer joins, which can be... messy with LINQ.
+        // We only actually take the first
+        List<Cheep> followedCheeps = await QueryCheepsFromFollowedAuthors(username)
+                                          .Take(32 * pageNr)
+                                          .ToListAsync();
+        List<Cheep> ownCheeps = await QueryCheepsFromAuthor(username)
+                                     .Take(32 * pageNr)
+                                     .ToListAsync();
+        followedCheeps.AddRange(ownCheeps);
+        followedCheeps.Sort();
+        return followedCheeps[..32]
+              .Select(cheep => new CheepDTO(
+                          cheep.Author.DisplayName,
+                          cheep.Text,
+                          cheep.TimeStamp.ToString(),
+                          cheep.Author.UserName))
+              .ToList();
+    }
+
+    private IQueryable<Cheep> QueryCheepsFromFollowedAuthors(string username) {
+        return (from cheep in _dbContext.Cheeps
+                join followed in _dbContext.FollowRelations
+                    on cheep.Author.UserName equals followed.Follower.UserName
+                where cheep.Author.UserName == username
+                orderby cheep.TimeStamp descending
+                select cheep);
+    }
+
+    private IQueryable<Cheep> QueryCheepsFromAuthor(string username) {
+        return (from cheep in _dbContext.Cheeps
+                where cheep.Author.UserName == username
+                orderby cheep.TimeStamp descending
+                select cheep);
+    }
+
     public async Task CreateAuthor(string name, string email) {
         var author = Author.Create(name, email);
         await _dbContext.Authors.AddAsync(author);
