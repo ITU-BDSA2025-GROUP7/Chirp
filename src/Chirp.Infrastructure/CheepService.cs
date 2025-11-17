@@ -44,7 +44,7 @@ public class CheepService : ICheepService
         return await cheepRepository.IsFollowing(authorA, authorB);
     }
 
-    public async Task Follow(Author authorA, Author authorB)
+    public async Task Follow(string authorA, string authorB)
     {
         await cheepRepository.Follow(authorA, authorB);
     }

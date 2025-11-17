@@ -35,6 +35,11 @@ public interface ICheepRepository
      * Creates a follow relation, and adds a reference of the followed to follower
      */
     public Task Follow(Author follower, Author followed);
+    
+    /**
+     * Creates a follow relation, and adds a reference of the followed to follower
+     */
+    public Task Follow(string follower, string followed);
     /**
      * Deletes a follow relation
      */

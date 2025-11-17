@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using Chirp.Core;
+using Chirp.Core.Domain_Model;
 using Chirp.Infrastructure;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Primitives;
@@ -13,6 +14,7 @@ namespace Chirp.Web;
 public abstract class CheepTimelineModel : PageModel
 {
     protected readonly ICheepService _service;
+    private ICheepRepository _repository;
     public List<CheepDTO> Cheeps { get; set; } = new();
 
     [BindProperty]
@@ -45,5 +47,18 @@ public abstract class CheepTimelineModel : PageModel
     {
         _ = _service.CreateCheep((await _service.GetAuthorByUserName(User.Identity!.Name!)).First(), Text);
         Response.Redirect(Request.GetDisplayUrl());
+    }
+    
+    public async Task<bool> IsFollowing(Author authorA, Author authorB)
+    {
+        return await _service.IsFollowing(authorA, authorB);
+    }
+
+    public async Task<IActionResult> OnPostFollowAsync(string? authorA, string? authorB)
+    {
+        await _service.Follow(authorA!, authorB!);
+        Console.WriteLine("This funtction does something");
+
+        return RedirectToPage();
     }
 }
