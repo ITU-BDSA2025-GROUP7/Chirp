@@ -1,5 +1,4 @@
 using System.Text;
-using System.Threading.Tasks.Dataflow;
 using Chirp.Core;
 using Chirp.Core.Domain_Model;
 using Chirp.Infrastructure;
@@ -355,14 +354,13 @@ public class CheepRepositoryTest {
     }
 
     [Fact]
-    public async Task attemptToFollowSelf()
-    {
+    public async Task attemptToFollowSelf() {
         //arrange
         const string name = "Barton Cooper";
         string username = name.Replace(" ", "");
         const string email1 = "TheCakeMaster@copper.com";
         await _cheepRepository.CreateAuthor(name, email1);
-        List<Author> authors= await _cheepRepository.GetAuthor("BartonCooper");
+        List<Author> authors = await _cheepRepository.GetAuthor("BartonCooper");
         Author barton = authors.Single();
         //act
         _ = _cheepRepository.Follow(barton, barton);
@@ -371,16 +369,15 @@ public class CheepRepositoryTest {
     }
 
     [Fact]
-    public async Task attemptToFollowSomeone()
-    {
+    public async Task attemptToFollowSomeone() {
         //arrange
         const string name = "Barton Cooper";
         string username = name.Replace(" ", "");
         const string email1 = "TheCakeMaster@copper.com";
         await _cheepRepository.CreateAuthor(name, email1);
-        List<Author> authors1= await _cheepRepository.GetAuthor("WendellBallan");
+        List<Author> authors1 = await _cheepRepository.GetAuthor("WendellBallan");
         Author Wendell = authors1.Single();
-        List<Author> authors2= await _cheepRepository.GetAuthor("BartonCooper");
+        List<Author> authors2 = await _cheepRepository.GetAuthor("BartonCooper");
         Author barton = authors2.Single();
         //act
         _ = _cheepRepository.Follow(barton, Wendell);
@@ -389,36 +386,34 @@ public class CheepRepositoryTest {
     }
 
     [Fact]
-    public async Task attemptToFollowSomeoneAlreadyFollowed()
-    {
+    public async Task attemptToFollowSomeoneAlreadyFollowed() {
         //arrange
         const string name = "Barton Cooper";
         string username = name.Replace(" ", "");
         const string email1 = "TheCakeMaster@copper.com";
         await _cheepRepository.CreateAuthor(name, email1);
-        List<Author> authors1= await _cheepRepository.GetAuthor("WendellBallan");
+        List<Author> authors1 = await _cheepRepository.GetAuthor("WendellBallan");
         Author Wendell = authors1.Single();
-        List<Author> authors2= await _cheepRepository.GetAuthor("BartonCooper");
+        List<Author> authors2 = await _cheepRepository.GetAuthor("BartonCooper");
         Author barton = authors2.Single();
         //act
         _ = _cheepRepository.Follow(barton, Wendell);
         _ = _cheepRepository.Follow(barton, Wendell);
-        List<Author> myList= await _cheepRepository.Following(barton);
+        List<Author> myList = await _cheepRepository.Following(barton);
         //assert
         Assert.Single(myList);
     }
 
     [Fact]
-    public async Task attemptToUnfollowSomeoneFollowed()
-    {
+    public async Task attemptToUnfollowSomeoneFollowed() {
         //arrange
         const string name = "Barton Cooper";
         string username = name.Replace(" ", "");
         const string email1 = "TheCakeMaster@copper.com";
         await _cheepRepository.CreateAuthor(name, email1);
-        List<Author> authors1= await _cheepRepository.GetAuthor("WendellBallan");
+        List<Author> authors1 = await _cheepRepository.GetAuthor("WendellBallan");
         Author Wendell = authors1.Single();
-        List<Author> authors2= await _cheepRepository.GetAuthor("BartonCooper");
+        List<Author> authors2 = await _cheepRepository.GetAuthor("BartonCooper");
         Author barton = authors2.Single();
         //act
         _ = _cheepRepository.Follow(barton, Wendell);
@@ -428,16 +423,15 @@ public class CheepRepositoryTest {
     }
 
     [Fact]
-    public async Task attemptToUnfollowSomeoneNotFollowed()
-    {
+    public async Task attemptToUnfollowSomeoneNotFollowed() {
         //arrange
         const string name = "Barton Cooper";
         string username = name.Replace(" ", "");
         const string email1 = "TheCakeMaster@copper.com";
         await _cheepRepository.CreateAuthor(name, email1);
-        List<Author> authors1= await _cheepRepository.GetAuthor("WendellBallan");
+        List<Author> authors1 = await _cheepRepository.GetAuthor("WendellBallan");
         Author Wendell = authors1.Single();
-        List<Author> authors2= await _cheepRepository.GetAuthor("BartonCooper");
+        List<Author> authors2 = await _cheepRepository.GetAuthor("BartonCooper");
         Author barton = authors2.Single();
         //act
         _ = _cheepRepository.Unfollow(barton, Wendell);
@@ -446,14 +440,13 @@ public class CheepRepositoryTest {
     }
 
     [Fact]
-    public async Task followNull()
-    {
+    public async Task followNull() {
         //arrange
         const string name = "Barton Cooper";
         string username = name.Replace(" ", "");
         const string email1 = "TheCakeMaster@copper.com";
         await _cheepRepository.CreateAuthor(name, email1);
-        List<Author> authors2= await _cheepRepository.GetAuthor("BartonCooper");
+        List<Author> authors2 = await _cheepRepository.GetAuthor("BartonCooper");
         Author barton = authors2.Single();
         Author? Wendell = null;
         //act
@@ -461,15 +454,15 @@ public class CheepRepositoryTest {
         //assert
         Assert.Empty(await _cheepRepository.GetFollowRelations(barton));
     }
+
     [Fact]
-    public async Task followAuthorNotInDBContext()
-    {
+    public async Task followAuthorNotInDBContext() {
         //arrange
         const string name = "Barton Cooper";
         string username = name.Replace(" ", "");
         const string email1 = "TheCakeMaster@copper.com";
         await _cheepRepository.CreateAuthor(name, email1);
-        List<Author> authors2= await _cheepRepository.GetAuthor("BartonCooper");
+        List<Author> authors2 = await _cheepRepository.GetAuthor("BartonCooper");
         Author barton = authors2.Single();
         Author myAuthor = Author.Create("Bartoon2", "batman@gmail.com");
         //act
