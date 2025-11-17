@@ -129,7 +129,7 @@ namespace Chirp.Web.Areas.Identity.Pages.Account {
                                                               bypassTwoFactor: true);
             if (result.Succeeded) {
                 _logger.LogWarning("{Name} logged in with {LoginProvider} provider.",
-                                       info.Principal.Identity?.Name, info.LoginProvider);
+                                   info.Principal.Identity?.Name, info.LoginProvider);
                 return LocalRedirect(returnUrl);
             }
 
@@ -177,7 +177,7 @@ namespace Chirp.Web.Areas.Identity.Pages.Account {
                     result = await _userManager.AddLoginAsync(user, info);
                     if (result.Succeeded) {
                         _logger.LogWarning("User created an account using {Name} provider.",
-                                               info.LoginProvider);
+                                           info.LoginProvider);
 
                         string userId = await _userManager.GetUserIdAsync(user);
                         string code = await _userManager.GenerateEmailConfirmationTokenAsync(user);

@@ -10,6 +10,7 @@ public class Cheep {
 
     [MaxLength(MAX_TEXT_LENGTH)]
     public string Text { get; set; } = "";
+
     public DateTime TimeStamp { get; set; }
     public required Author Author { get; set; }
 }

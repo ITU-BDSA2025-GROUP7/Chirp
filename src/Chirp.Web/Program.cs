@@ -11,10 +11,10 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
 
 string environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "";
-var config = new ConfigurationBuilder()
-    .AddJsonFile("appsettings.Web.json")
-    .AddJsonFile($"appsettings.Web.{environment}.json", optional: true)
-    .Build();
+IConfigurationRoot config = new ConfigurationBuilder()
+                           .AddJsonFile("appsettings.Web.json")
+                           .AddJsonFile($"appsettings.Web.{environment}.json", optional: true)
+                           .Build();
 
 // use in memory database for testing
 if (environment.Equals("Development")) {
@@ -35,25 +35,25 @@ builder.Services.AddDefaultIdentity<Author>(options => {
         })
        .AddEntityFrameworkStores<ChirpDBContext>();
 builder.Services.AddAuthentication(options => {
-    options.DefaultScheme = IdentityConstants.ApplicationScheme;
-    options.DefaultAuthenticateScheme = IdentityConstants.ApplicationScheme;
-    options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
-    options.DefaultChallengeScheme = "GitHub";
-})
-.AddCookie(o => {
-    o.LoginPath = "/Identity/Account/Login";
-    o.LogoutPath = "/Identity/Account/Logout";
-})
-.AddGitHub(o => {
-    o.ClientId = builder.Configuration["authenticationGitHubClientId"]
-              ?? throw new InvalidOperationException();
-    o.ClientSecret = builder.Configuration["authenticationGitHubClientSecret"]
-                  ?? throw new InvalidOperationException();
-    o.Scope.Add("user:email");
-});
+            options.DefaultScheme = IdentityConstants.ApplicationScheme;
+            options.DefaultAuthenticateScheme = IdentityConstants.ApplicationScheme;
+            options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
+            options.DefaultChallengeScheme = "GitHub";
+        })
+       .AddCookie(o => {
+            o.LoginPath = "/Identity/Account/Login";
+            o.LogoutPath = "/Identity/Account/Logout";
+        })
+       .AddGitHub(o => {
+            o.ClientId = builder.Configuration["authenticationGitHubClientId"]
+                      ?? throw new InvalidOperationException();
+            o.ClientSecret = builder.Configuration["authenticationGitHubClientSecret"]
+                          ?? throw new InvalidOperationException();
+            o.Scope.Add("user:email");
+        });
 builder.Services.AddSession();
 
-var app = builder.Build();
+WebApplication app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment()) {

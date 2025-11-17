@@ -119,13 +119,14 @@ namespace Chirp.Web.Areas.Identity.Pages.Account {
 
             if (result.RequiresTwoFactor) {
                 return RedirectToPage("./LoginWith2fa",
-                    new { ReturnUrl = returnUrl, RememberMe = Input.RememberMe });
+                                      new { ReturnUrl = returnUrl, RememberMe = Input.RememberMe });
             }
 
             if (result.IsLockedOut) {
                 _logger.LogWarning("User account locked out.");
                 return RedirectToPage("./Lockout");
             }
+
             // If we got this far, something failed, redisplay form
             ModelState.AddModelError(string.Empty, "Invalid login attempt.");
             return Page();
