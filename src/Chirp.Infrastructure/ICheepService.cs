@@ -12,4 +12,6 @@ public interface ICheepService
     public Task<bool> IsFollowing(Author authorA, Author authorB);
     
     public Task Follow(string authorA, string authorB);
+    
+    public Task Unfollow(string authorA, string authorB);
 }

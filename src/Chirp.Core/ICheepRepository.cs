@@ -44,6 +44,11 @@ public interface ICheepRepository
      * Deletes a follow relation
      */
     public Task Unfollow(Author follower, Author followed);
+    
+    /**
+     * Creates a follow relation, and adds a reference of the followed to follower
+     */
+    public Task Unfollow(string follower, string followed);
 
     /**
      * returns all FollowRelations where `author` is follower

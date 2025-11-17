@@ -93,24 +93,20 @@ public class CheepRepository :  ICheepRepository
 
     public async Task Follow(Author follower, Author followed)
     {
-        Console.WriteLine("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! WE ARE HERE");
-        
         if (await ValidifyfollowRelationAsync(follower, followed))
         {
             return;
         }
-        
-        Console.WriteLine("!!!!!!!!!!!! WE ARE HERE 2");
         FollowRelation newFollowRelation = new FollowRelation() { Follower = follower, Followed = followed };
         await _dbContext.AddAsync(newFollowRelation);
-        _dbContext.SaveChanges();
+        await _dbContext.SaveChangesAsync();
     }
 
     public async Task Follow(String follower, String followed)
     {
-       Author followerAuthor = (await GetAuthorByUserName(follower)).First();
-       Author followedAuthor = (await GetAuthorByUserName(followed)).First();
-       Follow(followerAuthor, followedAuthor);
+        Author followerAuthor = (await GetAuthorByUserName(follower)).First();
+        Author followedAuthor = (await GetAuthorByUserName(followed)).First();
+        await Follow(followerAuthor, followedAuthor);
     }
 
     public async Task Unfollow(Author followerToDelete, Author followedToDelete)
@@ -123,7 +119,14 @@ public class CheepRepository :  ICheepRepository
             return;
         }
         _dbContext.FollowRelations.Remove(followRelationToDelete);
-        _dbContext.SaveChanges();
+        await _dbContext.SaveChangesAsync();
+    }
+
+    public async Task Unfollow(string follower, string followed)
+    {
+        Author followerAuthor = (await GetAuthorByUserName(follower)).First();
+        Author followedAuthor = (await GetAuthorByUserName(followed)).First();
+        await Unfollow(followerAuthor,followedAuthor);
     }
     /**
      * Returns true if breaks rules

@@ -14,7 +14,6 @@ namespace Chirp.Web;
 public abstract class CheepTimelineModel : PageModel
 {
     protected readonly ICheepService _service;
-    private ICheepRepository _repository;
     public List<CheepDTO> Cheeps { get; set; } = new();
 
     [BindProperty]
@@ -57,8 +56,12 @@ public abstract class CheepTimelineModel : PageModel
     public async Task<IActionResult> OnPostFollowAsync(string? authorA, string? authorB)
     {
         await _service.Follow(authorA!, authorB!);
-        Console.WriteLine("This funtction does something");
+        return RedirectToPage();
+    }
 
+    public async Task<IActionResult> OnPostUnfollowAsync(string? authorA, string? authorB)
+    {
+        await _service.Unfollow(authorA!, authorB!);
         return RedirectToPage();
     }
 }
