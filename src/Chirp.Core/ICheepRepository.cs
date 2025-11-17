@@ -28,6 +28,8 @@ public interface ICheepRepository {
      */
     public Task<List<CheepDTO>> GetCheepsFromUserName(string username, int pageNr);
 
+    public Task<List<CheepDTO>> GetOwnAndFollowedCheeps(string username, int pageNr = 1);
+
     public Task CreateAuthor(string name, string email);
 
     public Task CreateCheep(Author author, string message, DateTime timestamp);

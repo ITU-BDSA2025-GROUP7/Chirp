@@ -8,6 +8,8 @@ namespace Chirp.Web.Pages;
 public class UserTimelineModel : CheepTimelineModel {
     private const string NO_USER_HEADER = "User not found";
     private readonly UserManager<Author> _userManager;
+    private readonly SignInManager<Author> _signInManager;
+
     public Author? Author { get; set; }
     public string Header { get; set; } = NO_USER_HEADER;
 
@@ -25,7 +27,13 @@ public class UserTimelineModel : CheepTimelineModel {
             int pageNr = getPageNr(Request);
             Console.WriteLine("pageQuery: " + pageNr + " author: " + author);
             Header = FormatPageHeader(Author);
-            Cheeps = await _service.GetCheepsFromUserName(author, pageNr);
+
+            if (_signInManager.IsSignedIn(User)
+             && Author == await _userManager.GetUserAsync(User)) {
+                Cheeps = await _service.GetOwnAndFollowedCheeps(author, pageNr);
+            } else {
+                Cheeps = await _service.GetCheepsFromUserName(author, pageNr);
+            }
         }
 
         return Page();
