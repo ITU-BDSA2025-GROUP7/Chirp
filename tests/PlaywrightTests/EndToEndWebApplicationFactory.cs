@@ -4,10 +4,17 @@ using Microsoft.AspNetCore.Mvc.Testing;
 
 namespace PlaywrightTests;
 
-public class EndToEndWebApplicationFactory : WebApplicationFactory<Program> {
+/**
+ * Custom WebApplicationFactory that alowes for starting the program within a test.
+ * Look at PlayWrightTests.cs for how to use it
+ */
+public class EndToEndWebApplicationFactory : WebApplicationFactory<Program>
+{
+
     private IHost? _host;
 
-    protected override IHost CreateHost(IHostBuilder builder) {
+    protected override IHost CreateHost(IHostBuilder builder)
+    {
         // Create the host for TestServer now before we
         // modify the builder to use Kestrel instead.
         var testHost = builder.Build();
@@ -35,8 +42,8 @@ public class EndToEndWebApplicationFactory : WebApplicationFactory<Program> {
         var addresses = server.Features.Get<IServerAddressesFeature>();
 
         ClientOptions.BaseAddress = addresses!.Addresses
-                                              .Select(x => new Uri(x))
-                                              .Last();
+            .Select(x => new Uri(x))
+            .Last();
 
         // Return the host that uses TestServer, rather than the real one.
         // Otherwise the internals will complain about the host's server
@@ -47,15 +54,19 @@ public class EndToEndWebApplicationFactory : WebApplicationFactory<Program> {
         return testHost;
     }
 
-    public string ServerAddress {
-        get {
+    public string ServerAddress
+    {
+        get
+        {
             EnsureServer();
             return ClientOptions.BaseAddress.ToString();
         }
     }
 
-    private void EnsureServer() {
-        if (_host is null) {
+    private void EnsureServer()
+    {
+        if (_host is null)
+        {
             // This forces WebApplicationFactory to bootstrap the server
             using var _ = CreateDefaultClient();
         }
