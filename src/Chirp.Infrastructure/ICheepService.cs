@@ -3,8 +3,7 @@ using Chirp.Core.Domain_Model;
 
 namespace Chirp.Infrastructure;
 
-public interface ICheepService
-{
+public interface ICheepService {
     public Task<List<CheepDTO>> GetCheeps(int pageNr);
     public Task<List<CheepDTO>> GetCheepsFromUserName(string username, int pageNr);
     public Task<List<Author>> GetAuthorByUserName(string username);

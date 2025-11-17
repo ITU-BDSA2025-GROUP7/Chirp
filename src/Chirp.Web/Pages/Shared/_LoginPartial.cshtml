@@ -2,8 +2,7 @@
 @inject SignInManager<Author> SignInManager
 @inject UserManager<Author> UserManager
 
-@if (SignInManager.IsSignedIn(User))
-{
+@if (SignInManager.IsSignedIn(User)) {
     <span>
         <a class="nav-link text-dark" asp-area="Identity"
            asp-page="/Account/Manage/Index" title="Manage">
@@ -20,9 +19,7 @@
             </button>
         </form>
     </span>
-}
-else
-{
+} else {
     <span>
         <a class="nav-link text-dark" asp-area="Identity"
            asp-page="/Account/Register">Register</a> |

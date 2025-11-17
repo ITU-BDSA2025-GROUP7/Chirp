@@ -19,11 +19,10 @@ public class Author : IdentityUser {
      * be able to actually log in as the person in practice.
      */
     public static Author Create(string displayName, string email,
-                  bool emailConfirmed = true,
-                  string? passwordHash = null,
-                  string? concurrencyStamp = null,
-                  string? securityStamp = null)
-    {
+                                bool emailConfirmed = true,
+                                string? passwordHash = null,
+                                string? concurrencyStamp = null,
+                                string? securityStamp = null) {
         string username = displayName.Replace(" ", "");
         return new Author {
             DisplayName = displayName,

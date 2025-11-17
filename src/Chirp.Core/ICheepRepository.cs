@@ -2,8 +2,7 @@ namespace Chirp.Core;
 
 using Domain_Model;
 
-public interface ICheepRepository
-{
+public interface ICheepRepository {
     /**
      * recognizes the string as a name or email and calls the relevant GetAuthor method
      */
@@ -18,6 +17,7 @@ public interface ICheepRepository
      * Function used in GetAuthor if its argument is recognized as a name.
      */
     public Task<List<Author>> GetAuthorByUserName(string username);
+
     /**
      * Gets all cheeps within the given page nr
      */
@@ -31,5 +31,4 @@ public interface ICheepRepository
     public Task CreateAuthor(string name, string email);
 
     public Task CreateCheep(Author author, string message, DateTime timestamp);
-
 }
