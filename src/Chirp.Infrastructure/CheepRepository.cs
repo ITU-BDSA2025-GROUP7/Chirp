@@ -130,8 +130,32 @@ public class CheepRepository :  ICheepRepository
      */
     private async Task<bool> ValidifyfollowRelationAsync(Author follower, Author followed)
     {
-        if (!_dbContext.Authors.Any(author => author == follower)||
-            !_dbContext.Authors.Any(author => author == followed)||
+        if (!_dbContext.Authors.Any(author => author.Id == follower.Id))
+        {
+            Console.WriteLine("follower does not exist?");
+            Console.WriteLine(follower.DisplayName);
+            Console.WriteLine(follower.Id);
+            Console.WriteLine(follower.UserName);
+            Console.WriteLine(follower.Email);
+        }
+
+        if (!_dbContext.Authors.Any(author => author.Id == followed.Id))
+        {
+            Console.WriteLine("followed does not exist?");
+        }
+
+        if (follower.Id == followed.Id)
+        {
+            Console.WriteLine("follower and followed are the same");
+        }
+
+        if ((await Following(follower)).Contains(followed))
+        {
+            Console.WriteLine("follower already follows followed :3");
+        }
+        
+        if (!_dbContext.Authors.Any(author => author.Id == follower.Id)||
+            !_dbContext.Authors.Any(author => author.Id == followed.Id)||
             follower.Id == followed.Id|| 
             (await Following(follower)).Contains(followed)) //checks if follower already follows followed :3
         { 

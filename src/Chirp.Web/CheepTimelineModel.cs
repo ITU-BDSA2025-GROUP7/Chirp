@@ -54,7 +54,7 @@ public abstract class CheepTimelineModel : PageModel
         return await _service.IsFollowing(authorA, authorB);
     }
 
-    public async Task<IActionResult> OnPostFollowAsync(string? authorA, string? authorB)
+    public async Task<IActionResult> OnPostFollowAsync(Author? authorA, Author? authorB)
     {
         await _service.Follow(authorA!, authorB!);
         Console.WriteLine("This funtction does something");
