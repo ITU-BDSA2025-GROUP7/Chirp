@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace Chirp.Razor.Areas.Identity.Pages.Account.Manage {
+namespace Chirp.Web.Areas.Identity.Pages.Account.Manage {
     public class IndexModel : PageModel {
         private readonly UserManager<Author> _userManager;
         private readonly SignInManager<Author> _signInManager;
@@ -48,7 +48,8 @@ namespace Chirp.Razor.Areas.Identity.Pages.Account.Manage {
             [Required]
             [DataType(DataType.Text)]
             [Display(Name = "Display Name")]
-            [StringLength(256, ErrorMessage = "The {0} must be between {2} and {1} characters long.",
+            [StringLength(
+                256, ErrorMessage = "The {0} must be between {2} and {1} characters long.",
                 MinimumLength = 4)]
             public string DisplayName { get; set; }
 
