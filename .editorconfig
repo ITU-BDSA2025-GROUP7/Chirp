@@ -16,6 +16,9 @@ ij_visual_guides = 80, 100
 ij_wrap_on_typing = false
 
 # Microsoft .NET properties
+csharp_new_line_before_catch = false
+csharp_new_line_before_else = false
+csharp_new_line_before_finally = false
 csharp_new_line_before_members_in_object_initializers = false
 csharp_new_line_before_open_brace = none
 csharp_preferred_modifier_order = public, private, protected, internal, file, new, static, abstract, virtual, sealed, readonly, override, extern, unsafe, volatile, async, required:suggestion
@@ -34,32 +37,53 @@ dotnet_style_qualification_for_property = false:suggestion
 dotnet_style_require_accessibility_modifiers = for_non_interface_members:suggestion
 
 # ReSharper properties
+resharper_align_linq_query = true
 resharper_align_multiline_argument = true
 resharper_align_multiline_calls_chain = true
 resharper_align_multiline_extends_list = true
 resharper_align_multiline_parameter = true
+resharper_align_multiline_type_parameter_constraints = true
+resharper_align_multiline_type_parameter_list = true
 resharper_align_multiple_declaration = true
+resharper_align_tuple_components = true
 resharper_autodetect_indent_settings = true
+resharper_braces_for_dowhile = required_for_multiline
+resharper_braces_for_for = required_for_multiline
+resharper_braces_for_foreach = required_for_multiline
+resharper_braces_for_while = required_for_multiline
 resharper_cpp_insert_final_newline = true
-resharper_csharp_align_multiline_argument = false
-resharper_csharp_align_multiline_calls_chain = false
-resharper_csharp_align_multiline_extends_list = false
-resharper_csharp_align_multiline_parameter = false
-resharper_csharp_align_multiple_declaration = false
+resharper_csharp_align_multiline_argument = true
+resharper_csharp_align_multiline_calls_chain = true
+resharper_csharp_align_multiline_extends_list = true
+resharper_csharp_align_multiline_parameter = true
+resharper_csharp_align_multiple_declaration = true
+resharper_csharp_allow_comment_after_lbrace = true
+resharper_csharp_empty_block_style = together
+resharper_csharp_int_align_comments = true
 resharper_csharp_max_line_length = 100
+resharper_csharp_outdent_dots = true
+resharper_default_value_when_type_not_evident = default_expression
+resharper_force_attribute_style = join
 resharper_formatter_off_tag = @formatter:off
 resharper_formatter_on_tag = @formatter:on
 resharper_formatter_tags_enabled = true
-resharper_for_built_in_types = use_var_when_evident
-resharper_place_accessorholder_attribute_on_same_line = false
-resharper_place_accessor_attribute_on_same_line = false
-resharper_place_field_attribute_on_same_line = false
+resharper_for_built_in_types = use_explicit_type
+resharper_int_align_nested_ternary = true
+resharper_int_align_property_patterns = true
+resharper_int_align_switch_expressions = true
+resharper_int_align_switch_sections = true
+resharper_max_primary_constructor_parameters_on_line = 4
+resharper_outdent_binary_ops = true
 resharper_space_before_self_closing = false
 resharper_use_indent_from_vs = false
+resharper_wrap_after_primary_constructor_declaration_lpar = false
+resharper_xmldoc_attribute_indent = align_by_first_attribute
+resharper_xmldoc_indent_size = 2
 resharper_xmldoc_max_line_length = 100
-resharper_xmldoc_space_before_self_closing = true
+resharper_xmldoc_space_before_self_closing = false
+resharper_xmldoc_tab_width = 2
 resharper_xml_max_line_length = 100
-resharper_xml_space_before_self_closing = true
+resharper_xml_space_before_self_closing = false
 
 # ReSharper inspection severities
 resharper_arrange_redundant_parentheses_highlighting = hint
@@ -68,7 +92,8 @@ resharper_arrange_type_member_modifiers_highlighting = hint
 resharper_arrange_type_modifiers_highlighting = hint
 resharper_built_in_type_reference_style_for_member_access_highlighting = hint
 resharper_built_in_type_reference_style_highlighting = hint
-resharper_merge_into_pattern_highlighting = hint
+resharper_convert_if_statement_to_conditional_ternary_expression_highlighting = none
+resharper_inline_out_variable_declaration_highlighting = none
 resharper_mvc_action_not_resolved_highlighting = warning
 resharper_mvc_area_not_resolved_highlighting = warning
 resharper_mvc_controller_not_resolved_highlighting = warning
@@ -88,9 +113,6 @@ resharper_web_config_type_not_resolved_highlighting = warning
 resharper_web_config_wrong_module_highlighting = warning
 
 [*.cs]
-ij_visual_guides =
-
-[*.cshtml]
 ij_visual_guides =
 
 [*.css]
@@ -416,8 +438,3 @@ ij_yaml_space_before_colon = false
 ij_yaml_spaces_within_braces = true
 ij_yaml_spaces_within_brackets = true
 indent_style = space
-
-[*.{appxmanifest,asax,ascx,aspx,axaml,blockshader,c,c++,c++m,cc,ccm,cginc,compute,cp,cpp,cppm,cs,cshtml,cu,cuh,cxx,cxxm,dtd,fs,fsi,fsscript,fsx,fx,fxh,h,h++,hh,hlsl,hlsli,hlslinc,hp,hpp,hxx,icc,inc,inl,ino,ipp,ixx,master,ml,mli,mpp,mq4,mq5,mqh,mxx,nuspec,paml,razor,resw,resx,shader,shaderFoundry,skin,tcc,tpp,urtshader,usf,ush,uxml,vb,xaml,xamlx,xoml,xsd}]
-indent_style = space
-indent_size = 4
-tab_width = 4
