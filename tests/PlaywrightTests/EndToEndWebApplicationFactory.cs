@@ -5,7 +5,8 @@ using Microsoft.AspNetCore.Mvc.Testing;
 namespace PlaywrightTests;
 
 /**
- * 
+ * Custom WebApplicationFactory that alowes for starting the program within a test.
+ * Look at PlayWrightTests.cs for how to use it
  */
 public class EndToEndWebApplicationFactory : WebApplicationFactory<Program>
 {
