@@ -63,12 +63,14 @@ public class CheepRepository : ICheepRepository {
                                      .ToListAsync();
         followedCheeps.AddRange(ownCheeps);
         followedCheeps.Sort();
-        return followedCheeps[..CHEEPS_PER_PAGE]
+        return followedCheeps
               .Select(cheep => new CheepDTO(
                           cheep.Author.DisplayName,
                           cheep.Text,
                           cheep.TimeStamp.ToString(),
                           cheep.Author.UserName))
+              .Skip((pageNr - 1) * CHEEPS_PER_PAGE)
+              .Take(CHEEPS_PER_PAGE)
               .ToList();
     }
 
