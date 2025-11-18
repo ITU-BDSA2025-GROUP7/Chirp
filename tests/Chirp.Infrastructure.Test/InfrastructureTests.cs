@@ -1,15 +1,19 @@
 ﻿using Chirp.Core;
 using Chirp.Core.Domain_Model;
+using static Chirp.Core.ICheepRepository;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Chirp.Infrastructure.Test;
 
 public class InfrastructureTests {
+    private readonly ITestOutputHelper _testOutputHelper;
     private readonly ICheepRepository _repo;
 
-    public InfrastructureTests() {
+    public InfrastructureTests(ITestOutputHelper testOutputHelper) {
+        _testOutputHelper = testOutputHelper;
         var connection = new SqliteConnection("DataSource=:memory:");
         connection.Open();
         DbContextOptions<ChirpDBContext> options = new DbContextOptionsBuilder<ChirpDBContext>()
@@ -33,10 +37,7 @@ public class InfrastructureTests {
         List<Author> followed = await _repo.Following(user);
         Assert.Empty(followed);
 
-        string? username = user.UserName;
-        Assert.NotNull(username);
-
-        List<CheepDTO> cheeps = await _repo.GetOwnAndFollowedCheeps(username);
+        List<CheepDTO> cheeps = await _repo.GetOwnAndFollowedCheeps(user);
         Assert.Empty(cheeps);
     }
 
@@ -54,10 +55,7 @@ public class InfrastructureTests {
 
         await _repo.CreateCheep(user, "Test message", DateTime.Now);
 
-        string? username = user.UserName;
-        Assert.NotNull(username);
-
-        List<CheepDTO> cheeps = await _repo.GetOwnAndFollowedCheeps(username);
+        List<CheepDTO> cheeps = await _repo.GetOwnAndFollowedCheeps(user);
         Assert.Single(cheeps);
     }
 
@@ -90,8 +88,9 @@ public class InfrastructureTests {
         Assert.Equal(toFollow, following.Single());
 
         // Assert that the list of cheeps is exactly equal to the list of cheeps from the one follower.
-        List<CheepDTO> cheeps = await _repo.GetOwnAndFollowedCheeps(user.UserName);
-        Assert.Equal(cheepsFromFollowed, cheeps);
+        List<CheepDTO> timelineCheeps = await _repo.GetOwnAndFollowedCheeps(user, 1);
+        Assert.NotEmpty(timelineCheeps);
+        Assert.Equal(cheepsFromFollowed, timelineCheeps);
     }
 
     /** Asserts that, if an author has no cheeps but follows several authors,
@@ -102,37 +101,47 @@ public class InfrastructureTests {
     public async Task PrivateTimelineNoOwnCheepsMultipleFollowedAuthors() {
         // Create a new user account, and ensure it now exists.
         await _repo.CreateAuthor("Ms Mute", "mad@test.dk");
-        List<Author> users = await _repo.GetAuthor("mad@test.dk");
-        Author user = users.Single();
-        Assert.NotNull(user.UserName); // Remove subsequent nullability warnings
+        Author user = (await _repo.GetAuthor("mad@test.dk")).Single();
 
-        // Ensure newly-created authors have no cheeps or followers
-        Assert.Empty(await _repo.GetCheepsFromUserName(user.UserName, 1));
-        Assert.Empty(await _repo.Following(user));
-
-        List<string> authors = [
+        // Follow these three authors in the seeded database
+        List<string> emails = [
             "Jacqualine.Gilcoine@gmail.com",
             "Roger+Histand@hotmail.com",
             "Luanna-Muro@ku.dk",
         ];
         List<CheepDTO> cheepsFromFollowed = [];
-        foreach (string email in authors) {
-            List<Author> toBeFollowed = await _repo.GetAuthor(email);
-            Author author = toBeFollowed.Single();
+        foreach (string email in emails) {
+            Author author = (await _repo.GetAuthor(email)).Single();
             await _repo.Follow(user, author);
-            List<CheepDTO> cheepsFromNewlyFollowedPerson =
-                await _repo.GetAllCheepsFromUserName(author.UserName!);
-            cheepsFromFollowed.AddRange(cheepsFromNewlyFollowedPerson);
+            cheepsFromFollowed.AddRange(await _repo.GetAllCheepsFromUserName(author.UserName!));
         }
 
-        cheepsFromFollowed.Sort((a, b) => DateTime.Compare(DateTime.Parse(a.TimeStamp),
-                                                           DateTime.Parse(b.TimeStamp)));
+        // Sort the combined list of cheeps from followers so that they are mixed together and
+        // ordered by timestamp (CheepDTO implements IComparable<CheepDTO>).
+        cheepsFromFollowed.Sort();
 
         // Assert that the list of cheeps is exactly equal to the list of cheeps from the followers.
-        for (int i = 0; i < cheepsFromFollowed.Count; i += ICheepRepository.CHEEPS_PER_PAGE) {
-            List<CheepDTO> cheeps = await _repo.GetOwnAndFollowedCheeps(user.UserName);
-            Assert.Equal(cheepsFromFollowed, cheeps);
+        // Does so by comparing 32-cheep subsections of the former to pages retrieved of the latter.
+        // Make sure there's a point to the loop.
+        Assert.True(cheepsFromFollowed.Count > CHEEPS_PER_PAGE);
+        _testOutputHelper.WriteLine(cheepsFromFollowed.Count.ToString());
+        int timelineCheepCount = 0;
+
+        int totalPages = cheepsFromFollowed.Count / CHEEPS_PER_PAGE;
+        if (cheepsFromFollowed.Count % CHEEPS_PER_PAGE != 0) {
+            timelineCheepCount++;
         }
+
+        for (int i = 0; i < totalPages; i++) {
+            List<CheepDTO> cheeps = await _repo.GetOwnAndFollowedCheeps(user, i + 1);
+            timelineCheepCount += cheeps.Count;
+            int lowerBound = i * CHEEPS_PER_PAGE;
+            int upperBound = lowerBound + cheeps.Count;
+            Assert.Equal(cheepsFromFollowed[lowerBound..upperBound], cheeps);
+        }
+
+        // Mostly to feel a little more confident that above loop works correctly.
+        Assert.Equal(cheepsFromFollowed.Count, timelineCheepCount);
     }
 
     [Fact]

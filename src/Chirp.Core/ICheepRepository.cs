@@ -33,7 +33,7 @@ public interface ICheepRepository {
 
     public Task<List<CheepDTO>> GetAllCheepsFromUserName(string username);
 
-    public Task<List<CheepDTO>> GetOwnAndFollowedCheeps(string username, int pageNr = 1);
+    public Task<List<CheepDTO>> GetOwnAndFollowedCheeps(Author author, int pageNr = 1);
 
     public Task CreateAuthor(string name, string email);
 
