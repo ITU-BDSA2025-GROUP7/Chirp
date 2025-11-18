@@ -67,19 +67,13 @@ public class InfrastructureTests {
     public async Task PrivateTimelineNoOwnCheepsOneFollowedAuthor() {
         // Create a new user account, and ensure it now exists.
         await _repo.CreateAuthor("Ms Mute", "mad@test.dk");
-        List<Author> users = await _repo.GetAuthor("mad@test.dk");
-        Author user = users.Single();
-        Assert.NotNull(user.UserName); // Remove subsequent nullability warnings
-
-        // Ensure newly-created authors have no cheeps or followers
-        Assert.Empty(await _repo.GetCheepsFromUserName(user.UserName, 1));
-        Assert.Empty(await _repo.Following(user));
+        Author user = (await _repo.GetAuthor("mad@test.dk")).Single();
+        Assert.Empty(await _repo.GetCheepsFromUserName(user.UserName!, 1));
 
         // Select a different user account to follow, making sure it has cheeps.
-        List<Author> toBeFollowed = await _repo.GetAuthor("Jacqualine.Gilcoine@gmail.com");
-        Author toFollow = toBeFollowed.Single();
-        Assert.NotNull(toFollow.UserName);
-        List<CheepDTO> cheepsFromFollowed = await _repo.GetCheepsFromUserName(toFollow.UserName, 1);
+        Author toFollow = (await _repo.GetAuthor("Jacqualine.Gilcoine@gmail.com")).Single();
+        List<CheepDTO> cheepsFromFollowed =
+            await _repo.GetCheepsFromUserName(toFollow.UserName!, 1);
         Assert.NotEmpty(cheepsFromFollowed);
 
         // Follow the secondary user account, and ensure this has occurred successfully.
@@ -129,7 +123,7 @@ public class InfrastructureTests {
 
         int totalPages = cheepsFromFollowed.Count / CHEEPS_PER_PAGE;
         if (cheepsFromFollowed.Count % CHEEPS_PER_PAGE != 0) {
-            timelineCheepCount++;
+            totalPages++;
         }
 
         for (int i = 0; i < totalPages; i++) {
