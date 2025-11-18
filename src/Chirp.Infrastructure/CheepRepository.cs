@@ -59,33 +59,31 @@ public class CheepRepository : ICheepRepository {
     }
 
     public async Task<List<CheepDTO>> GetOwnAndFollowedCheeps(Author author, int pageNr = 1) {
-        List<Cheep> cheeps = await QueryCheepsFromAuthor(author.UserName!)
-                                  .Take(CHEEPS_PER_PAGE * pageNr) // Constrains total length a bit
-                                  .ToListAsync();
-        foreach (Author a in await Following(author)) {
-            cheeps.AddRange(await QueryCheepsFromAuthor(a.UserName!)
-                                 .Take(CHEEPS_PER_PAGE * pageNr) // Constrains total length a bit
-                                 .ToListAsync());
-        }
-
+        List<CheepDTO> cheeps = await QueryCheepsFromAuthor(author.UserName!)
+                                     .Select(c => new CheepDTO(
+                                                 c.Author.DisplayName,
+                                                 c.Text,
+                                                 c.TimeStamp.ToString(),
+                                                 c.Author.UserName))
+                                     .ToListAsync();
+        cheeps.AddRange(QueryCheepsFromFollowedAuthors(author.UserName!).ToList());
         cheeps.Sort();
         return cheeps
-              .Select(cheep => new CheepDTO(
-                          cheep.Author.DisplayName,
-                          cheep.Text,
-                          cheep.TimeStamp.ToString(),
-                          cheep.Author.UserName))
               .Pick(pageNr)
               .ToList();
     }
 
-    private IQueryable<Cheep> QueryCheepsFromFollowedAuthors(string username) {
-        return (from cheeps in _dbContext.Cheeps
+    private IQueryable<CheepDTO> QueryCheepsFromFollowedAuthors(string username) {
+        return (from cheep in _dbContext.Cheeps
                 join follow in _dbContext.FollowRelations
-                    on cheeps.Author.UserName equals follow.Followed.UserName
+                    on cheep.Author.UserName equals follow.Followed.UserName
                 where follow.Follower.UserName == username
-                orderby cheeps.TimeStamp descending
-                select cheeps);
+                orderby cheep.TimeStamp descending
+                select new CheepDTO(
+                    cheep.Author.DisplayName,
+                    cheep.Text,
+                    cheep.TimeStamp.ToString(),
+                    cheep.Author.UserName));
     }
 
     private IQueryable<Cheep> QueryCheepsFromAuthor(string username) {
