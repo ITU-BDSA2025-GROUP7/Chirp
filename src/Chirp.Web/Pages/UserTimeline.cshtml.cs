@@ -13,9 +13,12 @@ public class UserTimelineModel : CheepTimelineModel {
     public Author? Author { get; set; }
     public string Header { get; set; } = NO_USER_HEADER;
 
-    public UserTimelineModel(ICheepService service, UserManager<Author> userManager)
+    public UserTimelineModel(ICheepService service,
+                             UserManager<Author> userManager,
+                             SignInManager<Author> signInManager)
         : base(service) {
         _userManager = userManager;
+        _signInManager = signInManager;
     }
 
     public async Task<IActionResult> OnGet([FromRoute] string author) {
