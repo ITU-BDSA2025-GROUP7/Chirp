@@ -451,9 +451,7 @@ public class CheepRepositoryTest {
         Author barton = authors2.Single();
         Author? Wendell = null;
         //act
-#pragma warning disable CS8604 // Possible null reference argument.
         _ = _cheepRepository.Follow(barton, Wendell);
-#pragma warning restore CS8604 // Possible null reference argument.
         //assert
         Assert.Empty(await _cheepRepository.GetFollowRelations(barton));
     }
