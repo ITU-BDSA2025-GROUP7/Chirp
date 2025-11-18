@@ -18,4 +18,8 @@ public class Cheep : IComparable<Cheep> {
         if (other == null) return 1;
         return TimeStamp.CompareTo(other.TimeStamp);
     }
+
+    public override string ToString() {
+        return Author.DisplayName + ": " + Text + '\n';
+    }
 }
