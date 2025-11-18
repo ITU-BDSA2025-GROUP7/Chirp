@@ -36,12 +36,25 @@ public class CheepRepository : ICheepRepository {
         return await query.ToListAsync();
     }
 
-    /** Returns the 32 cheeps on a given page number which either belong to the input author,
+    public async Task<List<CheepDTO>> GetAllCheepsFromUserName(string username) {
+        return await (from cheeps in _dbContext.Cheeps
+                      where cheeps.Author.UserName == username
+                      orderby cheeps.TimeStamp descending
+                      select new CheepDTO(
+                          cheeps.Author.DisplayName,
+                          cheeps.Text,
+                          cheeps.TimeStamp.ToString(),
+                          cheeps.Author.UserName
+                      )
+            )
+           .ToListAsync();
+    }
+
+    /** Returns the <see cref="ICheepRepository.CHEEPS_PER_PAGE"/> cheeps on a given page number which either belong to the input author,
      * or to one of the authors followed by the input author.
      */
     public async Task<List<CheepDTO>> GetOwnAndFollowedCheeps(string username, int pageNr = 1) {
         // Queried separately to avoid performing outer joins, which can be... messy with LINQ.
-        // We only actually take the first
         List<Cheep> followedCheeps = await QueryCheepsFromFollowedAuthors(username)
                                           .Take(CHEEPS_PER_PAGE * pageNr)
                                           .ToListAsync();
