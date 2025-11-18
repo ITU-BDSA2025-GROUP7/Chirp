@@ -111,8 +111,7 @@ public class CheepRepository : ICheepRepository {
         IQueryable<CheepDTO> query = (from cheep in _dbContext.Cheeps
                                       orderby cheep.TimeStamp descending
                                       select cheep)
-                                    .Skip((pageNr - 1) * CHEEPS_PER_PAGE)
-                                    .Take(CHEEPS_PER_PAGE)
+                                    .Pick(pageNr)
                                     .Select(cheep =>
                                                 new CheepDTO(
                                                     cheep.Author.DisplayName,
@@ -128,8 +127,7 @@ public class CheepRepository : ICheepRepository {
                                       where cheep.Author.UserName == username
                                       orderby cheep.TimeStamp descending
                                       select cheep)
-                                    .Skip((pageNr - 1) * CHEEPS_PER_PAGE)
-                                    .Take(CHEEPS_PER_PAGE)
+                                    .Pick(pageNr)
                                     .Select(cheep =>
                                                 new CheepDTO(
                                                     cheep.Author.DisplayName,
