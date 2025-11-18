@@ -3,6 +3,9 @@ namespace Chirp.Core;
 using Domain_Model;
 
 public interface ICheepRepository {
+    /// The number of cheeps to display on each page.
+    const int CHEEPS_PER_PAGE = 32;
+
     /**
      * recognizes the string as a name or email and calls the relevant GetAuthor method
      */

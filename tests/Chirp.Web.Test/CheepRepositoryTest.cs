@@ -1,5 +1,6 @@
 using System.Text;
 using Chirp.Core;
+using static Chirp.Core.ICheepRepository;
 using Chirp.Core.Domain_Model;
 using Chirp.Infrastructure;
 using Microsoft.Data.Sqlite;
@@ -137,11 +138,11 @@ public class CheepRepositoryTest {
     [Fact]
     public async Task PaginationTest() {
         var cheeps1 = await _cheepRepository.GetCheeps(1);
-        Assert.Equal(32, cheeps1.Count);
+        Assert.Equal(CHEEPS_PER_PAGE, cheeps1.Count);
 
         // there should also be 32 cheeps on the second page
         var cheeps2 = await _cheepRepository.GetCheeps(2);
-        Assert.Equal(32, cheeps2.Count);
+        Assert.Equal(CHEEPS_PER_PAGE, cheeps2.Count);
 
         // unique pages
         Assert.NotStrictEqual(cheeps1, cheeps2);
@@ -158,7 +159,7 @@ public class CheepRepositoryTest {
         // DbInitializer.SeedDatabase(_context);
 
         var cheeps = await _cheepRepository.GetCheeps(1);
-        Assert.Equal(32, cheeps.Count);
+        Assert.Equal(CHEEPS_PER_PAGE, cheeps.Count);
         string lastTimeStamp = "2050-07-10 21:21:13";
 
         foreach (var cheep in cheeps) {
@@ -177,7 +178,7 @@ public class CheepRepositoryTest {
         var cheeps1 = await _cheepRepository.GetCheeps(1);
         var cheepsWeird = await _cheepRepository.GetCheeps(pagenr);
 
-        Assert.Equal(32, cheepsWeird.Count);
+        Assert.Equal(CHEEPS_PER_PAGE, cheepsWeird.Count);
         Assert.Equivalent(cheeps1, cheepsWeird);
     }
 
@@ -450,7 +451,9 @@ public class CheepRepositoryTest {
         Author barton = authors2.Single();
         Author? Wendell = null;
         //act
+#pragma warning disable CS8604 // Possible null reference argument.
         _ = _cheepRepository.Follow(barton, Wendell);
+#pragma warning restore CS8604 // Possible null reference argument.
         //assert
         Assert.Empty(await _cheepRepository.GetFollowRelations(barton));
     }

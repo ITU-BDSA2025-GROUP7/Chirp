@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Chirp.Core;
 using Chirp.Core.Domain_Model;
+using static Chirp.Core.ICheepRepository;
 
 namespace Chirp.Infrastructure;
 
@@ -42,14 +43,14 @@ public class CheepRepository : ICheepRepository {
         // Queried separately to avoid performing outer joins, which can be... messy with LINQ.
         // We only actually take the first
         List<Cheep> followedCheeps = await QueryCheepsFromFollowedAuthors(username)
-                                          .Take(32 * pageNr)
+                                          .Take(CHEEPS_PER_PAGE * pageNr)
                                           .ToListAsync();
         List<Cheep> ownCheeps = await QueryCheepsFromAuthor(username)
-                                     .Take(32 * pageNr)
+                                     .Take(CHEEPS_PER_PAGE * pageNr)
                                      .ToListAsync();
         followedCheeps.AddRange(ownCheeps);
         followedCheeps.Sort();
-        return followedCheeps[..32]
+        return followedCheeps[..CHEEPS_PER_PAGE]
               .Select(cheep => new CheepDTO(
                           cheep.Author.DisplayName,
                           cheep.Text,
@@ -95,8 +96,8 @@ public class CheepRepository : ICheepRepository {
         IQueryable<CheepDTO> query = (from cheep in _dbContext.Cheeps
                                       orderby cheep.TimeStamp descending
                                       select cheep)
-                                    .Skip((pageNr - 1) * 32)
-                                    .Take(32)
+                                    .Skip((pageNr - 1) * CHEEPS_PER_PAGE)
+                                    .Take(CHEEPS_PER_PAGE)
                                     .Select(cheep =>
                                                 new CheepDTO(
                                                     cheep.Author.DisplayName,
@@ -112,8 +113,8 @@ public class CheepRepository : ICheepRepository {
                                       where cheep.Author.UserName == username
                                       orderby cheep.TimeStamp descending
                                       select cheep)
-                                    .Skip((pageNr - 1) * 32)
-                                    .Take(32)
+                                    .Skip((pageNr - 1) * CHEEPS_PER_PAGE)
+                                    .Take(CHEEPS_PER_PAGE)
                                     .Select(cheep =>
                                                 new CheepDTO(
                                                     cheep.Author.DisplayName,
