@@ -29,6 +29,12 @@ public static class DbInitializer {
                                        "28806220-362c-4ad2-93bd-efbf048f8345",
                                        "ELWNBXHSW66RMV4WC23TW5LB4QRG636W");
 
+            FollowRelation f01 = new FollowRelation {
+                Follower = a12,
+                Followed = a10
+            };
+
+            chirpContext.FollowRelations.Add(f01);
             var authors = new List<Author> { a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12 };
 
             var c1 = new Cheep() {
