@@ -16,7 +16,7 @@ public class Cheep : IComparable<Cheep> {
 
     public int CompareTo(Cheep? other) {
         if (other == null) return 1;
-        return TimeStamp.CompareTo(other.TimeStamp);
+        return TimeStamp.CompareTo(other.TimeStamp) * -1;
     }
 
     public override string ToString() {

@@ -17,6 +17,7 @@ public class CheepDTO : IComparable<CheepDTO> {
     public int CompareTo(CheepDTO? other) {
         if (other == null) return 1;
         return DateTime.Compare(DateTime.Parse(TimeStamp),
-                                DateTime.Parse(other.TimeStamp));
+                                DateTime.Parse(other.TimeStamp))
+             * -1;
     }
 }
