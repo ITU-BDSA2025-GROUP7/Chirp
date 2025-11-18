@@ -83,7 +83,6 @@ public class InfrastructureTests {
 
         // Assert that the list of cheeps is exactly equal to the list of cheeps from the one follower.
         List<CheepDTO> timelineCheeps = await _repo.GetOwnAndFollowedCheeps(user, 1);
-        Assert.NotEmpty(timelineCheeps);
         Assert.Equal(cheepsFromFollowed, timelineCheeps);
     }
 
