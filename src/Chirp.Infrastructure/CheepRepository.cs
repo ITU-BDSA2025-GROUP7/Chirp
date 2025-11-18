@@ -54,33 +54,38 @@ public class CheepRepository : ICheepRepository {
      * or to one of the authors followed by the input author.
      */
     public async Task<List<CheepDTO>> GetOwnAndFollowedCheeps(string username, int pageNr = 1) {
-        // Queried separately to avoid performing outer joins, which can be... messy with LINQ.
-        List<Cheep> followedCheeps = await QueryCheepsFromFollowedAuthors(username)
-                                          .Take(CHEEPS_PER_PAGE * pageNr)
-                                          .ToListAsync();
-        List<Cheep> ownCheeps = await QueryCheepsFromAuthor(username)
-                                     .Take(CHEEPS_PER_PAGE * pageNr)
-                                     .ToListAsync();
-        followedCheeps.AddRange(ownCheeps);
-        followedCheeps.Sort();
-        return followedCheeps
+        Author author = (await GetAuthorByUserName(username)).Single();
+        return await GetOwnAndFollowedCheeps(author, pageNr);
+    }
+
+    public async Task<List<CheepDTO>> GetOwnAndFollowedCheeps(Author author, int pageNr = 1) {
+        List<Cheep> cheeps = await QueryCheepsFromAuthor(author.UserName!)
+                                  .Take(CHEEPS_PER_PAGE * pageNr) // Constrains total length a bit
+                                  .ToListAsync();
+        foreach (Author a in await Following(author)) {
+            cheeps.AddRange(await QueryCheepsFromAuthor(a.UserName!)
+                                 .Take(CHEEPS_PER_PAGE * pageNr) // Constrains total length a bit
+                                 .ToListAsync());
+        }
+
+        cheeps.Sort();
+        return cheeps
               .Select(cheep => new CheepDTO(
                           cheep.Author.DisplayName,
                           cheep.Text,
                           cheep.TimeStamp.ToString(),
                           cheep.Author.UserName))
-              .Skip((pageNr - 1) * CHEEPS_PER_PAGE)
-              .Take(CHEEPS_PER_PAGE)
+              .Pick(pageNr)
               .ToList();
     }
 
     private IQueryable<Cheep> QueryCheepsFromFollowedAuthors(string username) {
-        return (from cheep in _dbContext.Cheeps
-                join followed in _dbContext.FollowRelations
-                    on cheep.Author.UserName equals followed.Follower.UserName
-                where cheep.Author.UserName == username
-                orderby cheep.TimeStamp descending
-                select cheep);
+        return (from cheeps in _dbContext.Cheeps
+                join follow in _dbContext.FollowRelations
+                    on cheeps.Author.UserName equals follow.Followed.UserName
+                where follow.Follower.UserName == username
+                orderby cheeps.TimeStamp descending
+                select cheeps);
     }
 
     private IQueryable<Cheep> QueryCheepsFromAuthor(string username) {
