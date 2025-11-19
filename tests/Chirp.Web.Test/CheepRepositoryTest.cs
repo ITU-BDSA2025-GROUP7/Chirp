@@ -473,7 +473,7 @@ public class CheepRepositoryTest
         Author barton = authors2.Single();
         Author? Wendell = null;
         //act
-        _ = _cheepRepository.Follow(barton, Wendell);
+        _ = _cheepRepository.Follow(barton, Wendell!);
         //assert
         Assert.Empty(await _cheepRepository.GetFollowRelations(barton));
     }

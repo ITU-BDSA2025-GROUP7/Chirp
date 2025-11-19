@@ -102,7 +102,7 @@ public class CheepRepository :  ICheepRepository
         await _dbContext.SaveChangesAsync();
     }
 
-    public async Task Follow(String follower, String followed)
+    public async Task Follow(string follower, string followed)
     {
         Author followerAuthor = (await GetAuthorByUserName(follower)).First();
         Author followedAuthor = (await GetAuthorByUserName(followed)).First();
@@ -157,9 +157,10 @@ public class CheepRepository :  ICheepRepository
      */
     public async Task<List<Author>> Following(Author author)
     {
-        return(from user in _dbContext.FollowRelations
+        
+        return await (from user in _dbContext.FollowRelations
                 where user.Follower.UserName == author.UserName
-                select user.Followed).ToList();
+                select user.Followed).ToListAsync();
     }
 
     /**

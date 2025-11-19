@@ -74,7 +74,7 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
      * users cant follow or unfollow when not logged in
      */
     [Test]
-    public async Task CannotFollowWhenNotLogedIn()
+    public async Task CannotFollowWhenNotLoggedIn()
     {
         await Page.GotoAsync(_serverUrl);
         await Expect(Page.Locator("#messagelist")).Not.ToContainTextAsync("Follow");
