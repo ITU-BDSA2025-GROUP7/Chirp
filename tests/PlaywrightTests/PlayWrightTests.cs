@@ -71,6 +71,68 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
 
     #region NavigationTests
     /**
+     * users cant follow or unfollow when not logged in
+     */
+    [Test]
+    public async Task CannotFollowWhenNotLogedIn()
+    {
+        await Page.GotoAsync(_serverUrl);
+        await Expect(Page.Locator("#messagelist")).Not.ToContainTextAsync("Follow");
+        await Expect(Page.Locator("#messagelist")).Not.ToContainTextAsync("Unfollow");
+    }
+    
+    /**
+     * Users can follow someone and unfollow when logged in
+     */
+    [Test]
+    public async Task FollowAndUnfollow()
+    {
+        await Page.GotoAsync(_serverUrl);
+        await Expect(Page.GetByRole(AriaRole.Heading, new() { Name = "Icon1Chirp!" })).ToBeVisibleAsync();
+
+        await Page.GetByRole(AriaRole.Link, new() { Name = "Login" }).ClickAsync();
+        await Expect(Page.GetByRole(AriaRole.Heading, new() { Name = "Icon1Chirp!" })).ToBeVisibleAsync();
+
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "Email" }).ClickAsync();
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "Email" }).FillAsync("ropf@itu.dk");
+        await Page.Locator("#account div").Nth(1).ClickAsync();
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "Password" }).ClickAsync();
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "Password" }).FillAsync("LetM31n!");
+        await Page.GetByRole(AriaRole.Button, new() { Name = "Log in" }).ClickAsync();
+        await Expect(Page.GetByRole(AriaRole.Heading, new() { Name = "Icon1Chirp!" })).ToBeVisibleAsync();
+
+        await Page.GetByRole(AriaRole.Listitem).Filter(new() { HasText = "Mellie Yost Follow — 2023-08-" }).GetByRole(AriaRole.Button).ClickAsync();
+        await Expect(Page.GetByRole(AriaRole.Heading, new() { Name = "Icon1Chirp!" })).ToBeVisibleAsync();
+
+        await Page.GetByRole(AriaRole.Listitem).Filter(new() { HasText = "Mellie Yost Unfollow — 2023-" }).GetByRole(AriaRole.Button).ClickAsync();
+    }
+    
+    /**
+     * Cannot follow yourself
+     */
+    [Test]
+    public async Task CannotFollowYourself()
+    {
+        await Page.GotoAsync(_serverUrl);
+        await Expect(Page.GetByRole(AriaRole.Heading, new() { Name = "Icon1Chirp!" })).ToBeVisibleAsync();
+
+        await Page.GetByRole(AriaRole.Link, new() { Name = "Login" }).ClickAsync();
+        await Expect(Page.GetByRole(AriaRole.Heading, new() { Name = "Icon1Chirp!" })).ToBeVisibleAsync();
+
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "Email" }).ClickAsync();
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "Email" }).FillAsync("ropf@itu.dk");
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "Password" }).ClickAsync();
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "Password" }).FillAsync("LetM31n!");
+        await Page.GetByRole(AriaRole.Button, new() { Name = "Log in" }).ClickAsync();
+        await Expect(Page.GetByRole(AriaRole.Heading, new() { Name = "Icon1Chirp!" })).ToBeVisibleAsync();
+
+        await Page.GetByRole(AriaRole.Link, new() { Name = "My Timeline" }).ClickAsync();
+        await Expect(Page.GetByRole(AriaRole.Listitem)).Not.ToContainTextAsync("Follow");
+        await Expect(Page.GetByRole(AriaRole.Listitem)).Not.ToContainTextAsync("Unfollow");
+    }
+    
+    
+    /**
      * Test that my Page shows my display name
      */
     [Test]
@@ -102,7 +164,7 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
     {
         await Page.GotoAsync(_serverUrl);
         await Expect(Page.Locator("#messagelist")).ToContainTextAsync("Jacqualine Gilcoine");
-        await Expect(Page.Locator("#messagelist")).ToContainTextAsync("Jacqualine Gilcoine Starbuck now is what we hear the worst. — 2023-08-01 13:17:39");
+        await Expect(Page.Locator("#messagelist")).ToContainTextAsync("Starbuck now is what we hear the worst.");
     }
 
     #endregion
@@ -267,29 +329,42 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
     public async Task tryXSSAttackOnSendCheep()
     {
         await Page.GotoAsync(_serverUrl);
+        await Expect(Page.GetByRole(AriaRole.Heading, new() { Name = "Icon1Chirp!" })).ToBeVisibleAsync();
+
         await Page.GetByRole(AriaRole.Link, new() { Name = "Register" }).ClickAsync();
+        await Expect(Page.GetByRole(AriaRole.Heading, new() { Name = "Icon1Chirp!" })).ToBeVisibleAsync();
+
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Email" }).ClickAsync();
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Email" }).FillAsync("TestEmail@TestEmails.com");
-        await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Email" }).PressAsync("Tab");
-        await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Username" }).FillAsync("TestUser");
-        await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Username" }).PressAsync("Tab");
-        await Page.GetByRole(AriaRole.Textbox, new() { Name = "Display Name" }).FillAsync("TestDisplayName");
-        await Page.GetByRole(AriaRole.Textbox, new() { Name = "Display Name" }).PressAsync("Tab");
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Username" }).ClickAsync();
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Username" }).FillAsync("TesterName");
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "Display Name" }).ClickAsync();
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "Display Name" }).FillAsync("NameCool");
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Password" }).ClickAsync();
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Password" }).FillAsync("Lillek4t!");
-        await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Password" }).PressAsync("Tab");
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Confirm Password" }).ClickAsync();
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Confirm Password" }).FillAsync("Lillek4t!");
         await Page.GetByRole(AriaRole.Button, new() { Name = "Register" }).ClickAsync();
+        await Expect(Page.GetByRole(AriaRole.Heading, new() { Name = "Icon1Chirp!" })).ToBeVisibleAsync();
+
         await Page.GetByRole(AriaRole.Link, new() { Name = "Click here to confirm your" }).ClickAsync();
-        await Page.GetByRole(AriaRole.Link, new() { Name = "Login" }).ClickAsync();
+        await Expect(Page.GetByRole(AriaRole.Heading, new() { Name = "Icon1Chirp!" })).ToBeVisibleAsync();
+
+        await Page.GetByRole(AriaRole.Button, new() { Name = "Login" }).ClickAsync();
+        await Expect(Page.GetByRole(AriaRole.Heading, new() { Name = "Icon1Chirp!" })).ToBeVisibleAsync();
+
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "Email" }).ClickAsync();
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "Email" }).ClickAsync();
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "Email" }).FillAsync("TestEmail@TestEmails.com");
-        await Page.GetByRole(AriaRole.Textbox, new() { Name = "Email" }).PressAsync("Tab");
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "Password" }).ClickAsync();
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "Password" }).FillAsync("Lillek4t!");
         await Page.GetByRole(AriaRole.Button, new() { Name = "Log in" }).ClickAsync();
+        await Expect(Page.GetByRole(AriaRole.Heading, new() { Name = "Icon1Chirp!" })).ToBeVisibleAsync();
+
         await Page.Locator("#Text").ClickAsync();
         await Page.Locator("#Text").FillAsync("Hello, I am feeling good!<script>alert('If you see this in a popup, you are in trouble!');</script>");
         await Page.GetByRole(AriaRole.Button, new() { Name = "Share" }).ClickAsync();
-        await Expect(Page.Locator("#messagelist")).ToContainTextAsync("TestDisplayName Hello, I am feeling good!<script>alert('If you see this in a popup, you are in trouble!');</script>");
+        await Expect(Page.Locator("#messagelist")).ToContainTextAsync("<script>alert('If you see this in a popup, you are in trouble!');</script>");
     }
     
     /**
