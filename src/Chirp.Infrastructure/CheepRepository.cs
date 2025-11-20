@@ -142,7 +142,7 @@ public class CheepRepository : ICheepRepository {
     }
 
     public async Task Follow(Author follower, Author followed) {
-        if (await ValidifyFollowRelationAsync(follower, followed)) {
+        if (await IsFollowRelationInvalid(follower, followed)) {
             return;
         }
 
@@ -169,7 +169,7 @@ public class CheepRepository : ICheepRepository {
     /**
      * Returns true if breaks rules
      */
-    private async Task<bool> ValidifyFollowRelationAsync(Author follower, Author followed) {
+    private async Task<bool> IsFollowRelationInvalid(Author follower, Author followed) {
         return !_dbContext.Authors.Any(author => author == follower) ||
                !_dbContext.Authors.Any(author => author == followed) ||
                follower.Id == followed.Id ||
