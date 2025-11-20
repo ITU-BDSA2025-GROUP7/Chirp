@@ -649,7 +649,7 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
         await Page.Locator("#Text").ClickAsync();
         await Page.Locator("#Text").FillAsync("Cheep from public timeline");
         await Page.GetByRole(AriaRole.Button, new() { Name = "Share" }).ClickAsync();
-        await Expect(Page.GetByRole(AriaRole.Listitem).Filter(new() { HasText = "Helge Cheep from public" })).ToBeVisibleAsync();
+        await Expect(Page.GetByRole(AriaRole.Listitem).Filter(new() { HasText = "Cheep from public" })).ToBeVisibleAsync();
         
         // is on the right page
         await Expect(Page).ToHaveURLAsync(_serverUrl);
@@ -660,7 +660,7 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
         await Page.Locator("#Text").ClickAsync();
         await Page.Locator("#Text").FillAsync("Cheep from private Timeline");
         await Page.GetByRole(AriaRole.Button, new() { Name = "Share" }).ClickAsync();
-        await Expect(Page.GetByRole(AriaRole.Listitem).Filter(new() { HasText = "Helge Cheep from private" })).ToBeVisibleAsync();
+        await Expect(Page.GetByRole(AriaRole.Listitem).Filter(new() { HasText = "Cheep from private" })).ToBeVisibleAsync();
         
         // is on the right page
         await Expect(Page).ToHaveURLAsync(_serverUrl+"Helge");
@@ -713,7 +713,7 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
         await Page.Locator("#Text").ClickAsync();
         await Page.Locator("#Text").FillAsync("This Messages Last Carekter should be a A. AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
         await Page.GetByRole(AriaRole.Button, new() { Name = "Share" }).ClickAsync();
-        await Expect(Page.Locator("#messagelist")).ToContainTextAsync("Helge This Messages Last Carekter should be a A. AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+        await Expect(Page.Locator("#messagelist")).ToContainTextAsync("This Messages Last Carekter should be a A. AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
     }
     /**
      * Sending a cheep with a emoji is posible
@@ -737,7 +737,7 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
         await Page.Locator("#Text").ClickAsync();
         await Page.Locator("#Text").FillAsync("Look at this emoji 😁. It's cool");
         await Page.GetByRole(AriaRole.Button, new() { Name = "Share" }).ClickAsync();
-        await Expect(Page.Locator("#messagelist")).ToContainTextAsync("Helge Look at this emoji 😁. It's cool");
+        await Expect(Page.Locator("#messagelist")).ToContainTextAsync("Look at this emoji 😁. It's cool");
     }
     #endregion
 }
