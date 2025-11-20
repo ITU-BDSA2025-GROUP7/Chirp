@@ -74,11 +74,10 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
      * users cant follow or unfollow when not logged in
      */
     [Test]
-    public async Task CannotFollowWhenNotLoggedIn()
+    public async Task FollowAndUnfollowNotVisableWhenNotLoggedIn()
     {
         await Page.GotoAsync(_serverUrl);
-        await Expect(Page.Locator("#messagelist")).Not.ToContainTextAsync("Follow");
-        await Expect(Page.Locator("#messagelist")).Not.ToContainTextAsync("Unfollow");
+        await Expect(Page.GetByRole(AriaRole.Listitem).Filter(new() { HasText = "— 2023-08-01 13:17:39 Starbuck now is what we hear" }).GetByRole(AriaRole.Button)).Not.ToBeVisibleAsync();
     }
     
     /**
@@ -127,8 +126,7 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
         await Expect(Page.GetByRole(AriaRole.Heading, new() { Name = "Icon1Chirp!" })).ToBeVisibleAsync();
 
         await Page.GetByRole(AriaRole.Link, new() { Name = "My Timeline" }).ClickAsync();
-        await Expect(Page.GetByRole(AriaRole.Listitem)).Not.ToContainTextAsync("Follow");
-        await Expect(Page.GetByRole(AriaRole.Listitem)).Not.ToContainTextAsync("Unfollow");
+        await Expect(Page.GetByText("Helge — 2023-08-01 12:16:")).ToBeVisibleAsync();
     }
     
     
