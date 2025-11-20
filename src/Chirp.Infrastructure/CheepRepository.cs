@@ -172,7 +172,6 @@ public class CheepRepository : ICheepRepository {
     private async Task<bool> IsFollowRelationInvalid(Author follower, Author followed) {
         return !_dbContext.Authors.Any(author => author == follower) ||
                !_dbContext.Authors.Any(author => author == followed) ||
-               follower.Id == followed.Id ||
                (await Following(follower))
               .Contains(followed); //checks if follower already follows followed :3
     }
