@@ -7,6 +7,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Encodings.Web;
+using Chirp.Core;
 using Chirp.Core.Domain_Model;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
@@ -26,19 +27,22 @@ namespace Chirp.Web.Areas.Identity.Pages.Account {
         private readonly IUserEmailStore<Author> _emailStore;
         private readonly IEmailSender _emailSender;
         private readonly ILogger<ExternalLoginModel> _logger;
+        private readonly ICheepRepository _cheepRepository;
 
         public ExternalLoginModel(
             SignInManager<Author> signInManager,
             UserManager<Author> userManager,
             IUserStore<Author> userStore,
             ILogger<ExternalLoginModel> logger,
-            IEmailSender emailSender) {
+            IEmailSender emailSender,
+            ICheepRepository cheepRepository) {
             _signInManager = signInManager;
             _userManager = userManager;
             _userStore = userStore;
             _emailStore = GetEmailStore();
             _logger = logger;
             _emailSender = emailSender;
+            _cheepRepository = cheepRepository;
         }
 
         /// <summary>
@@ -179,6 +183,7 @@ namespace Chirp.Web.Areas.Identity.Pages.Account {
                         _logger.LogWarning("User created an account using {Name} provider.",
                                            info.LoginProvider);
 
+                        await _cheepRepository.Follow(user, user);
                         string userId = await _userManager.GetUserIdAsync(user);
                         string code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                         code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
