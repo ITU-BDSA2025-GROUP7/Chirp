@@ -12,8 +12,8 @@ public class UserTimelineModel : CheepTimelineModel
     public Author? Author { get; set; }
     public string Header { get; set; } = NO_USER_HEADER;
 
-    public UserTimelineModel(ICheepService service, UserManager<Author> userManager)
-        : base(service)
+    public UserTimelineModel(ICheepService cheepService, IAuthorService authorService, UserManager<Author> userManager)
+        : base(cheepService, authorService)
     {
         _userManager = userManager;
     }
@@ -28,7 +28,7 @@ public class UserTimelineModel : CheepTimelineModel
             int pageNr = getPageNr(Request);
             Console.WriteLine("pageQuery: " + pageNr + " author: " + author);
             Header = FormatPageHeader(Author);
-            Cheeps = await _service.GetCheepsFromUserName(author, pageNr);
+            Cheeps = await _cheepService.GetCheepsFromUserName(author, pageNr);
         }
         return Page();
     }

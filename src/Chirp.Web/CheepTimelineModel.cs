@@ -13,7 +13,8 @@ namespace Chirp.Web;
 // this class should contain everything that these classes should share
 public abstract class CheepTimelineModel : PageModel
 {
-    protected readonly ICheepService _service;
+    protected readonly ICheepService _cheepService;
+    protected readonly IAuthorService _authorService;
     public List<CheepDTO> Cheeps { get; set; } = new();
 
     [BindProperty]
@@ -23,9 +24,10 @@ public abstract class CheepTimelineModel : PageModel
     [Display(Name = "Message")]
     public string Text { get; set; } = "";
 
-    public CheepTimelineModel(ICheepService service)
+    public CheepTimelineModel(ICheepService _cheepService, IAuthorService _authorService)
     {
-        _service = service;
+        this._cheepService = _cheepService;
+        this._authorService = _authorService;
     }
 
     /**
@@ -44,7 +46,7 @@ public abstract class CheepTimelineModel : PageModel
 
     public async Task OnPostAsync()
     {
-        _ = _service.CreateCheep((await _service.GetAuthorByUserName(User.Identity!.Name!)).First(), Text);
+        _ = _cheepService.CreateCheep((await _authorService.GetAuthorByUserName(User.Identity!.Name!)).First(), Text);
         Response.Redirect(Request.GetDisplayUrl());
     }
     

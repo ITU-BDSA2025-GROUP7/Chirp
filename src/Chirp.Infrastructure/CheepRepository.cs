@@ -17,40 +17,6 @@ public class CheepRepository :  ICheepRepository
         this._dbContext = dbContext;
     }
 
-    public async Task<List<Author>> GetAuthor(string identifier)
-    {
-        if (identifier.Contains("@"))
-        {
-            return await GetAuthorByEmail(identifier);
-        }
-        return await GetAuthorByUserName(identifier);
-    }
-
-    public async Task<List<Author>> GetAuthorByUserName(string username)
-    {
-        var query = (from author in _dbContext.Authors
-            where author.UserName == username
-            orderby author.DisplayName
-            select author);
-        return await query.ToListAsync();
-    }
-
-    public async Task<List<Author>> GetAuthorByEmail(string email)
-    {
-        var query = (from author in _dbContext.Authors
-            where author.Email == email
-            orderby author.DisplayName
-            select author);
-        return await query.ToListAsync();
-    }
-
-    public async Task CreateAuthor(string name, string email)
-    {
-        var author = Author.Create(name, email);
-        await _dbContext.Authors.AddAsync(author);
-        await _dbContext.SaveChangesAsync();
-    }
-
     public async Task CreateCheep(Author author, string message, DateTime timestamp)
     {
         if (message.Length > Cheep.MAX_TEXT_LENGTH) {
@@ -91,6 +57,7 @@ public class CheepRepository :  ICheepRepository
         return await query.ToListAsync();
     }
 
+    // BELOVED SHOULD BE MOVED
     public async Task Follow(Author follower, Author followed)
     {
         if (await ValidifyfollowRelationAsync(follower, followed))
