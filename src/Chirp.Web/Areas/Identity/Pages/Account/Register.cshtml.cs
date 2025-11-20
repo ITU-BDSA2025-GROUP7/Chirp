@@ -13,6 +13,8 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Data.SqlClient;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
 
 namespace Chirp.Web.Areas.Identity.Pages.Account {
     public class RegisterModel : PageModel {
@@ -127,50 +129,71 @@ namespace Chirp.Web.Areas.Identity.Pages.Account {
                 return Page();
 
             Author user = CreateUser();
-            if (string.IsNullOrEmpty(Input.DisplayName)) {
+            if (string.IsNullOrEmpty(Input.DisplayName))
+            {
                 user.DisplayName = Input.UserName;
-            } else {
+            }
+            else
+            {
                 user.DisplayName = Input.DisplayName;
             }
 
+
             await _userStore.SetUserNameAsync(user, Input.UserName, CancellationToken.None);
             await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
-            IdentityResult result = await _userManager.CreateAsync(user, Input.Password);
 
-            if (result.Succeeded) {
-                _logger.LogInformation("User created a new account with password.");
+            Author existingUser = await _userManager.FindByEmailAsync(user.Email);
+            
+            if (existingUser == null)
+            {
+                IdentityResult result = await _userManager.CreateAsync(user, Input.Password);
 
-                string userId = await _userManager.GetUserIdAsync(user);
-                string code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-                code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-                string callbackUrl = Url.Page(
-                    "/Account/ConfirmEmail",
-                    pageHandler: null,
-                    values: new {
-                        area = "Identity", userId = userId, code = code, returnUrl = returnUrl
-                    },
-                    protocol: Request.Scheme);
+                if (result.Succeeded)
+                {
+                    _logger.LogInformation("User created a new account with password.");
 
-                await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
-                    $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+                    string userId = await _userManager.GetUserIdAsync(user);
+                    string code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                    code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+                    string callbackUrl = Url.Page(
+                        "/Account/ConfirmEmail",
+                        pageHandler: null,
+                        values: new
+                        {
+                            area = "Identity", userId = userId, code = code, returnUrl = returnUrl
+                        },
+                        protocol: Request.Scheme);
 
-                if (_userManager.Options.SignIn.RequireConfirmedAccount) {
-                    return RedirectToPage("RegisterConfirmation",
-                        new { email = Input.Email, returnUrl = returnUrl });
+                    await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
+                        $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+
+                    if (_userManager.Options.SignIn.RequireConfirmedAccount)
+                    {
+                        return RedirectToPage("RegisterConfirmation",
+                            new { email = Input.Email, returnUrl = returnUrl });
+                    }
+                    else
+                    {
+                        await _signInManager.SignInAsync(user, isPersistent: false);
+                        return LocalRedirect(returnUrl);
+                    }
                 }
-                else {
-                    await _signInManager.SignInAsync(user, isPersistent: false);
-                    return LocalRedirect(returnUrl);
+
+                foreach (IdentityError error in result.Errors)
+                {
+                    ModelState.AddModelError(string.Empty, error.Description);
                 }
             }
-
-            foreach (IdentityError error in result.Errors) {
-                ModelState.AddModelError(string.Empty, error.Description);
+            else
+            {
+                
             }
-
+            
             // If we got this far, something failed, redisplay form
             return Page();
         }
+
+
 
         private Author CreateUser() {
             try {
