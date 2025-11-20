@@ -495,7 +495,7 @@ public class CheepRepositoryTest
     }
 
     /**
-     * Test whether Isfollowing behaves as intended 
+     * Test whether Isfollowing behaves as intended when someone follows
      */
     [Fact]
     public async Task FollowTest()
@@ -524,5 +524,34 @@ public class CheepRepositoryTest
         Assert.False(BFollowABefore);
         Assert.True(AFollowBAfter);
         Assert.False(BFollowAAfter);
+    }
+    
+    /**
+     * Test whether Isfollowing behaves as intended when someone unfollows
+     */
+    [Fact]
+    public async Task UnfollowTest()
+    {
+        //arrange
+        const string nameA = "Barton Cooper";
+        string usernameA = nameA.Replace(" ", "");
+        const string emailA = "TheCakeMaster@copper.com";
+        await _cheepRepository.CreateAuthor(nameA, emailA);
+        Author authorA= (await _cheepRepository.GetAuthor(usernameA)).First();
+        const string nameB = "Abba Booper";
+        string usernameB = nameB.Replace(" ", "");
+        const string emailB = "Abba@Booper.com";
+        await _cheepRepository.CreateAuthor(nameB, emailB);
+        Author authorB = (await _cheepRepository.GetAuthor(usernameB)).First();
+        await _cheepRepository.Follow(authorA, authorB); 
+        
+        // act
+        var AFollowBBefore = await _cheepRepository.IsFollowing(authorA,authorB);
+        await _cheepRepository.Unfollow(authorA,authorB);
+        var AFollowBAfter = await _cheepRepository.IsFollowing(authorA,authorB);
+        
+        // Assert
+        Assert.True(AFollowBBefore);
+        Assert.False(AFollowBAfter);
     }
 }
