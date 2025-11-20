@@ -52,18 +52,18 @@ public abstract class CheepTimelineModel : PageModel
     
     public async Task<bool> IsFollowing(Author authorA, Author authorB)
     {
-        return await _service.IsFollowing(authorA, authorB);
+        return await _authorService.IsFollowing(authorA, authorB);
     }
 
     public async Task<IActionResult> OnPostFollowAsync(string? authorA, string? authorB)
     {
-        await _service.Follow(authorA!, authorB!);
+        await _authorService.Follow(authorA!, authorB!);
         return RedirectToPage();
     }
 
     public async Task<IActionResult> OnPostUnfollowAsync(string? authorA, string? authorB)
     {
-        await _service.Unfollow(authorA!, authorB!);
+        await _authorService.Unfollow(authorA!, authorB!);
         return RedirectToPage();
     }
 }

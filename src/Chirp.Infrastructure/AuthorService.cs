@@ -2,6 +2,8 @@ using Chirp.Core;
 using Chirp.Core.Domain_Model;
 using Chirp.Infrastructure;
 
+namespace Chirp.Infrastructure;
+
 public class AuthorService : IAuthorService
 {
     private IAuthorRepository authorRepository;
@@ -12,5 +14,20 @@ public class AuthorService : IAuthorService
     public async Task<List<Author>> GetAuthorByUserName(string username)
     {
         return await authorRepository.GetAuthorByUserName(username);
+    }
+    
+    public async Task<bool> IsFollowing(Author authorA, Author authorB)
+    {
+        return await authorRepository.IsFollowing(authorA, authorB);
+    }
+
+    public async Task Follow(string authorA, string authorB)
+    {
+        await authorRepository.Follow(authorA, authorB);
+    }
+
+    public async Task Unfollow(string authorA, string authorB)
+    {
+        await authorRepository.Unfollow(authorA, authorB);
     }
 }

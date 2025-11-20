@@ -103,4 +103,30 @@ public class AuthorRepository :  IAuthorRepository
                 where user.Follower.UserName == author.UserName
                 select user.Followed).ToList();
     }
+    
+
+    public async Task Follow(string follower, string followed)
+    {
+        Author followerAuthor = (await GetAuthorByUserName(follower)).First();
+        Author followedAuthor = (await GetAuthorByUserName(followed)).First();
+        await Follow(followerAuthor, followedAuthor);
+    }
+
+    public async Task Unfollow(string follower, string followed)
+    {
+        Author followerAuthor = (await GetAuthorByUserName(follower)).First();
+        Author followedAuthor = (await GetAuthorByUserName(followed)).First();
+        await Unfollow(followerAuthor,followedAuthor);
+    }
+
+    /**
+     * Returns true if authorA is following authorB, false otherwise.
+     */
+    public async Task<bool> IsFollowing(Author authorA, Author authorB)
+    {
+         var matches= await (from followRelation in _dbContext.FollowRelations
+            where followRelation.Follower == authorA && followRelation.Followed == authorB
+            select followRelation).ToListAsync();
+         return matches.Count > 0;
+    }  
 }
