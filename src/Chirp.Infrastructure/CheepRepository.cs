@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Chirp.Core;
 using Chirp.Core.Domain_Model;
-using static Chirp.Core.ICheepRepository;
 
 namespace Chirp.Infrastructure;
 
@@ -59,15 +58,12 @@ public class CheepRepository : ICheepRepository {
     }
 
     public async Task<List<CheepDTO>> GetOwnAndFollowedCheeps(Author author, int pageNr = 1) {
-        List<CheepDTO> cheeps = await QueryCheepsFromAuthor(author.UserName!)
-                                     .Select(c => new CheepDTO(
-                                                 c.Author.DisplayName,
-                                                 c.Text,
-                                                 c.TimeStamp.ToString(),
-                                                 c.Author.UserName))
-                                     .ToListAsync();
-        cheeps.AddRange(QueryCheepsFromFollowedAuthors(author.UserName!).ToList());
-        cheeps.Sort();
+        if (!Following(author).Result.Contains(author)) {
+            await Follow(author, author);
+        }
+
+        List<CheepDTO> cheeps = await QueryCheepsFromFollowedAuthors(author.UserName!)
+           .ToListAsync();
         return cheeps
               .Pick(pageNr)
               .ToList();
