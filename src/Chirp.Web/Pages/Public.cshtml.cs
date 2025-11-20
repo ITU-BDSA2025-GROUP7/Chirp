@@ -1,4 +1,3 @@
-using Chirp.Core.Domain_Model;
 using Chirp.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 
