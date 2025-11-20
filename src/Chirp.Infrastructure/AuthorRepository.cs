@@ -99,9 +99,9 @@ public class AuthorRepository :  IAuthorRepository
      */
     public async Task<List<Author>> Following(Author author)
     {
-        return(from user in _dbContext.FollowRelations
+        return await(from user in _dbContext.FollowRelations
                 where user.Follower.UserName == author.UserName
-                select user.Followed).ToList();
+                select user.Followed).ToListAsync();
     }
     
 
