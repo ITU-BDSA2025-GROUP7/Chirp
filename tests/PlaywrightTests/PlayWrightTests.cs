@@ -128,8 +128,8 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
         await Page.GotoAsync(_serverUrl);
         await Expect(Page.GetByRole(AriaRole.Listitem)
                          .Filter(new() {
-                             HasText = "— 2023-08-01 13:17:39 Starbuck now is what we hear"
-                         })
+                              HasText = "— 2023-08-01 13:17:39 Starbuck now is what we hear"
+                          })
                          .GetByRole(AriaRole.Button))
              .Not.ToBeVisibleAsync();
     }
@@ -234,6 +234,14 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
         await Expect(Page.Locator("#messagelist")).ToContainTextAsync("Jacqualine Gilcoine");
         await Expect(Page.Locator("#messagelist"))
            .ToContainTextAsync("Starbuck now is what we hear the worst.");
+    }
+
+    [Test]
+    public async Task AuthorTimelineNotLoggedIn() {
+        await Page.GotoAsync(_serverUrl + "Helge");
+        await Expect(Page.Locator("#messagelist")).Not.ToContainTextAsync("Jacqualine Gilcoine");
+        await Expect(Page.Locator("#messagelist"))
+           .ToContainTextAsync("Helge — 2023-08-01 13:17:37");
     }
 
     #endregion
@@ -776,6 +784,8 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
 
         // is on the right page
         await Expect(Page).ToHaveURLAsync(_serverUrl + "Helge");
+
+        await Expect(Page.Locator("#messagelist")).ToContainTextAsync("Jacqualine Gilcoine ");
     }
 
     /**
