@@ -116,8 +116,7 @@ public class CheepRepositoryTest {
         "2023-08-01 13:17:32")]
     [InlineData(5, "Jacqualine Gilcoine",
         "Seems to me of Darmonodes'' elephant that so caused him to the kitchen door.", "2023-08-01 13:17:29")]
-    public async Task ReadCheepsTest(int index, string author, string message, string timestamp)
-    {
+    public async Task ReadCheepsTest(int index, string author, string message, string timestamp) {
         var cheep = await _cheepRepository.GetCheeps(1);
         Assert.Equal(author, cheep[index].AuthorDisplayName);
         Assert.Equal(message, cheep[index].Message);
@@ -194,8 +193,7 @@ public class CheepRepositoryTest {
     }
 
     [Fact]
-    public async Task AuthorReusingEmailTest()
-    {
+    public async Task AuthorReusingEmailTest() {
         string name1, name2, email;
         name1 = "Barton Cooper";
         name2 = "Bar2n Cooper";
@@ -205,8 +203,7 @@ public class CheepRepositoryTest {
     }
 
     [Fact]
-    public async Task AuthorSameNameTest()
-    {
+    public async Task AuthorSameNameTest() {
         const string name = "Barton Cooper";
         string username = name.Replace(" ", "");
         const string email1 = "TheCakeMaster@copper.com";
@@ -220,15 +217,13 @@ public class CheepRepositoryTest {
     }
 
     [Fact]
-    public async Task NoKnownAuthorTest()
-    {
+    public async Task NoKnownAuthorTest() {
         List<Author> authorsFound = await _authorRepository.GetAuthor("ThisNameorEmailDoesNotExist");
         Assert.Empty(authorsFound);
     }
 
     [Fact]
-    public async Task AuthorBlankName()
-    {
+    public async Task AuthorBlankName() {
         string name, email;
         name = "";
         email = "cooper@copper.com";
@@ -241,8 +236,7 @@ public class CheepRepositoryTest {
     }
 
     [Fact]
-    public async Task CheepOwnershipTest()
-    {
+    public async Task CheepOwnershipTest() {
         List<Author> users = await _authorRepository.GetAuthor("WendellBallan");
         string message = "I really like turtles";
         DateTime date = DateTime.Parse("2023-08-02 14:13:45");
@@ -284,8 +278,7 @@ public class CheepRepositoryTest {
      * throwing an exception.
      */
     [Fact]
-    public async Task CreateTooLongCheepTest()
-    {
+    public async Task CreateTooLongCheepTest() {
         List<Author> authors = await _authorRepository.GetAuthor("WendellBallan");
         Assert.NotEmpty(authors);
         StringBuilder sb = new StringBuilder(160);
@@ -305,8 +298,7 @@ public class CheepRepositoryTest {
      * allowed length.
      */
     [Fact]
-    public async Task CreateCheepAtExactlyLimit()
-    {
+    public async Task CreateCheepAtExactlyLimit() {
         List<Author> authors = await _authorRepository.GetAuthor("WendellBallan");
         Assert.NotEmpty(authors);
         StringBuilder sb = new StringBuilder(160);
@@ -336,8 +328,7 @@ public class CheepRepositoryTest {
      * than the allowed limit, and which contains an attempt at SQL injecting.
      */
     [Fact]
-    public async Task CreateTooLongSqlInjectionCheepTest()
-    {
+    public async Task CreateTooLongSqlInjectionCheepTest() {
         List<Author> authors = await _authorRepository.GetAuthor("WendellBallan");
         Assert.NotEmpty(authors);
         StringBuilder sb = new StringBuilder(160);

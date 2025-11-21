@@ -12,8 +12,7 @@ public class UserTimelineModel : CheepTimelineModel {
     public string Header { get; set; } = NO_USER_HEADER;
 
     public UserTimelineModel(ICheepService cheepService, IAuthorService authorService, UserManager<Author> userManager)
-        : base(cheepService, authorService)
-    {
+        : base(cheepService, authorService) {
         _userManager = userManager;
     }
 

@@ -124,8 +124,7 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
      * users cant follow or unfollow when not logged in
      */
     [Test]
-    public async Task FollowAndUnfollowNotVisableWhenNotLoggedIn()
-    {
+    public async Task FollowAndUnfollowNotVisableWhenNotLoggedIn() {
         await Page.GotoAsync(_serverUrl);
         await Expect(Page.GetByRole(AriaRole.Listitem).Filter(new() { HasText = "— 2023-08-01 13:17:39 Starbuck now is what we hear" }).GetByRole(AriaRole.Button)).Not.ToBeVisibleAsync();
     }
@@ -134,8 +133,7 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
      * Users can follow someone and unfollow when logged in
      */
     [Test]
-    public async Task FollowAndUnfollow()
-    {
+    public async Task FollowAndUnfollow() {
         await Page.GotoAsync(_serverUrl);
         await Expect(Page.GetByRole(AriaRole.Heading, new() { Name = "Icon1Chirp!" })).ToBeVisibleAsync();
 
@@ -160,8 +158,7 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
      * Cannot follow yourself
      */
     [Test]
-    public async Task CannotFollowYourself()
-    {
+    public async Task CannotFollowYourself() {
         await Page.GotoAsync(_serverUrl);
         await Expect(Page.GetByRole(AriaRole.Heading, new() { Name = "Icon1Chirp!" })).ToBeVisibleAsync();
 

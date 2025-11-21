@@ -11,8 +11,7 @@ namespace Chirp.Web;
 
 // abstract class that PublicModel and UserTimelineModel extends.
 // this class should contain everything that these classes should share
-public abstract class CheepTimelineModel : PageModel
-{
+public abstract class CheepTimelineModel : PageModel {
     protected readonly ICheepService _cheepService;
     protected readonly IAuthorService _authorService;
     public List<CheepDTO> Cheeps { get; set; } = new();
@@ -24,8 +23,7 @@ public abstract class CheepTimelineModel : PageModel
     [Display(Name = "Message")]
     public string Text { get; set; } = "";
 
-    public CheepTimelineModel(ICheepService _cheepService, IAuthorService _authorService)
-    {
+    public CheepTimelineModel(ICheepService _cheepService, IAuthorService _authorService) {
         this._cheepService = _cheepService;
         this._authorService = _authorService;
     }
@@ -44,25 +42,21 @@ public abstract class CheepTimelineModel : PageModel
         return pageNr;
     }
 
-    public async Task OnPostAsync()
-    {
+    public async Task OnPostAsync() {
         _ = _cheepService.CreateCheep((await _authorService.GetAuthorByUserName(User.Identity!.Name!)).First(), Text);
         Response.Redirect(Request.GetDisplayUrl());
     }
 
-    public async Task<bool> IsFollowing(Author authorA, Author authorB)
-    {
+    public async Task<bool> IsFollowing(Author authorA, Author authorB) {
         return await _authorService.IsFollowing(authorA, authorB);
     }
 
-    public async Task<IActionResult> OnPostFollowAsync(string? authorA, string? authorB)
-    {
+    public async Task<IActionResult> OnPostFollowAsync(string? authorA, string? authorB) {
         await _authorService.Follow(authorA!, authorB!);
         return RedirectToPage();
     }
 
-    public async Task<IActionResult> OnPostUnfollowAsync(string? authorA, string? authorB)
-    {
+    public async Task<IActionResult> OnPostUnfollowAsync(string? authorA, string? authorB) {
         await _authorService.Unfollow(authorA!, authorB!);
         return RedirectToPage();
     }

@@ -25,8 +25,7 @@ public class CheepService : ICheepService {
         return await cheepRepository.GetCheepsFromUserName(username, pageNr);
     }
 
-    public async Task CreateCheep(Author author, string message)
-    {
+    public async Task CreateCheep(Author author, string message) {
         DateTime date = DateTime.Now;
         await cheepRepository.CreateCheep(author, message,
                                           new DateTime(date.Year, date.Month, date.Day, date.Hour,

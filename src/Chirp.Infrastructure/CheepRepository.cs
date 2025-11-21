@@ -11,8 +11,7 @@ public class CheepRepository : ICheepRepository {
         this._dbContext = dbContext;
     }
 
-    public async Task CreateCheep(Author author, string message, DateTime timestamp)
-    {
+    public async Task CreateCheep(Author author, string message, DateTime timestamp) {
         if (message.Length > Cheep.MAX_TEXT_LENGTH) {
             throw new ArgumentException("Message is too long. Maximum length is "
                                       + Cheep.MAX_TEXT_LENGTH);
