@@ -10,30 +10,30 @@ public static class DbInitializer {
     public static void SeedDatabase(ChirpDBContext chirpContext) {
         //Clear(chirpContext);
         if (!(chirpContext.Authors.Any() && chirpContext.Cheeps.Any())) {
-            Author  a1 = Author.Create("Roger Histand", "Roger+Histand@hotmail.com");
-            Author  a2 = Author.Create("Luanna Muro", "Luanna-Muro@ku.dk");
-            Author  a3 = Author.Create("Wendell Ballan", "Wendell-Ballan@gmail.com");
-            Author  a4 = Author.Create("Nathan Sirmon", "Nathan+Sirmon@dtu.dk");
-            Author  a5 = Author.Create("Quintin Sitts", "Quintin+Sitts@itu.dk");
-            Author  a6 = Author.Create("Mellie Yost", "Mellie+Yost@ku.dk");
-            Author  a7 = Author.Create("Malcolm Janski", "Malcolm-Janski@gmail.com");
-            Author  a8 = Author.Create("Octavio Wagganer", "Octavio.Wagganer@dtu.dk");
-            Author  a9 = Author.Create("Johnnie Calixto", "Johnnie+Calixto@itu.dk");
+            Author a1 = Author.Create("Roger Histand", "Roger+Histand@hotmail.com");
+            Author a2 = Author.Create("Luanna Muro", "Luanna-Muro@ku.dk");
+            Author a3 = Author.Create("Wendell Ballan", "Wendell-Ballan@gmail.com");
+            Author a4 = Author.Create("Nathan Sirmon", "Nathan+Sirmon@dtu.dk");
+            Author a5 = Author.Create("Quintin Sitts", "Quintin+Sitts@itu.dk");
+            Author a6 = Author.Create("Mellie Yost", "Mellie+Yost@ku.dk");
+            Author a7 = Author.Create("Malcolm Janski", "Malcolm-Janski@gmail.com");
+            Author a8 = Author.Create("Octavio Wagganer", "Octavio.Wagganer@dtu.dk");
+            Author a9 = Author.Create("Johnnie Calixto", "Johnnie+Calixto@itu.dk");
             Author a10 = Author.Create("Jacqualine Gilcoine", "Jacqualine.Gilcoine@gmail.com");
             Author a11 = Author.Create("Helge", "ropf@itu.dk", true,
-                                "AQAAAAIAAYagAAAAEKPXQMvnfuNS4pxtGy6tXdbeldyzDEWAr5QG0nBK2PYZPePB+dpwxCqQnBwks5J3FA==",
-                                "b5b7f191-ef9b-4b0c-a46d-13c7bd9bccf6",
-                                "KRY2VBOMPASVDNFJS6O25PXEXY5DUISH");
+                                       "AQAAAAIAAYagAAAAEKPXQMvnfuNS4pxtGy6tXdbeldyzDEWAr5QG0nBK2PYZPePB+dpwxCqQnBwks5J3FA==",
+                                       "b5b7f191-ef9b-4b0c-a46d-13c7bd9bccf6",
+                                       "KRY2VBOMPASVDNFJS6O25PXEXY5DUISH");
             Author a12 = Author.Create("Adrian", "adho@itu.dk", true,
-                                "AQAAAAIAAYagAAAAEJ95jxQR1gKMr+WVxHEoKkRCj+kDOuA9O6XePTmcksMR8fWL9TXNpPquetJCa8NpCw==",
-                                "28806220-362c-4ad2-93bd-efbf048f8345",
-                                "ELWNBXHSW66RMV4WC23TW5LB4QRG636W");
+                                       "AQAAAAIAAYagAAAAEJ95jxQR1gKMr+WVxHEoKkRCj+kDOuA9O6XePTmcksMR8fWL9TXNpPquetJCa8NpCw==",
+                                       "28806220-362c-4ad2-93bd-efbf048f8345",
+                                       "ELWNBXHSW66RMV4WC23TW5LB4QRG636W");
 
             var authors = new List<Author> { a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12 };
 
-            FollowRelation f1 = new FollowRelation(){Follower = a11, Followed = a10, FollowRelationId = 0};
-            
-            var FollowRelations = new List<FollowRelation> {f1};
+            FollowRelation f1 = new FollowRelation() { Follower = a11, Followed = a10, FollowRelationId = 0 };
+
+            var FollowRelations = new List<FollowRelation> { f1 };
 
             var c1 = new Cheep() { CheepId = 1, Author = a10, Text = "They were married in Chicago, with old Smith, and was expected aboard every day; meantime, the two went past me.", TimeStamp = DateTime.Parse("2023-08-01 13:14:37") };
             var c2 = new Cheep() { CheepId = 2, Author = a10, Text = "And then, as he listened to all that''s left o'' twenty-one people.", TimeStamp = DateTime.Parse("2023-08-01 13:15:21") };

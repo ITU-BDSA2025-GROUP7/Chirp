@@ -15,16 +15,13 @@
     <h1><img src="/images/icon1.png" alt="Icon1"/>Chirp!</h1>
     <div class="navigation">
 
-        @if (SignInManager.IsSignedIn(User))
-        {
+        @if (SignInManager.IsSignedIn(User)) {
             <div>
                 <a href="/@(User.Identity?.Name!)">My Timeline</a> |
                 <a href="/">Public Timeline</a> |
                 <partial name="_LoginPartial"/>
             </div>
-        }
-        else
-        {
+        } else {
             <div>
                 <a href="/">Public Timeline</a> |
                 <partial name="_LoginPartial"/>

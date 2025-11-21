@@ -3,11 +3,9 @@
 @inject SignInManager<Author> SignInManager
 @inject UserManager<Author> UserManager
 
-@if (Model.Cheeps.Any())
-{
+@if (Model.Cheeps.Any()) {
     <ul id="messagelist" class="cheeps">
-        @foreach (CheepDTO cheep in Model.Cheeps)
-        {
+        @foreach (CheepDTO cheep in Model.Cheeps) {
             <li>
                 <p>
                     <div style="display: flex; align-items: center; gap: 5px">
@@ -57,9 +55,7 @@
             </li>
         }
     </ul>
-}
-else
-{
+} else {
     <em>There are no cheeps so far.</em>
 }
  

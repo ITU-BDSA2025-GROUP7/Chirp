@@ -2,11 +2,10 @@ namespace Chirp.Core;
 
 using Domain_Model;
 
-public interface IAuthorRepository
-{
-    
+public interface IAuthorRepository {
+
     public Task CreateAuthor(string name, string email);
-    
+
     /**
      * recognizes the string as a name or email and calls the relevant GetAuthor method
      */
@@ -30,18 +29,18 @@ public interface IAuthorRepository
 
     public Task<List<FollowRelation>> GetFollowRelations(Author author);
     public Task<List<Author>> Following(Author author);
-    
-    
+
+
     /**
      * Creates a follow relation, and adds a reference of the followed to follower
      */
     public Task Follow(string follower, string followed);
-    
+
     /**
      * Creates a follow relation, and adds a reference of the followed to follower
      */
     public Task Unfollow(string follower, string followed);
-    
+
 
     /**
      * Returns true if authorA is following authorB, false otherwise.

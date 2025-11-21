@@ -5,7 +5,6 @@
 
 using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
-
 using Chirp.Core.Domain_Model;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
@@ -107,20 +106,17 @@ namespace Chirp.Web.Areas.Identity.Pages.Account {
         }
 
         public async Task<IActionResult> OnGetCallbackAsync(string returnUrl = null,
-            string remoteError = null)
-        {
+            string remoteError = null) {
             returnUrl = returnUrl ?? Url.Content("~/");
 
-            if (remoteError != null)
-            {
+            if (remoteError != null) {
                 ErrorMessage = $"Error from external provider: {remoteError}";
                 return RedirectToPage("./Login", new { ReturnUrl = returnUrl });
             }
 
-            // get info from external login provider 
+            // get info from external login provider
             var info = await _signInManager.GetExternalLoginInfoAsync();
-            if (info == null)
-            {
+            if (info == null) {
                 ErrorMessage = "Error loading external login information.";
                 return RedirectToPage("./Login", new { ReturnUrl = returnUrl });
             }
@@ -131,143 +127,125 @@ namespace Chirp.Web.Areas.Identity.Pages.Account {
                     info.ProviderKey,
                     isPersistent: false,
                     bypassTwoFactor: true);
-            if (result.Succeeded)
-            {
+            if (result.Succeeded) {
                 _logger.LogWarning("{Name} logged in with {LoginProvider} provider.",
                     info.Principal.Identity?.Name, info.LoginProvider);
                 return LocalRedirect(returnUrl);
             }
 
-            if (result.IsLockedOut)
-            {
+            if (result.IsLockedOut) {
                 return RedirectToPage("./Lockout");
             }
 
-            // If the user does not have an account we need to create a new one 
+            // If the user does not have an account we need to create a new one
             // ReturnUrl = returnUrl;
             ProviderDisplayName = info.ProviderDisplayName;
             Input = GetInputFromInfo(info);
 
-            if (ModelState.IsValid)
-            {
-                
+            if (ModelState.IsValid) {
+
                 return await CreateAndSignIn(info, returnUrl);
-               
+
             }
 
             return Page();
-    
+
+        }
+
+        public async Task<IActionResult> OnPostConfirmationAsync(string returnUrl = null) {
+            returnUrl = returnUrl ?? Url.Content("~/");
+            // Get the information about the user from the external login provider
+            ExternalLoginInfo info = await _signInManager.GetExternalLoginInfoAsync();
+            if (info == null) {
+                ErrorMessage = "Error loading external login information during confirmation.";
+                return RedirectToPage("./Login", new { ReturnUrl = returnUrl });
             }
 
-            public async Task<IActionResult> OnPostConfirmationAsync(string returnUrl = null)
-            {
-                returnUrl = returnUrl ?? Url.Content("~/");
-                // Get the information about the user from the external login provider
-                ExternalLoginInfo info = await _signInManager.GetExternalLoginInfoAsync();
-                if (info == null)
-                {
-                    ErrorMessage = "Error loading external login information during confirmation.";
-                    return RedirectToPage("./Login", new { ReturnUrl = returnUrl });
-                }
-
-                if (ModelState.IsValid)
-                {
-                     return await CreateAndSignIn(info, returnUrl);
-                }
-
-                return Page();
+            if (ModelState.IsValid) {
+                return await CreateAndSignIn(info, returnUrl);
             }
 
-
-            private InputModel GetInputFromInfo(ExternalLoginInfo info)
-            {
-                Input = new InputModel
-                {
-                    Email = info.Principal.FindFirstValue(ClaimTypes.Email) ??
-                            string.Empty,
-                    UserName = info.Principal.FindFirstValue(ClaimTypes.Name) ??
-                               info.Principal.FindFirstValue(ClaimTypes.NameIdentifier) ??
-                               string.Empty,
-                    DisplayName = info.Principal.FindFirstValue(ClaimTypes.GivenName) ??
-                                  info.Principal.FindFirstValue(ClaimTypes.Name) ??
-                                  string.Empty
-                };
-                return Input;
-
-            }
+            return Page();
+        }
 
 
-            private async Task<IActionResult> CreateAndSignIn(ExternalLoginInfo info, string returnUrl)
-            {
-                // create 
-                Author user = CreateUser();
-                user.DisplayName = string.IsNullOrWhiteSpace(Input.DisplayName)
-                    ? Input.UserName
-                    : Input.DisplayName;
+        private InputModel GetInputFromInfo(ExternalLoginInfo info) {
+            Input = new InputModel {
+                Email = info.Principal.FindFirstValue(ClaimTypes.Email) ??
+                        string.Empty,
+                UserName = info.Principal.FindFirstValue(ClaimTypes.Name) ??
+                           info.Principal.FindFirstValue(ClaimTypes.NameIdentifier) ??
+                           string.Empty,
+                DisplayName = info.Principal.FindFirstValue(ClaimTypes.GivenName) ??
+                              info.Principal.FindFirstValue(ClaimTypes.Name) ??
+                              string.Empty
+            };
+            return Input;
 
-                await _userStore.SetUserNameAsync(user, Input.UserName, CancellationToken.None);
-                await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
+        }
 
-                IdentityResult createResult = await _userManager.CreateAsync(user);
-                
-                // Login 
-                if (createResult.Succeeded)
-                {
-                    
-                    createResult = await _userManager.AddLoginAsync(user, info);
-                    if (createResult.Succeeded)
-                    {
-                        _logger.LogWarning("User created an account using {Name} provider.",
-                            info.LoginProvider);
-                        string userId = await _userManager.GetUserIdAsync(user);
-                        await _signInManager.SignInAsync(user, isPersistent: false,
-                            info.LoginProvider);
-                        return LocalRedirect(returnUrl);
-                    }
-                }
-                // Errors
-                foreach (IdentityError error in createResult.Errors)
-                {
-                    ModelState.AddModelError(string.Empty, error.Description);
-                    
-                    // see if the user has a regular account, and if that is causing the error 
-                    Author existingUser = await _userManager.FindByEmailAsync(Input.Email);
-                    if (existingUser == null) return Page(); // if not - go to the register page (externallogin.cshtml)
-                    
-                    // else login with the account that is configured to the email 
-                    await _userManager.AddLoginAsync(existingUser, info);
-                    await _signInManager.SignInAsync(existingUser, isPersistent: false);
+
+        private async Task<IActionResult> CreateAndSignIn(ExternalLoginInfo info, string returnUrl) {
+            // create
+            Author user = CreateUser();
+            user.DisplayName = string.IsNullOrWhiteSpace(Input.DisplayName)
+                ? Input.UserName
+                : Input.DisplayName;
+
+            await _userStore.SetUserNameAsync(user, Input.UserName, CancellationToken.None);
+            await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
+
+            IdentityResult createResult = await _userManager.CreateAsync(user);
+
+            // Login
+            if (createResult.Succeeded) {
+
+                createResult = await _userManager.AddLoginAsync(user, info);
+                if (createResult.Succeeded) {
+                    _logger.LogWarning("User created an account using {Name} provider.",
+                        info.LoginProvider);
+                    string userId = await _userManager.GetUserIdAsync(user);
+                    await _signInManager.SignInAsync(user, isPersistent: false,
+                        info.LoginProvider);
                     return LocalRedirect(returnUrl);
                 }
-                // register page (externallogin.cshtml) - looks like register
-                return Page();
-
             }
+            // Errors
+            foreach (IdentityError error in createResult.Errors) {
+                ModelState.AddModelError(string.Empty, error.Description);
 
-            private Author CreateUser()
-            {
-                try
-                {
-                    return Activator.CreateInstance<Author>();
-                }
-                catch
-                {
-                    throw new InvalidOperationException(
-                        $"Can't create an instance of '{nameof(Author)}'. " +
-                        $"Ensure that '{nameof(Author)}' is not an abstract class and has a parameterless constructor, or alternatively " +
-                        $"override the external login page in /Areas/Identity/Pages/Account/ExternalLogin.cshtml");
-                }
+                // see if the user has a regular account, and if that is causing the error
+                Author existingUser = await _userManager.FindByEmailAsync(Input.Email);
+                if (existingUser == null) return Page(); // if not - go to the register page (externallogin.cshtml)
+
+                // else login with the account that is configured to the email
+                await _userManager.AddLoginAsync(existingUser, info);
+                await _signInManager.SignInAsync(existingUser, isPersistent: false);
+                return LocalRedirect(returnUrl);
             }
+            // register page (externallogin.cshtml) - looks like register
+            return Page();
 
-            private IUserEmailStore<Author> GetEmailStore()
-            {
-                if (!_userManager.SupportsUserEmail)
-                {
-                    throw new NotSupportedException(
-                        "The default UI requires a user store with email support.");
-                }
+        }
 
-                return (IUserEmailStore<Author>)_userStore;
+        private Author CreateUser() {
+            try {
+                return Activator.CreateInstance<Author>();
+            } catch {
+                throw new InvalidOperationException(
+                    $"Can't create an instance of '{nameof(Author)}'. " +
+                    $"Ensure that '{nameof(Author)}' is not an abstract class and has a parameterless constructor, or alternatively " +
+                    $"override the external login page in /Areas/Identity/Pages/Account/ExternalLogin.cshtml");
             }
         }
+
+        private IUserEmailStore<Author> GetEmailStore() {
+            if (!_userManager.SupportsUserEmail) {
+                throw new NotSupportedException(
+                    "The default UI requires a user store with email support.");
+            }
+
+            return (IUserEmailStore<Author>)_userStore;
+        }
     }
+}

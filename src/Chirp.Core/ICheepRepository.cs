@@ -2,8 +2,7 @@ namespace Chirp.Core;
 
 using Domain_Model;
 
-public interface ICheepRepository
-{
+public interface ICheepRepository {
     /**
      * Gets all cheeps within the given page nr
      */
@@ -14,6 +13,6 @@ public interface ICheepRepository
      */
     public Task<List<CheepDTO>> GetCheepsFromUserName(string username, int pageNr);
 
-    
+
     public Task CreateCheep(Author author, string message, DateTime timestamp);
 }

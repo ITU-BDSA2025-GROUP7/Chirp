@@ -6,7 +6,7 @@
 #   `make <target> [n=<arg>]`
 #  where <target> is the text before a colon in the list of commands below.
 #  The optional `n=<arg>` will add an argument to the command, in the sense of
-#   `dotnet run ... read <arg>` or `dotnet run ... cheep <arg>` 
+#   `dotnet run ... read <arg>` or `dotnet run ... cheep <arg>`
 #  So you'll have to do that if you want to cheep with this system.
 
 # ==============================================================================
@@ -19,7 +19,10 @@ ENV := -e ASPNETCORE_ENVIRONMENT=Development
 # Intentionally left empty so that by default an empty string is inserted in
 #  its place in the commands below.
 #  Override it by typing e.g. `make read n=3` or `make cheep n="Hello, World!"`
-n := 
+n :=
+
+# Shared arguments. --warnaserror sets warnings to be reported as errors.
+ARGS := --warnaserror
 
 # ==============================================================================
 
@@ -31,9 +34,11 @@ start:
 test:
 	dotnet test ${ENV}
 
+testwarn:
+	dotnet test ${ENV} ${ARGS}
 #
 test-linux:
-	ASPNETCORE_ENVIRONMENT=Test dotnet test
+	ASPNETCORE_ENVIRONMENT=Development dotnet test
 
 build:
 	dotnet build
@@ -48,3 +53,6 @@ newMigration:
 # Update the database to reflect changes made by migration.
 dbUpdate:
 	dotnet ef database update --project src/Chirp.Web
+
+format:
+	dotnet format --exclude src/Chirp.Infrastructure/Migrations

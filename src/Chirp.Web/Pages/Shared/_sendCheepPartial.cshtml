@@ -3,8 +3,7 @@
 @inject UserManager<Author> UserManager
 @model Chirp.Web.CheepTimelineModel
 
-@if(SignInManager.IsSignedIn(User))
-{
+@if (SignInManager.IsSignedIn(User)) {
     <div class="cheepbox">
         @{
             Author? user = await UserManager.GetUserAsync(User);
