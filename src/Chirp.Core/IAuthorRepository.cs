@@ -30,4 +30,21 @@ public interface IAuthorRepository
 
     public Task<List<FollowRelation>> GetFollowRelations(Author author);
     public Task<List<Author>> Following(Author author);
+    
+    
+    /**
+     * Creates a follow relation, and adds a reference of the followed to follower
+     */
+    public Task Follow(string follower, string followed);
+    
+    /**
+     * Creates a follow relation, and adds a reference of the followed to follower
+     */
+    public Task Unfollow(string follower, string followed);
+    
+
+    /**
+     * Returns true if authorA is following authorB, false otherwise.
+     */
+    public Task<bool> IsFollowing(Author authorA, Author authorB);
 }

@@ -211,7 +211,7 @@ public class CheepRepositoryTest
     }
 
     [Fact]
-    public async Task authorReusingEmailTest()
+    public async Task AuthorReusingEmailTest()
     {
         string name1, name2, email;
         name1 = "Barton Cooper";
@@ -222,7 +222,7 @@ public class CheepRepositoryTest
     }
 
     [Fact]
-    public async Task authorSameNameTest()
+    public async Task AuthorSameNameTest()
     {
         const string name = "Barton Cooper";
         string username = name.Replace(" ", "");
@@ -237,14 +237,14 @@ public class CheepRepositoryTest
     }
 
     [Fact]
-    public async Task noKnownAuthorTest()
+    public async Task NoKnownAuthorTest()
     {
         List<Author> authorsFound = await _authorRepository.GetAuthor("ThisNameorEmailDoesNotExist");
         Assert.Empty(authorsFound);
     }
 
     [Fact]
-    public async Task authorBlankName()
+    public async Task AuthorBlankName()
     {
         string name, email;
         name = "";
@@ -351,7 +351,7 @@ public class CheepRepositoryTest
      * than the allowed limit, and which contains an attempt at SQL injecting.
      */
     [Fact]
-    public async Task CreateTooLongSQLInjectionCheepTest()
+    public async Task CreateTooLongSqlInjectionCheepTest()
     {
         List<Author> authors = await _authorRepository.GetAuthor("WendellBallan");
         Assert.NotEmpty(authors);
