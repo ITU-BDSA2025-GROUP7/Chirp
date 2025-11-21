@@ -49,9 +49,9 @@ jobs:
           dotnet publish src/Chirp.Web/Chirp.Web.csproj -r linux-x64 -c Release -o Published/Linux --self-contained true -p:PublishSingleFile=true
       - name: copyDatabace
         run: |
-          cp src/Chirp.Web/data/Chirp.db Published/Windows/data/Chirp.db
-          cp src/Chirp.Web/data/Chirp.db Published/MacOS/data/Chirp.db
-          cp src/Chirp.Web/data/Chirp.db Published/Linux/data/Chirp.db
+          cp src/Chirp.Infrastructure/data/Chirp.db Published/Windows/data/Chirp.db
+          cp src/Chirp.Infrastructure/data/Chirp.db Published/MacOS/data/Chirp.db
+          cp src/Chirp.Infrastructure/data/Chirp.db Published/Linux/data/Chirp.db
       - name: zipFiles
         run: |
           zip -r Chirp-Win.zip Published/Windows
