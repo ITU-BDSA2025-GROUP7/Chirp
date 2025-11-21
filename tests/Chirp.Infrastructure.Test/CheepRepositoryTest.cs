@@ -2,17 +2,17 @@ using System.Text;
 using Chirp.Core;
 using static Chirp.Core.ICheepRepository;
 using Chirp.Core.Domain_Model;
-using Chirp.Infrastructure;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
 
-namespace Chirp.Web.Test;
+namespace Chirp.Infrastructure.Test;
 
 public class CheepRepositoryTest {
     private ChirpDBContext _context;
     private SqliteConnection _connection;
     private ICheepRepository _cheepRepository;
+    private IAuthorRepository _authorRepository;
 
     public CheepRepositoryTest() {
         _connection = new SqliteConnection("DataSource=:memory:");
@@ -24,6 +24,7 @@ public class CheepRepositoryTest {
         _context.Database.EnsureCreated();
 
         _cheepRepository = new CheepRepository(_context);
+        _authorRepository = new AuthorRepository(_context);
 
         DbInitializer.SeedDatabase(_context);
 
@@ -34,7 +35,7 @@ public class CheepRepositoryTest {
     [InlineData("Helge", "ropf@itu.dk")]
     [InlineData("Adrian", "adho@itu.dk")]
     public async Task RequiredAuthorsExist(string name, string email) {
-        List<Author> authors = await _cheepRepository.GetAuthorByUserName(name);
+        List<Author> authors = await _authorRepository.GetAuthorByUserName(name);
         Assert.NotNull(authors);
         Assert.Single(authors);
         Author author = authors.Single();
@@ -187,7 +188,7 @@ public class CheepRepositoryTest {
         string name, email;
         name = "Barton Cooper";
         email = "cooper@copper.com";
-        await _cheepRepository.CreateAuthor(name, email);
+        await _authorRepository.CreateAuthor(name, email);
         var query = (from author in _context.Authors
                      where author.DisplayName == name
                      select author);
@@ -201,8 +202,8 @@ public class CheepRepositoryTest {
         name1 = "Barton Cooper";
         name2 = "Bar2n Cooper";
         email = "cooper@copper.com";
-        await _cheepRepository.CreateAuthor(name1, email);
-        await Assert.ThrowsAsync<DbUpdateException>(() => _cheepRepository.CreateAuthor(
+        await _authorRepository.CreateAuthor(name1, email);
+        await Assert.ThrowsAsync<DbUpdateException>(() => _authorRepository.CreateAuthor(
                                                         name2, email));
     }
 
@@ -212,10 +213,10 @@ public class CheepRepositoryTest {
         string username = name.Replace(" ", "");
         const string email1 = "TheCakeMaster@copper.com";
         const string email2 = "muffinEnjoyer@copper.com";
-        await _cheepRepository.CreateAuthor(name, email1);
-        await Assert.ThrowsAsync<DbUpdateException>(() => _cheepRepository.CreateAuthor(
+        await _authorRepository.CreateAuthor(name, email1);
+        await Assert.ThrowsAsync<DbUpdateException>(() => _authorRepository.CreateAuthor(
                                                         name, email2));
-        List<Author> bartons = await _cheepRepository.GetAuthor(username);
+        List<Author> bartons = await _authorRepository.GetAuthor(username);
         Assert.Equal(name, bartons.Single().DisplayName);
         Assert.Equal(username, bartons.Single().UserName);
         Assert.Equal(email1, bartons.Single().Email);
@@ -223,7 +224,8 @@ public class CheepRepositoryTest {
 
     [Fact]
     public async Task noKnownAuthorTest() {
-        List<Author> authorsFound = await _cheepRepository.GetAuthor("ThisNameorEmailDoesNotExist");
+        List<Author> authorsFound =
+            await _authorRepository.GetAuthor("ThisNameorEmailDoesNotExist");
         Assert.Empty(authorsFound);
     }
 
@@ -232,7 +234,7 @@ public class CheepRepositoryTest {
         string name, email;
         name = "";
         email = "cooper@copper.com";
-        await _cheepRepository.CreateAuthor(name, email);
+        await _authorRepository.CreateAuthor(name, email);
         var query = (from author in _context.Authors
                      where author.DisplayName == ""
                      select author);
@@ -242,7 +244,7 @@ public class CheepRepositoryTest {
 
     [Fact]
     public async Task CheepOwnershipTest() {
-        List<Author> users = await _cheepRepository.GetAuthor("WendellBallan");
+        List<Author> users = await _authorRepository.GetAuthor("WendellBallan");
         string message = "I really like turtles";
         DateTime date = DateTime.Parse("2023-08-02 14:13:45");
         await _cheepRepository.CreateCheep(users.Single(), message, date);
@@ -268,7 +270,7 @@ public class CheepRepositoryTest {
                                          select cheep);
         Assert.Empty(queryBefore);
 
-        List<Author> authors = await _cheepRepository.GetAuthor("WendellBallan");
+        List<Author> authors = await _authorRepository.GetAuthor("WendellBallan");
         Assert.NotEmpty(authors);
         DateTime date = DateTime.Parse("2023-08-02 13:13:45");
         await _cheepRepository.CreateCheep(authors.First(), message, date);
@@ -284,7 +286,7 @@ public class CheepRepositoryTest {
      */
     [Fact]
     public async Task CreateTooLongCheepTest() {
-        List<Author> authors = await _cheepRepository.GetAuthor("WendellBallan");
+        List<Author> authors = await _authorRepository.GetAuthor("WendellBallan");
         Assert.NotEmpty(authors);
         StringBuilder sb = new StringBuilder(160);
         while (sb.Length <= Cheep.MAX_TEXT_LENGTH) {
@@ -304,7 +306,7 @@ public class CheepRepositoryTest {
      */
     [Fact]
     public async Task CreateCheepAtExactlyLimit() {
-        List<Author> authors = await _cheepRepository.GetAuthor("WendellBallan");
+        List<Author> authors = await _authorRepository.GetAuthor("WendellBallan");
         Assert.NotEmpty(authors);
         StringBuilder sb = new StringBuilder(160);
         while (sb.Length < Cheep.MAX_TEXT_LENGTH) {
@@ -334,7 +336,7 @@ public class CheepRepositoryTest {
      */
     [Fact]
     public async Task CreateTooLongSQLInjectionCheepTest() {
-        List<Author> authors = await _cheepRepository.GetAuthor("WendellBallan");
+        List<Author> authors = await _authorRepository.GetAuthor("WendellBallan");
         Assert.NotEmpty(authors);
         StringBuilder sb = new StringBuilder(160);
         while (sb.Length <= Cheep.MAX_TEXT_LENGTH) {
@@ -358,32 +360,30 @@ public class CheepRepositoryTest {
     public async Task attemptToFollowSelf() {
         //arrange
         const string name = "Barton Cooper";
-        string username = name.Replace(" ", "");
         const string email1 = "TheCakeMaster@copper.com";
-        await _cheepRepository.CreateAuthor(name, email1);
-        List<Author> authors = await _cheepRepository.GetAuthor("BartonCooper");
+        await _authorRepository.CreateAuthor(name, email1);
+        List<Author> authors = await _authorRepository.GetAuthor("BartonCooper");
         Author barton = authors.Single();
         //act
-        _ = _cheepRepository.Follow(barton, barton);
+        _ = _authorRepository.Follow(barton, barton);
         //assert
-        Assert.Empty(await _cheepRepository.GetFollowRelations(barton));
+        Assert.Empty(await _authorRepository.GetFollowRelations(barton));
     }
 
     [Fact]
     public async Task attemptToFollowSomeone() {
         //arrange
         const string name = "Barton Cooper";
-        string username = name.Replace(" ", "");
         const string email1 = "TheCakeMaster@copper.com";
-        await _cheepRepository.CreateAuthor(name, email1);
-        List<Author> authors1 = await _cheepRepository.GetAuthor("WendellBallan");
+        await _authorRepository.CreateAuthor(name, email1);
+        List<Author> authors1 = await _authorRepository.GetAuthor("WendellBallan");
         Author Wendell = authors1.Single();
-        List<Author> authors2 = await _cheepRepository.GetAuthor("BartonCooper");
+        List<Author> authors2 = await _authorRepository.GetAuthor("BartonCooper");
         Author barton = authors2.Single();
         //act
-        _ = _cheepRepository.Follow(barton, Wendell);
+        _ = _authorRepository.Follow(barton, Wendell);
         //assert
-        Assert.NotEmpty(await _cheepRepository.GetFollowRelations(barton));
+        Assert.NotEmpty(await _authorRepository.GetFollowRelations(barton));
     }
 
     [Fact]
@@ -392,15 +392,15 @@ public class CheepRepositoryTest {
         const string name = "Barton Cooper";
         string username = name.Replace(" ", "");
         const string email1 = "TheCakeMaster@copper.com";
-        await _cheepRepository.CreateAuthor(name, email1);
-        List<Author> authors1 = await _cheepRepository.GetAuthor("WendellBallan");
+        await _authorRepository.CreateAuthor(name, email1);
+        List<Author> authors1 = await _authorRepository.GetAuthor("WendellBallan");
         Author Wendell = authors1.Single();
-        List<Author> authors2 = await _cheepRepository.GetAuthor("BartonCooper");
+        List<Author> authors2 = await _authorRepository.GetAuthor("BartonCooper");
         Author barton = authors2.Single();
         //act
-        _ = _cheepRepository.Follow(barton, Wendell);
-        _ = _cheepRepository.Follow(barton, Wendell);
-        List<Author> myList = await _cheepRepository.Following(barton);
+        _ = _authorRepository.Follow(barton, Wendell);
+        _ = _authorRepository.Follow(barton, Wendell);
+        List<Author> myList = await _authorRepository.Following(barton);
         //assert
         Assert.Single(myList);
     }
@@ -411,16 +411,16 @@ public class CheepRepositoryTest {
         const string name = "Barton Cooper";
         string username = name.Replace(" ", "");
         const string email1 = "TheCakeMaster@copper.com";
-        await _cheepRepository.CreateAuthor(name, email1);
-        List<Author> authors1 = await _cheepRepository.GetAuthor("WendellBallan");
+        await _authorRepository.CreateAuthor(name, email1);
+        List<Author> authors1 = await _authorRepository.GetAuthor("WendellBallan");
         Author Wendell = authors1.Single();
-        List<Author> authors2 = await _cheepRepository.GetAuthor("BartonCooper");
+        List<Author> authors2 = await _authorRepository.GetAuthor("BartonCooper");
         Author barton = authors2.Single();
         //act
-        _ = _cheepRepository.Follow(barton, Wendell);
-        _ = _cheepRepository.Unfollow(barton, Wendell);
+        _ = _authorRepository.Follow(barton, Wendell);
+        _ = _authorRepository.Unfollow(barton, Wendell);
         //assert
-        Assert.Empty(await _cheepRepository.GetFollowRelations(barton));
+        Assert.Empty(await _authorRepository.GetFollowRelations(barton));
     }
 
     [Fact]
@@ -429,15 +429,15 @@ public class CheepRepositoryTest {
         const string name = "Barton Cooper";
         string username = name.Replace(" ", "");
         const string email1 = "TheCakeMaster@copper.com";
-        await _cheepRepository.CreateAuthor(name, email1);
-        List<Author> authors1 = await _cheepRepository.GetAuthor("WendellBallan");
+        await _authorRepository.CreateAuthor(name, email1);
+        List<Author> authors1 = await _authorRepository.GetAuthor("WendellBallan");
         Author Wendell = authors1.Single();
-        List<Author> authors2 = await _cheepRepository.GetAuthor("BartonCooper");
+        List<Author> authors2 = await _authorRepository.GetAuthor("BartonCooper");
         Author barton = authors2.Single();
         //act
-        _ = _cheepRepository.Unfollow(barton, Wendell);
+        _ = _authorRepository.Unfollow(barton, Wendell);
         //assert
-        Assert.Empty(await _cheepRepository.GetFollowRelations(barton));
+        Assert.Empty(await _authorRepository.GetFollowRelations(barton));
     }
 
     [Fact]
@@ -446,14 +446,14 @@ public class CheepRepositoryTest {
         const string name = "Barton Cooper";
         string username = name.Replace(" ", "");
         const string email1 = "TheCakeMaster@copper.com";
-        await _cheepRepository.CreateAuthor(name, email1);
-        List<Author> authors2 = await _cheepRepository.GetAuthor("BartonCooper");
+        await _authorRepository.CreateAuthor(name, email1);
+        List<Author> authors2 = await _authorRepository.GetAuthor("BartonCooper");
         Author barton = authors2.Single();
         Author? Wendell = null;
         //act
-        _ = _cheepRepository.Follow(barton, Wendell);
+        _ = _authorRepository.Follow(barton, Wendell);
         //assert
-        Assert.Empty(await _cheepRepository.GetFollowRelations(barton));
+        Assert.Empty(await _authorRepository.GetFollowRelations(barton));
     }
 
     [Fact]
@@ -462,13 +462,13 @@ public class CheepRepositoryTest {
         const string name = "Barton Cooper";
         string username = name.Replace(" ", "");
         const string email1 = "TheCakeMaster@copper.com";
-        await _cheepRepository.CreateAuthor(name, email1);
-        List<Author> authors2 = await _cheepRepository.GetAuthor("BartonCooper");
+        await _authorRepository.CreateAuthor(name, email1);
+        List<Author> authors2 = await _authorRepository.GetAuthor("BartonCooper");
         Author barton = authors2.Single();
         Author myAuthor = Author.Create("Bartoon2", "batman@gmail.com");
         //act
-        _ = _cheepRepository.Follow(barton, myAuthor);
+        _ = _authorRepository.Follow(barton, myAuthor);
         //assert
-        Assert.Empty(await _cheepRepository.GetFollowRelations(barton));
+        Assert.Empty(await _authorRepository.GetFollowRelations(barton));
     }
 }

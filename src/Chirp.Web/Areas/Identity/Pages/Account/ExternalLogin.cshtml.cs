@@ -28,6 +28,7 @@ namespace Chirp.Web.Areas.Identity.Pages.Account {
         private readonly IEmailSender _emailSender;
         private readonly ILogger<ExternalLoginModel> _logger;
         private readonly ICheepRepository _cheepRepository;
+        private readonly IAuthorRepository _authorRepository;
 
         public ExternalLoginModel(
             SignInManager<Author> signInManager,
@@ -35,7 +36,8 @@ namespace Chirp.Web.Areas.Identity.Pages.Account {
             IUserStore<Author> userStore,
             ILogger<ExternalLoginModel> logger,
             IEmailSender emailSender,
-            ICheepRepository cheepRepository) {
+            ICheepRepository cheepRepository,
+            IAuthorRepository authorRepository) {
             _signInManager = signInManager;
             _userManager = userManager;
             _userStore = userStore;
@@ -43,6 +45,7 @@ namespace Chirp.Web.Areas.Identity.Pages.Account {
             _logger = logger;
             _emailSender = emailSender;
             _cheepRepository = cheepRepository;
+            _authorRepository = authorRepository;
         }
 
         /// <summary>
@@ -183,7 +186,7 @@ namespace Chirp.Web.Areas.Identity.Pages.Account {
                         _logger.LogWarning("User created an account using {Name} provider.",
                                            info.LoginProvider);
 
-                        await _cheepRepository.Follow(user, user);
+                        await _authorRepository.Follow(user, user);
                         string userId = await _userManager.GetUserIdAsync(user);
                         string code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                         code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
@@ -195,10 +198,12 @@ namespace Chirp.Web.Areas.Identity.Pages.Account {
 
                         await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
                                                           $"Please confirm your account by <a href='{
-                                                              HtmlEncoder.Default.Encode(callbackUrl!)
+                                                              HtmlEncoder.Default.Encode(
+                                                                  callbackUrl!)
                                                           }'>clicking here</a>.");
 
-                        // If account confirmation is required, we need to show the link if we don't have a real email sender
+                        // If account confirmation is required, we need to show the link if we don't
+                        // have a real email sender
                         if (_userManager.Options.SignIn.RequireConfirmedAccount) {
                             return RedirectToPage("./RegisterConfirmation",
                                                   new { Email = Input.Email });
@@ -226,7 +231,9 @@ namespace Chirp.Web.Areas.Identity.Pages.Account {
             } catch {
                 throw new InvalidOperationException(
                     $"Can't create an instance of '{nameof(Author)}'. " +
-                    $"Ensure that '{nameof(Author)}' is not an abstract class and has a parameterless constructor, or alternatively " +
+                    $"Ensure that '{
+                        nameof(Author)
+                    }' is not an abstract class and has a parameterless constructor, or alternatively " +
                     $"override the external login page in /Areas/Identity/Pages/Account/ExternalLogin.cshtml");
             }
         }

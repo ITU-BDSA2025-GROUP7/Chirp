@@ -29,10 +29,6 @@ public class CheepService : ICheepService {
         return await cheepRepository.GetOwnAndFollowedCheeps(author, pageNr);
     }
 
-    public async Task<List<Author>> GetAuthorByUserName(string username) {
-        return await cheepRepository.GetAuthorByUserName(username);
-    }
-
     public async Task CreateCheep(Author author, string message) {
         DateTime date = DateTime.Now;
         await cheepRepository.CreateCheep(author, message,

@@ -58,10 +58,6 @@ public class CheepRepository : ICheepRepository {
     }
 
     public async Task<List<CheepDTO>> GetOwnAndFollowedCheeps(Author author, int pageNr = 1) {
-        if (!Following(author).Result.Contains(author)) {
-            await Follow(author, author);
-        }
-
         List<CheepDTO> cheeps = await QueryCheepsFromFollowedAuthors(author.UserName!)
            .ToListAsync();
         return cheeps
@@ -137,17 +133,6 @@ public class CheepRepository : ICheepRepository {
         return await query.ToListAsync();
     }
 
-    public async Task Follow(Author follower, Author followed) {
-        if (await IsFollowRelationInvalid(follower, followed)) {
-            return;
-        }
-
-        FollowRelation newFollowRelation = new FollowRelation()
-            { Follower = follower, Followed = followed };
-        await _dbContext.AddAsync(newFollowRelation);
-        await _dbContext.SaveChangesAsync();
-    }
-
     public async Task Unfollow(Author followerToDelete, Author followedToDelete) {
         FollowRelation followRelationToDelete = (from followRelation in _dbContext.FollowRelations
                                                  where followRelation.Follower ==
@@ -160,16 +145,6 @@ public class CheepRepository : ICheepRepository {
 
         _dbContext.FollowRelations.Remove(followRelationToDelete);
         await _dbContext.SaveChangesAsync();
-    }
-
-    /**
-     * Returns true if breaks rules
-     */
-    private async Task<bool> IsFollowRelationInvalid(Author follower, Author followed) {
-        return !_dbContext.Authors.Any(author => author == follower) ||
-               !_dbContext.Authors.Any(author => author == followed) ||
-               (await Following(follower))
-              .Contains(followed); //checks if follower already follows followed :3
     }
 
     /**

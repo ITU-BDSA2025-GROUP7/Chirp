@@ -13,10 +13,11 @@ public class UserTimelineModel : CheepTimelineModel {
     public Author? Author { get; set; }
     public string Header { get; set; } = NO_USER_HEADER;
 
-    public UserTimelineModel(ICheepService service,
+    public UserTimelineModel(ICheepService cheepService,
+                             IAuthorService authorService,
                              UserManager<Author> userManager,
                              SignInManager<Author> signInManager)
-        : base(service) {
+        : base(cheepService, authorService) {
         _userManager = userManager;
         _signInManager = signInManager;
     }
@@ -33,9 +34,9 @@ public class UserTimelineModel : CheepTimelineModel {
 
             if (_signInManager.IsSignedIn(User)
              && Author == await _userManager.GetUserAsync(User)) {
-                Cheeps = await _service.GetOwnAndFollowedCheeps(Author, pageNr);
+                Cheeps = await _cheepService.GetOwnAndFollowedCheeps(Author, pageNr);
             } else {
-                Cheeps = await _service.GetCheepsFromUserName(author, pageNr);
+                Cheeps = await _cheepService.GetCheepsFromUserName(author, pageNr);
             }
         }
 
