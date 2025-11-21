@@ -34,6 +34,7 @@ public class UserTimelineModel : CheepTimelineModel {
 
             if (_signInManager.IsSignedIn(User)
              && Author == await _userManager.GetUserAsync(User)) {
+                await _authorService.Follow(Author, Author);
                 Cheeps = await _cheepService.GetOwnAndFollowedCheeps(Author, pageNr);
             } else {
                 Cheeps = await _cheepService.GetCheepsFromUserName(author, pageNr);

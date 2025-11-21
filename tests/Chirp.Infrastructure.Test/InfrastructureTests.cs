@@ -37,7 +37,7 @@ public class InfrastructureTests {
         Author user = users.Single();
 
         List<Author> followed = await _authorRepo.Following(user);
-        Assert.Empty(followed);
+        Assert.Single(followed);
 
         List<CheepDTO> cheeps = await _cheepRepo.GetOwnAndFollowedCheeps(user);
         Assert.Empty(cheeps);
@@ -53,7 +53,7 @@ public class InfrastructureTests {
         Author user = users.Single();
 
         List<Author> followed = await _authorRepo.Following(user);
-        Assert.Empty(followed);
+        Assert.Single(followed);
 
         await _cheepRepo.CreateCheep(user, "Test message", DateTime.Now);
 
@@ -81,7 +81,8 @@ public class InfrastructureTests {
         // Follow the secondary user account, and ensure this has occurred successfully.
         await _authorRepo.Follow(user, toFollow);
         List<Author> following = await _authorRepo.Following(user);
-        Assert.Equal(toFollow, following.Single());
+        Assert.Equal(user, following.First());
+        Assert.Equal(toFollow, following[1]);
 
         // Assert that the list of cheeps is exactly equal to the list of cheeps from the one
         // follower.
@@ -142,11 +143,11 @@ public class InfrastructureTests {
     }
 
     [Fact]
-    public async Task NewAuthorFollowsNoPeople() {
+    public async Task NewAuthorFollowsOnlySelf() {
         await _authorRepo.CreateAuthor("Ms Deaf", "mad@test.dk");
         List<Author> users = await _authorRepo.GetAuthor("mad@test.dk");
         Author user = users.Single();
-        Assert.Empty(await _authorRepo.Following(user));
+        Assert.Equal(user, (await _authorRepo.Following(user)).Single());
     }
 
     [Fact]
@@ -192,7 +193,7 @@ public class InfrastructureTests {
         }
 
         List<Author> following = await _authorRepo.Following(user);
-        Assert.Equal(authors.Count, following.Count);
+        Assert.Equal(authors.Count + 1, following.Count);
         foreach (Author author in authorsToFollow) {
             Assert.Contains(author, following);
         }

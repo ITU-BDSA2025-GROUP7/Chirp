@@ -15,10 +15,11 @@ public class AuthorRepository : IAuthorRepository {
         var author = Author.Create(name, email);
         await _dbContext.Authors.AddAsync(author);
         await _dbContext.SaveChangesAsync();
+        await Follow(author, author);
     }
 
     public async Task<List<Author>> GetAuthor(string identifier) {
-        if (identifier.Contains("@")) {
+        if (identifier.Contains('@')) {
             return await GetAuthorByEmail(identifier);
         }
 
@@ -58,7 +59,7 @@ public class AuthorRepository : IAuthorRepository {
                                                      followerToDelete && followRelation.Followed ==
                                                      followedToDelete
                                                  select followRelation).First();
-        if (followedToDelete == null) {
+        if (followerToDelete == followedToDelete) {
             return;
         }
 
