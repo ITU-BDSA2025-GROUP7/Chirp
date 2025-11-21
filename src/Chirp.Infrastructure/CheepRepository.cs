@@ -32,7 +32,8 @@ public class CheepRepository : ICheepRepository {
                     cheep.Author.UserName));
     }
 
-    public async Task CreateCheep(Author author, string message, DateTime timestamp) {
+    public async Task CreateCheep(Author author, string? message, DateTime timestamp) {
+        message ??= string.Empty; // Message *can* be null, since it is coming from an HTML form.
         if (message.Length > Cheep.MAX_TEXT_LENGTH) {
             throw new ArgumentException("Message is too long. Maximum length is "
                                       + Cheep.MAX_TEXT_LENGTH);
