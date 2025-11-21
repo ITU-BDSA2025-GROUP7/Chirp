@@ -34,10 +34,10 @@ public static class DbInitializer {
 
             var authors = new List<Author> { a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12 };
 
-            var followRelations = new List<FollowRelation> {f01, f02};
+            var followRelations = new List<FollowRelation> { f01, f02 };
             // Each author should follow themselves.
             foreach (Author author in authors) {
-                followRelations.Add(new FollowRelation{ Follower = author, Followed = author });
+                followRelations.Add(new FollowRelation { Follower = author, Followed = author });
             }
 
             var c1 = new Cheep() { CheepId = 1, Author = a10, Text = "They were married in Chicago, with old Smith, and was expected aboard every day; meantime, the two went past me.", TimeStamp = DateTime.Parse("2023-08-01 13:14:37") };

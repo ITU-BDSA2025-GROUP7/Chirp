@@ -1,4 +1,4 @@
-﻿using static Chirp.Core.ICheepRepository;
+using static Chirp.Core.ICheepRepository;
 
 namespace Chirp.Infrastructure;
 

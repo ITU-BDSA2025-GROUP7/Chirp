@@ -1,4 +1,4 @@
-﻿using Chirp.Core;
+using Chirp.Core;
 using Chirp.Core.Domain_Model;
 using static Chirp.Core.ICheepRepository;
 using Microsoft.Data.Sqlite;

@@ -128,8 +128,8 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
         await Page.GotoAsync(_serverUrl);
         await Expect(Page.GetByRole(AriaRole.Listitem)
                          .Filter(new() {
-                              HasText = "— 2023-08-01 13:17:39 Starbuck now is what we hear"
-                          })
+                             HasText = "— 2023-08-01 13:17:39 Starbuck now is what we hear"
+                         })
                          .GetByRole(AriaRole.Button))
              .Not.ToBeVisibleAsync();
     }
