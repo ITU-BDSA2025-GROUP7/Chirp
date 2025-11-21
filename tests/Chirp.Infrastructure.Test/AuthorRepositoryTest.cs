@@ -157,4 +157,65 @@ public class AuthorRepositoryTest {
 
         Assert.Single(await _authorRepository.GetFollowRelations(author));
     }
+    
+    /**
+     * Test whether Isfollowing behaves as intended when someone follows
+     */
+    [Fact]
+    public async Task FollowTest()
+    {
+        //arrange
+        const string nameA = "Barton Cooper";
+        string usernameA = nameA.Replace(" ", "");
+        const string emailA = "TheCakeMaster@copper.com";
+        await _authorRepository.CreateAuthor(nameA, emailA);
+        Author authorA= (await _authorRepository.GetAuthor(usernameA)).First();
+        const string nameB = "Abba Booper";
+        string usernameB = nameB.Replace(" ", "");
+        const string emailB = "Abba@Booper.com";
+        await _authorRepository.CreateAuthor(nameB, emailB);
+        Author authorB = (await _authorRepository.GetAuthor(usernameB)).First();
+        
+        // act
+        var AFollowBBefore = await _authorRepository.IsFollowing(authorA,authorB);
+        var BFollowABefore = await _authorRepository.IsFollowing(authorB,authorA);
+        await _authorRepository.Follow(authorA, authorB); 
+        var AFollowBAfter = await _authorRepository.IsFollowing(authorA,authorB);
+        var BFollowAAfter = await _authorRepository.IsFollowing(authorB,authorA);
+        
+        // Assert
+        Assert.False(AFollowBBefore);
+        Assert.False(BFollowABefore);
+        Assert.True(AFollowBAfter);
+        Assert.False(BFollowAAfter);
+    }
+    
+    /**
+     * Test whether Isfollowing behaves as intended when someone unfollows
+     */
+    [Fact]
+    public async Task UnfollowTest()
+    {
+        //arrange
+        const string nameA = "Barton Cooper";
+        string usernameA = nameA.Replace(" ", "");
+        const string emailA = "TheCakeMaster@copper.com";
+        await _authorRepository.CreateAuthor(nameA, emailA);
+        Author authorA= (await _authorRepository.GetAuthor(usernameA)).First();
+        const string nameB = "Abba Booper";
+        string usernameB = nameB.Replace(" ", "");
+        const string emailB = "Abba@Booper.com";
+        await _authorRepository.CreateAuthor(nameB, emailB);
+        Author authorB = (await _authorRepository.GetAuthor(usernameB)).First();
+        await _authorRepository.Follow(authorA, authorB); 
+        
+        // act
+        var AFollowBBefore = await _authorRepository.IsFollowing(authorA,authorB);
+        await _authorRepository.Unfollow(authorA,authorB);
+        var AFollowBAfter = await _authorRepository.IsFollowing(authorA,authorB);
+        
+        // Assert
+        Assert.True(AFollowBBefore);
+        Assert.False(AFollowBAfter);
+    }
 }

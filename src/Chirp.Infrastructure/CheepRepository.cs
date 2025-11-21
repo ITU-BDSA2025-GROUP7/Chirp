@@ -4,10 +4,12 @@ using Chirp.Core.Domain_Model;
 
 namespace Chirp.Infrastructure;
 
-public class CheepRepository : ICheepRepository {
+public class CheepRepository :  ICheepRepository
+{
     private ChirpDBContext _dbContext;
 
-    public CheepRepository(ChirpDBContext dbContext) {
+    public CheepRepository(ChirpDBContext dbContext)
+    {
         this._dbContext = dbContext;
     }
 
@@ -78,13 +80,6 @@ public class CheepRepository : ICheepRepository {
                     cheep.Author.UserName));
     }
 
-    private IQueryable<Cheep> QueryCheepsFromAuthor(string username) {
-        return (from cheep in _dbContext.Cheeps
-                where cheep.Author.UserName == username
-                orderby cheep.TimeStamp descending
-                select cheep);
-    }
-
     public async Task CreateAuthor(string name, string email) {
         var author = Author.Create(name, email);
         await _dbContext.Authors.AddAsync(author);
@@ -102,8 +97,9 @@ public class CheepRepository : ICheepRepository {
         await _dbContext.SaveChangesAsync();
     }
 
-    public async Task<List<CheepDTO>> GetCheeps(int pageNr) {
-        IQueryable<CheepDTO> query = (from cheep in _dbContext.Cheeps
+    public async Task<List<CheepDTO>> GetCheeps(int pageNr)
+    {
+        var query = (from cheep in _dbContext.Cheeps
                                       orderby cheep.TimeStamp descending
                                       select cheep)
                                     .Pick(pageNr)
@@ -117,8 +113,9 @@ public class CheepRepository : ICheepRepository {
         return await query.ToListAsync();
     }
 
-    public async Task<List<CheepDTO>> GetCheepsFromUserName(string username, int pageNr) {
-        IQueryable<CheepDTO> query = (from cheep in _dbContext.Cheeps
+    public async Task<List<CheepDTO>> GetCheepsFromUserName(string username, int pageNr)
+    {
+        var query = (from cheep in _dbContext.Cheeps
                                       where cheep.Author.UserName == username
                                       orderby cheep.TimeStamp descending
                                       select cheep)
@@ -133,35 +130,4 @@ public class CheepRepository : ICheepRepository {
         return await query.ToListAsync();
     }
 
-    public async Task Unfollow(Author followerToDelete, Author followedToDelete) {
-        FollowRelation followRelationToDelete = (from followRelation in _dbContext.FollowRelations
-                                                 where followRelation.Follower ==
-                                                     followerToDelete && followRelation.Followed ==
-                                                     followedToDelete
-                                                 select followRelation).First();
-        if (followedToDelete == null) {
-            return;
-        }
-
-        _dbContext.FollowRelations.Remove(followRelationToDelete);
-        await _dbContext.SaveChangesAsync();
-    }
-
-    /**
-     * returns all FollowRelations where `author` is follower
-     */
-    public async Task<List<FollowRelation>> GetFollowRelations(Author author) {
-        return await (from followRelation in _dbContext.FollowRelations
-                      where followRelation.Follower == author
-                      select followRelation).ToListAsync();
-    }
-
-    /**
-     * this is borderline unreadable, but it just gets all Authors which `author` follows
-     */
-    public async Task<List<Author>> Following(Author author) {
-        return await (from user in _dbContext.FollowRelations
-                      where user.Follower.UserName == author.UserName
-                      select user.Followed).ToListAsync();
-    }
 }
