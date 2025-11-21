@@ -12,11 +12,9 @@ public class CheepRepository : ICheepRepository {
     }
 
     public async Task<List<CheepDTO>> GetOwnAndFollowedCheeps(Author author, int pageNr = 1) {
-        List<CheepDTO> cheeps = await QueryCheepsFromFollowedAuthors(author.UserName!)
-           .ToListAsync();
-        return cheeps
-              .Pick(pageNr)
-              .ToList();
+        return await QueryCheepsFromFollowedAuthors(author.UserName!)
+                    .Pick(pageNr)
+                    .ToListAsync();
     }
 
     private IQueryable<CheepDTO> QueryCheepsFromFollowedAuthors(string username) {
