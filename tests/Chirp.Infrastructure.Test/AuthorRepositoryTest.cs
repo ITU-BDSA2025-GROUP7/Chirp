@@ -151,13 +151,13 @@ public class AuthorRepositoryTest {
     [Fact]
     public async Task UnfollowSelf() {
         Author author = (await _authorRepository.GetAuthor("Helge")).Single();
-        Assert.Single(await _authorRepository.GetFollowRelations(author));
+        var followCountBefore = (await _authorRepository.GetFollowRelations(author)).Count;
 
         await _authorRepository.Unfollow(author, author);
 
-        Assert.Single(await _authorRepository.GetFollowRelations(author));
+        Assert.Equal((await _authorRepository.GetFollowRelations(author)).Count, followCountBefore);
     }
-    
+
     /**
      * Test whether Isfollowing behaves as intended when someone follows
      */
@@ -175,21 +175,21 @@ public class AuthorRepositoryTest {
         const string emailB = "Abba@Booper.com";
         await _authorRepository.CreateAuthor(nameB, emailB);
         Author authorB = (await _authorRepository.GetAuthor(usernameB)).First();
-        
+
         // act
         var AFollowBBefore = await _authorRepository.IsFollowing(authorA,authorB);
         var BFollowABefore = await _authorRepository.IsFollowing(authorB,authorA);
-        await _authorRepository.Follow(authorA, authorB); 
+        await _authorRepository.Follow(authorA, authorB);
         var AFollowBAfter = await _authorRepository.IsFollowing(authorA,authorB);
         var BFollowAAfter = await _authorRepository.IsFollowing(authorB,authorA);
-        
+
         // Assert
         Assert.False(AFollowBBefore);
         Assert.False(BFollowABefore);
         Assert.True(AFollowBAfter);
         Assert.False(BFollowAAfter);
     }
-    
+
     /**
      * Test whether Isfollowing behaves as intended when someone unfollows
      */
@@ -207,13 +207,13 @@ public class AuthorRepositoryTest {
         const string emailB = "Abba@Booper.com";
         await _authorRepository.CreateAuthor(nameB, emailB);
         Author authorB = (await _authorRepository.GetAuthor(usernameB)).First();
-        await _authorRepository.Follow(authorA, authorB); 
-        
+        await _authorRepository.Follow(authorA, authorB);
+
         // act
         var AFollowBBefore = await _authorRepository.IsFollowing(authorA,authorB);
         await _authorRepository.Unfollow(authorA,authorB);
         var AFollowBAfter = await _authorRepository.IsFollowing(authorA,authorB);
-        
+
         // Assert
         Assert.True(AFollowBBefore);
         Assert.False(AFollowBAfter);

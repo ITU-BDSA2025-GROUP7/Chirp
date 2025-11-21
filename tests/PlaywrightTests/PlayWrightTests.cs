@@ -7,17 +7,17 @@ namespace PlaywrightTests;
 [TestFixture]
 public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFactory>
 {
-    
+
     private string _serverUrl;
-    
+
     public PlayWrightTests()
     {
         var server = new EndToEndWebApplicationFactory();
-        _serverUrl = server.ServerAddress;  
+        _serverUrl = server.ServerAddress;
     }
 
     #region LoginTests
-    
+
      /**
      * Tests that its not posible to log in with a user that does not exist
      */
@@ -37,9 +37,9 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "Password" }).FillAsync("test");
         await Page.GetByRole(AriaRole.Button, new() { Name = "Log in" }).ClickAsync();
         await Expect(Page.GetByRole(AriaRole.Listitem)).ToContainTextAsync("Invalid login attempt.");
-    } 
-    
-     
+    }
+
+
     /**
      * Tests that it's not possible to login using username instead of email
      */
@@ -57,11 +57,11 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "Password" }).ClickAsync();
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "Password" }).FillAsync("LetM31n!");
         await Page.GetByRole(AriaRole.Button, new() { Name = "Log in" }).ClickAsync();
-        
+
         // is on the right page
         await Expect(Page).ToHaveURLAsync(_serverUrl+"Identity/Account/Login");
     }
-     
+
     /**
      * Tests that the navigation bar changes when logged in
      */
@@ -88,12 +88,12 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
         await Expect(Page.Locator("body")).ToContainTextAsync("What's on your mind, Helge? Share");
         await Expect(Page.Locator("h1")).ToContainTextAsync("Chirp!");
     }
-    
-    
+
+
     /**
      * The user should be able to log out
      */
-    
+
     [Test]
     public async Task LogOut()
     {
@@ -114,7 +114,7 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
         await Expect(Page.GetByRole(AriaRole.Paragraph)).ToContainTextAsync("You have successfully logged out of the application.");
         await Expect(Page.Locator("span")).ToContainTextAsync("Login");
     }
-    
+
     #endregion
 
     #region NavigationTests
@@ -127,7 +127,7 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
         await Page.GotoAsync(_serverUrl);
         await Expect(Page.GetByRole(AriaRole.Listitem).Filter(new() { HasText = "— 2023-08-01 13:17:39 Starbuck now is what we hear" }).GetByRole(AriaRole.Button)).Not.ToBeVisibleAsync();
     }
-    
+
     /**
      * Users can follow someone and unfollow when logged in
      */
@@ -153,7 +153,7 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
 
         await Page.GetByRole(AriaRole.Listitem).Filter(new() { HasText = "Mellie Yost Unfollow — 2023-" }).GetByRole(AriaRole.Button).ClickAsync();
     }
-    
+
     /**
      * Cannot follow yourself
      */
@@ -174,10 +174,12 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
         await Expect(Page.GetByRole(AriaRole.Heading, new() { Name = "Icon1Chirp!" })).ToBeVisibleAsync();
 
         await Page.GetByRole(AriaRole.Link, new() { Name = "My Timeline" }).ClickAsync();
-        await Expect(Page.GetByText("Helge — 2023-08-01 12:16:")).ToBeVisibleAsync();
+        await Expect(Page.GetByText("Jacqualine Gilcoine Unfollow — 2023-08-01 13:17:39"))
+           .ToBeVisibleAsync();
+        await Expect(Page.GetByText("Helge — 2023-08-01 13:17:37")).ToBeVisibleAsync();
     }
-    
-    
+
+
     /**
      * Test that my Page shows my display name
      */
@@ -199,12 +201,12 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
 
         await Expect(Page.GetByRole(AriaRole.Link, new() { Name = "My Timeline" })).ToBeVisibleAsync();
         await Page.GetByRole(AriaRole.Link, new() { Name = "My Timeline" }).ScrollIntoViewIfNeededAsync();
-        
-        
+
+
         await Page.GetByRole(AriaRole.Link, new() { Name = "My Timeline" }).ClickAsync();
         await Expect(Page.Locator("h2")).ToContainTextAsync("Helge's Timeline");
     }
-    
+
     [Test]
     public async Task PostAreShown()
     {
@@ -277,8 +279,8 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
         await Page.GetByRole(AriaRole.Button, new() { Name = "Log in" }).ClickAsync();
         await Expect(Page.GetByRole(AriaRole.Listitem)).ToContainTextAsync("Invalid login attempt.");
     }
-    
-    
+
+
     /**
      * Tests that a profile cannot have a blank email
      */
@@ -310,7 +312,7 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
         await Expect(Page.Locator("#account")).ToContainTextAsync("The Email field is required.");
         await Expect(Page.Locator("body")).ToContainTextAsync("Login");
     }
-    
+
     /**
      * Tests that making passwords are case-sensitive
      */
@@ -416,7 +418,7 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
         await Page.GetByRole(AriaRole.Button, new() { Name = "Register" }).ClickAsync();
         await Expect(Page.Locator("#registerForm")).ToContainTextAsync("The Confirm password field is required.");
     }
-    
+
     /**
      * Test that if you make an identical copy of a user,
      * the text "Username '<name>' is already taken." is shown.
@@ -484,7 +486,7 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
         await Page.GetByRole(AriaRole.Button, new() { Name = "Register" }).ClickAsync();
         await Expect(Page.Locator("#registerForm")).ToContainTextAsync("The Username field is required.");
     }
-    
+
     /**
      * Username must be unique
      */
@@ -531,8 +533,8 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
         await Page.GetByRole(AriaRole.Button, new() { Name = "Register" }).ClickAsync();
         await Expect(Page.GetByRole(AriaRole.Listitem)).ToContainTextAsync("Username 'Username1' is already taken.");
     }
-    
-    
+
+
     /**
      * It should not be possible to create two otherwise identical users with different usernames.
      * This test is a regression test to make sure a specific bug encountered is fixed.
@@ -583,7 +585,7 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
     #endregion
 
     #region Sending Cheeps
-    
+
    /**
      * Checks if it is possible to perform a xss attack when sending cheeps.
      * xss attempt is expetected to simply write a new cheep and not a popup
@@ -650,10 +652,10 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
         await Page.Locator("#Text").FillAsync("Cheep from public timeline");
         await Page.GetByRole(AriaRole.Button, new() { Name = "Share" }).ClickAsync();
         await Expect(Page.GetByRole(AriaRole.Listitem).Filter(new() { HasText = "Cheep from public" })).ToBeVisibleAsync();
-        
+
         // is on the right page
         await Expect(Page).ToHaveURLAsync(_serverUrl);
-        
+
         await Page.GetByRole(AriaRole.Link, new() { Name = "My Timeline" }).ClickAsync();
         await Expect(Page.GetByRole(AriaRole.Heading, new() { Name = "Icon1Chirp!" })).ToBeVisibleAsync();
 
@@ -661,12 +663,12 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
         await Page.Locator("#Text").FillAsync("Cheep from private Timeline");
         await Page.GetByRole(AriaRole.Button, new() { Name = "Share" }).ClickAsync();
         await Expect(Page.GetByRole(AriaRole.Listitem).Filter(new() { HasText = "Cheep from private" })).ToBeVisibleAsync();
-        
+
         // is on the right page
         await Expect(Page).ToHaveURLAsync(_serverUrl+"Helge");
     }
 
-    
+
     /**
      * Sending a cheep with 0 carecters is not posible
      */
@@ -690,7 +692,7 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
         await Page.GetByRole(AriaRole.Button, new() { Name = "Share" }).ClickAsync();
         await Expect(Page.Locator("#messagelist")).ToContainTextAsync("Jacqualine Gilcoine");
     }
-    
+
     /**
      * Snding a message that is too long is not posible
      */

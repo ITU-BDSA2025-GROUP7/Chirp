@@ -110,21 +110,23 @@ public class CheepRepositoryTest {
 
     /** Testing that the cheeps contain the expeected author, message and timestamp */
     [Theory]
-    [InlineData(0, "Jacqualine Gilcoine", "Starbuck now is what we hear the worst.", "2023-08-01 13:17:39")]
-    [InlineData(1, "Jacqualine Gilcoine",
-        "The train pulled up at his bereavement; but his eyes riveted upon that heart for ever; who ever conquered it?",
-        "2023-08-01 13:17:36")]
+    [InlineData(0, "Jacqualine Gilcoine", "Starbuck now is what we hear the worst.",
+                "2023-08-01 13:17:39")]
+    [InlineData(1, "Helge", "Hello, BDSA students!", "2023-08-01 13:17:37")]
     [InlineData(2, "Jacqualine Gilcoine",
-        "I wonder if he''d give a very shiny top hat and my outstretched hand and countless subtleties, to which it contains.",
-        "2023-08-01 13:17:34")]
-    [InlineData(3, "Mellie Yost", "But what was behind the barricade.", "2023-08-01 13:17:33")]
-    [InlineData(4, "Quintin Sitts",
-        "It''s bad enough to appal the stoutest man who was my benefactor, and all for our investigation.",
-        "2023-08-01 13:17:32")]
-    [InlineData(5, "Jacqualine Gilcoine",
-        "Seems to me of Darmonodes'' elephant that so caused him to the kitchen door.", "2023-08-01 13:17:29")]
-    public async Task ReadCheepsTest(int index, string author, string message, string timestamp)
-    {
+                "The train pulled up at his bereavement; but his eyes riveted upon that heart for ever; who ever conquered it?",
+                "2023-08-01 13:17:36")]
+    [InlineData(3, "Jacqualine Gilcoine",
+                "I wonder if he''d give a very shiny top hat and my outstretched hand and countless subtleties, to which it contains.",
+                "2023-08-01 13:17:34")]
+    [InlineData(4, "Mellie Yost", "But what was behind the barricade.", "2023-08-01 13:17:33")]
+    [InlineData(5, "Quintin Sitts",
+                "It''s bad enough to appal the stoutest man who was my benefactor, and all for our investigation.",
+                "2023-08-01 13:17:32")]
+    [InlineData(6, "Jacqualine Gilcoine",
+                "Seems to me of Darmonodes'' elephant that so caused him to the kitchen door.",
+                "2023-08-01 13:17:29")]
+    public async Task ReadCheepsTest(int index, string author, string message, string timestamp) {
         var cheep = await _cheepRepository.GetCheeps(1);
         Assert.Equal(author, cheep[index].AuthorDisplayName);
         Assert.Equal(message, cheep[index].Message);
