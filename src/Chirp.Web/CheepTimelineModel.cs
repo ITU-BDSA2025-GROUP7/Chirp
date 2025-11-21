@@ -4,7 +4,6 @@ using Chirp.Core.Domain_Model;
 using Chirp.Infrastructure;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Primitives;
-using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Chirp.Web;
@@ -17,15 +16,16 @@ public abstract class CheepTimelineModel : PageModel {
     public List<CheepDTO> Cheeps { get; set; } = new();
 
     [BindProperty]
-    [StringLength(Core.Domain_Model.Cheep.MAX_TEXT_LENGTH, ErrorMessage =
+    [Required]
+    [StringLength(Cheep.MAX_TEXT_LENGTH, ErrorMessage =
                       "The {0} must be at least {2} and at most {1} characters long.",
                   MinimumLength = 1)]
     [Display(Name = "Message")]
     public string Text { get; set; } = "";
 
-    public CheepTimelineModel(ICheepService _cheepService, IAuthorService _authorService) {
-        this._cheepService = _cheepService;
-        this._authorService = _authorService;
+    public CheepTimelineModel(ICheepService cheepService, IAuthorService authorService) {
+        this._cheepService = cheepService;
+        this._authorService = authorService;
     }
 
     /**
@@ -42,9 +42,14 @@ public abstract class CheepTimelineModel : PageModel {
         return pageNr;
     }
 
-    public async Task OnPostAsync() {
-        _ = _cheepService.CreateCheep((await _authorService.GetAuthorByUserName(User.Identity!.Name!)).First(), Text);
-        Response.Redirect(Request.GetDisplayUrl());
+    public async Task<IActionResult> OnPostAsync() {
+        if (ModelState.IsValid) {
+            await _cheepService.CreateCheep(
+                (await _authorService.GetAuthorByUserName(User.Identity!.Name!)).First(),
+                Text);
+        }
+
+        return RedirectToPage();
     }
 
     public async Task<bool> IsFollowing(Author authorA, Author authorB) {

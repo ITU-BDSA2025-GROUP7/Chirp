@@ -17,7 +17,7 @@ All commands here and below expect you to be in the main solution directory (i.e
 When a `dotnet` and `make` command are listed together, they are equivalent.\
 Executing `make` commands requires you to have an implementation of Make installed, such as GNU Make.
 ```
-dotnet run --project src/Chirp.Razor -e ASPNETCORE_ENVIRONMENT=Development
+dotnet run --project src/Chirp.Web -e ASPNETCORE_ENVIRONMENT=Development
 make start
 
 dotnet test -e ASPNETCORE_ENVIRONMENT=Development
@@ -38,7 +38,7 @@ make format
 
 To build and start the daemon on the current computer, execute either:
 ```
-dotnet run --project src/Chirp.Razor
+dotnet run --project src/Chirp.Web
 ```
 ```
 make start
