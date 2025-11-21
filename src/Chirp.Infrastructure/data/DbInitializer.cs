@@ -37,6 +37,12 @@ public static class DbInitializer {
             chirpContext.FollowRelations.Add(f01);
             var authors = new List<Author> { a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12 };
 
+            // Each author should follow themselves.
+            foreach (Author author in authors) {
+                chirpContext.FollowRelations.Add(new FollowRelation
+                                                     { Follower = author, Followed = author });
+            }
+
             var c1 = new Cheep() {
                 CheepId = 1, Author = a10,
                 Text =

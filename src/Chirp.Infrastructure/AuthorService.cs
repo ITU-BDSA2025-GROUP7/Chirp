@@ -1,6 +1,7 @@
 using Chirp.Core;
 using Chirp.Core.Domain_Model;
-using Chirp.Infrastructure;
+
+namespace Chirp.Infrastructure;
 
 public class AuthorService : IAuthorService {
     private IAuthorRepository authorRepository;

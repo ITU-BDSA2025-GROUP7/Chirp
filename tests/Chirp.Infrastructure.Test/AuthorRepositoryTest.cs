@@ -50,7 +50,6 @@ public class AuthorRepositoryTest {
     public async Task attemptToFollowSomeone() {
         //arrange
         const string name = "Barton Cooper";
-        string username = name.Replace(" ", "");
         const string email1 = "TheCakeMaster@copper.com";
         await _authorRepository.CreateAuthor(name, email1);
         List<Author> authors1 = await _authorRepository.GetAuthor("WendellBallan");
@@ -67,7 +66,6 @@ public class AuthorRepositoryTest {
     public async Task attemptToFollowSomeoneAlreadyFollowed() {
         //arrange
         const string name = "Barton Cooper";
-        string username = name.Replace(" ", "");
         const string email1 = "TheCakeMaster@copper.com";
         await _authorRepository.CreateAuthor(name, email1);
         List<Author> authors1 = await _authorRepository.GetAuthor("WendellBallan");
@@ -86,7 +84,6 @@ public class AuthorRepositoryTest {
     public async Task attemptToUnfollowSomeoneFollowed() {
         //arrange
         const string name = "Barton Cooper";
-        string username = name.Replace(" ", "");
         const string email1 = "TheCakeMaster@copper.com";
         await _authorRepository.CreateAuthor(name, email1);
         List<Author> authors1 = await _authorRepository.GetAuthor("WendellBallan");
@@ -104,7 +101,6 @@ public class AuthorRepositoryTest {
     public async Task attemptToUnfollowSomeoneNotFollowed() {
         //arrange
         const string name = "Barton Cooper";
-        string username = name.Replace(" ", "");
         const string email1 = "TheCakeMaster@copper.com";
         await _authorRepository.CreateAuthor(name, email1);
         List<Author> authors1 = await _authorRepository.GetAuthor("WendellBallan");
@@ -122,7 +118,6 @@ public class AuthorRepositoryTest {
     public async Task followNull() {
         //arrange
         const string name = "Barton Cooper";
-        string username = name.Replace(" ", "");
         const string email1 = "TheCakeMaster@copper.com";
         await _authorRepository.CreateAuthor(name, email1);
         List<Author> authors2 = await _authorRepository.GetAuthor("BartonCooper");
@@ -141,7 +136,6 @@ public class AuthorRepositoryTest {
     public async Task followAuthorNotInDBContext() {
         //arrange
         const string name = "Barton Cooper";
-        string username = name.Replace(" ", "");
         const string email1 = "TheCakeMaster@copper.com";
         await _authorRepository.CreateAuthor(name, email1);
         List<Author> authors2 = await _authorRepository.GetAuthor("BartonCooper");
@@ -151,5 +145,16 @@ public class AuthorRepositoryTest {
         _ = _authorRepository.Follow(barton, myAuthor);
         //assert
         Assert.Single(await _authorRepository.GetFollowRelations(barton));
+    }
+
+    /** Verifies that you cannot unfollow yourself. */
+    [Fact]
+    public async Task UnfollowSelf() {
+        Author author = (await _authorRepository.GetAuthor("Helge")).Single();
+        Assert.Single(await _authorRepository.GetFollowRelations(author));
+
+        await _authorRepository.Unfollow(author, author);
+
+        Assert.Single(await _authorRepository.GetFollowRelations(author));
     }
 }
