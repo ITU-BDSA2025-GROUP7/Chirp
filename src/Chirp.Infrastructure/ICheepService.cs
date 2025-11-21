@@ -1,4 +1,4 @@
-﻿using Chirp.Core;
+using Chirp.Core;
 using Chirp.Core.Domain_Model;
 
 namespace Chirp.Infrastructure;

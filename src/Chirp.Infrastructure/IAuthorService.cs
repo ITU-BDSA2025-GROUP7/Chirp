@@ -2,8 +2,7 @@ using Chirp.Core.Domain_Model;
 
 namespace Chirp.Infrastructure;
 
-public interface IAuthorService
-{
+public interface IAuthorService {
     public Task<List<Author>> GetAuthorByUserName(string username);
 
     public Task<bool> IsFollowing(Author authorA, Author authorB);

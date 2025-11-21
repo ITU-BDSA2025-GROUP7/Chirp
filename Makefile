@@ -21,6 +21,9 @@ ENV := -e ASPNETCORE_ENVIRONMENT=Development
 #  Override it by typing e.g. `make read n=3` or `make cheep n="Hello, World!"`
 n :=
 
+# Shared arguments. --warnaserror sets warnings to be reported as errors.
+ARGS := --warnaserror
+
 # ==============================================================================
 
 # starts the application on local host
@@ -31,6 +34,8 @@ start:
 test:
 	dotnet test ${ENV}
 
+testwarn:
+	dotnet test ${ENV} ${ARGS}
 #
 test-linux:
 	ASPNETCORE_ENVIRONMENT=Development dotnet test

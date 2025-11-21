@@ -23,9 +23,9 @@ public abstract class CheepTimelineModel : PageModel {
     [Display(Name = "Message")]
     public string Text { get; set; } = "";
 
-    public CheepTimelineModel(ICheepService _cheepService, IAuthorService _authorService) {
-        this._cheepService = _cheepService;
-        this._authorService = _authorService;
+    public CheepTimelineModel(ICheepService cheepService, IAuthorService authorService) {
+        this._cheepService = cheepService;
+        this._authorService = authorService;
     }
 
     /**
@@ -43,24 +43,21 @@ public abstract class CheepTimelineModel : PageModel {
     }
 
     public async Task OnPostAsync() {
-        _ = _cheepService.CreateCheep(
+        await _cheepService.CreateCheep(
             (await _authorService.GetAuthorByUserName(User.Identity!.Name!)).First(), Text);
         Response.Redirect(Request.GetDisplayUrl());
     }
-    
-    public async Task<bool> IsFollowing(Author authorA, Author authorB)
-    {
+
+    public async Task<bool> IsFollowing(Author authorA, Author authorB) {
         return await _authorService.IsFollowing(authorA, authorB);
     }
 
-    public async Task<IActionResult> OnPostFollowAsync(string? authorA, string? authorB)
-    {
+    public async Task<IActionResult> OnPostFollowAsync(string? authorA, string? authorB) {
         await _authorService.Follow(authorA!, authorB!);
         return RedirectToPage();
     }
 
-    public async Task<IActionResult> OnPostUnfollowAsync(string? authorA, string? authorB)
-    {
+    public async Task<IActionResult> OnPostUnfollowAsync(string? authorA, string? authorB) {
         await _authorService.Unfollow(authorA!, authorB!);
         return RedirectToPage();
     }

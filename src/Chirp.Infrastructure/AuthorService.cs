@@ -18,18 +18,15 @@ public class AuthorService : IAuthorService {
         await authorRepository.Follow(follower, followed);
     }
 
-    public async Task<bool> IsFollowing(Author authorA, Author authorB)
-    {
+    public async Task<bool> IsFollowing(Author authorA, Author authorB) {
         return await authorRepository.IsFollowing(authorA, authorB);
     }
 
-    public async Task Follow(string authorA, string authorB)
-    {
+    public async Task Follow(string authorA, string authorB) {
         await authorRepository.Follow(authorA, authorB);
     }
 
-    public async Task Unfollow(string authorA, string authorB)
-    {
+    public async Task Unfollow(string authorA, string authorB) {
         await authorRepository.Unfollow(authorA, authorB);
     }
 }

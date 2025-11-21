@@ -1,4 +1,4 @@
-﻿namespace Chirp.Core;
+namespace Chirp.Core;
 
 public class CheepDTO : IComparable<CheepDTO> {
     public string AuthorDisplayName { get; set; }

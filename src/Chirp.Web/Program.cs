@@ -34,26 +34,26 @@ builder.Services.AddScoped<ICheepService, CheepService>();
 builder.Services.AddScoped<IAuthorRepository, AuthorRepository>();
 builder.Services.AddScoped<IAuthorService, AuthorService>();
 builder.Services.AddDefaultIdentity<Author>(options => {
-            options.SignIn.RequireConfirmedAccount = true;
-        })
+    options.SignIn.RequireConfirmedAccount = true;
+})
        .AddEntityFrameworkStores<ChirpDBContext>();
 builder.Services.AddAuthentication(options => {
-            options.DefaultScheme = IdentityConstants.ApplicationScheme;
-            options.DefaultAuthenticateScheme = IdentityConstants.ApplicationScheme;
-            options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
-            options.DefaultChallengeScheme = "GitHub";
-        })
+    options.DefaultScheme = IdentityConstants.ApplicationScheme;
+    options.DefaultAuthenticateScheme = IdentityConstants.ApplicationScheme;
+    options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
+    options.DefaultChallengeScheme = "GitHub";
+})
        .AddCookie(o => {
-            o.LoginPath = "/Identity/Account/Login";
-            o.LogoutPath = "/Identity/Account/Logout";
-        })
+           o.LoginPath = "/Identity/Account/Login";
+           o.LogoutPath = "/Identity/Account/Logout";
+       })
        .AddGitHub(o => {
-            o.ClientId = builder.Configuration["authenticationGitHubClientId"]
-                      ?? throw new InvalidOperationException();
-            o.ClientSecret = builder.Configuration["authenticationGitHubClientSecret"]
-                          ?? throw new InvalidOperationException();
-            o.Scope.Add("user:email");
-        });
+           o.ClientId = builder.Configuration["authenticationGitHubClientId"]
+                     ?? throw new InvalidOperationException();
+           o.ClientSecret = builder.Configuration["authenticationGitHubClientSecret"]
+                         ?? throw new InvalidOperationException();
+           o.Scope.Add("user:email");
+       });
 builder.Services.AddSession();
 
 WebApplication app = builder.Build();
