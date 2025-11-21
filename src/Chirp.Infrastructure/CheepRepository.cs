@@ -90,8 +90,7 @@ public class CheepRepository : ICheepRepository {
             return;
         }
 
-        FollowRelation newFollowRelation = new FollowRelation()
-            { Follower = follower, Followed = followed };
+        FollowRelation newFollowRelation = new FollowRelation() { Follower = follower, Followed = followed };
         await _dbContext.AddAsync(newFollowRelation);
         await _dbContext.SaveChangesAsync();
     }

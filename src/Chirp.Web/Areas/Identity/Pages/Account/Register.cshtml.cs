@@ -147,7 +147,10 @@ namespace Chirp.Web.Areas.Identity.Pages.Account {
                     "/Account/ConfirmEmail",
                     pageHandler: null,
                     values: new {
-                        area = "Identity", userId = userId, code = code, returnUrl = returnUrl
+                        area = "Identity",
+                        userId = userId,
+                        code = code,
+                        returnUrl = returnUrl
                     },
                     protocol: Request.Scheme);
 

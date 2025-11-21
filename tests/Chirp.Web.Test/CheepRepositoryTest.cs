@@ -47,8 +47,7 @@ public class CheepRepositoryTest {
 
     [Fact]
     public async Task CheepsDeletedWithAuthor() {
-        var author = new Author
-            { DisplayName = "DisappearingSoon", Email = "test@itu.dk", UserName = "test@itu.dk" };
+        var author = new Author { DisplayName = "DisappearingSoon", Email = "test@itu.dk", UserName = "test@itu.dk" };
         var cheep = new Cheep {
             CheepId = 90000,
             Author = author,
