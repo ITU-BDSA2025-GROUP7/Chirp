@@ -59,6 +59,8 @@ namespace Chirp.Web.Areas.Identity.Pages.Account.Manage {
         /// </summary>
         public static string TwoFactorAuthentication => "TwoFactorAuthentication";
 
+        public static string MyCheeps => "MyCheeps";
+
         /// <summary>
         ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
@@ -114,6 +116,9 @@ namespace Chirp.Web.Areas.Identity.Pages.Account.Manage {
         /// </summary>
         public static string TwoFactorAuthenticationNavClass(ViewContext viewContext) =>
             PageNavClass(viewContext, TwoFactorAuthentication);
+
+        public static string MyCheepsNavClass(ViewContext viewContext) =>
+            PageNavClass(viewContext, MyCheeps);
 
         /// <summary>
         ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
