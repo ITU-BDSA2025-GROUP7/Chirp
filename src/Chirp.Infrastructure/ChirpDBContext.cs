@@ -13,4 +13,18 @@ public class ChirpDBContext : IdentityDbContext<Author> {
         this.Database.EnsureCreated();
         //DbInitializer.SeedDatabase(this);
     }
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+
+    modelBuilder.Entity<FollowRelation>()
+        .HasOne(fr => fr.Follower)
+        .WithMany(u => u.followerRelations)
+        .OnDelete(DeleteBehavior.Cascade);
+
+    modelBuilder.Entity<FollowRelation>()
+        .HasOne(fr => fr.Followed)
+        .WithMany(u => u.followedRelations)
+        .OnDelete(DeleteBehavior.Cascade);;
+    }
 }

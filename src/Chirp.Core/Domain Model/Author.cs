@@ -12,6 +12,10 @@ public class Author : IdentityUser {
 
     [PersonalData]
     public List<Cheep> Cheeps { get; set; } = [];
+    [PersonalData]
+    public List<FollowRelation> followerRelations {get; set;}=[];
+    [PersonalData]
+    public List<FollowRelation> followedRelations {get; set;}=[];
 
     /** Create an Author which would be a valid user in the database,
      * generating a username based on the given <c>displayName</c>.<br/>

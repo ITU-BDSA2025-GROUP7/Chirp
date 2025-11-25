@@ -205,4 +205,70 @@ public class AuthorRepositoryTest {
         Assert.True(AFollowBBefore);
         Assert.False(AFollowBAfter);
     }
+
+    [Fact]
+    public async Task FollowRelationDeletedWithAuthors() {
+        var follower = new Author {DisplayName = "Barton Cooper", Email = "TheCakeMaster@copper.com", UserName = "TheCakeMaster@copper.com"};
+        var followed = new Author { DisplayName = "DisappearingSoon", Email = "test@itu.dk", UserName = "test@itu.dk" };
+        
+        var myFollowRelation = new FollowRelation {
+            FollowRelationId = 100000,
+            Follower = follower,
+            Followed = followed
+        };
+        follower.followerRelations.Add(myFollowRelation);
+        followed.followedRelations.Add(myFollowRelation);
+
+        Assert.DoesNotContain(follower, _context.Authors);
+        Assert.DoesNotContain(followed, _context.Authors);
+        Assert.DoesNotContain(myFollowRelation, _context.FollowRelations);
+
+        _context.Authors.Add(follower);
+        _context.Authors.Add(followed);
+        await _context.SaveChangesAsync();
+
+        Assert.Contains(follower, _context.Authors);
+        Assert.Contains(followed, _context.Authors);
+        Assert.Contains(myFollowRelation, _context.FollowRelations);
+
+        _context.Authors.Remove(follower);
+        _context.Authors.Remove(followed);
+        await _context.SaveChangesAsync();
+
+        Assert.DoesNotContain(follower, _context.Authors);
+        Assert.DoesNotContain(followed, _context.Authors);
+        Assert.DoesNotContain(myFollowRelation, _context.FollowRelations);
+    }
+    [Fact]
+    public async Task FollowRelationDeletedWithFollower() {
+        var follower = new Author {DisplayName = "Barton Cooper", Email = "TheCakeMaster@copper.com", UserName = "TheCakeMaster@copper.com"};
+        var followed = new Author { DisplayName = "DisappearingSoon", Email = "test@itu.dk", UserName = "test@itu.dk" };
+        
+        var myFollowRelation = new FollowRelation {
+            FollowRelationId = 100000,
+            Follower = follower,
+            Followed = followed
+        };
+        follower.followerRelations.Add(myFollowRelation);
+        followed.followedRelations.Add(myFollowRelation);
+
+        Assert.DoesNotContain(follower, _context.Authors);
+        Assert.DoesNotContain(followed, _context.Authors);
+        Assert.DoesNotContain(myFollowRelation, _context.FollowRelations);
+
+        _context.Authors.Add(followed);
+        await _context.SaveChangesAsync();
+
+        Assert.DoesNotContain(follower, _context.Authors);
+        Assert.Contains(followed, _context.Authors);
+        Assert.DoesNotContain(myFollowRelation, _context.FollowRelations);
+
+        _context.Authors.Remove(follower);
+        _context.Authors.Remove(followed);
+        await _context.SaveChangesAsync();
+
+        Assert.DoesNotContain(follower, _context.Authors);
+        Assert.DoesNotContain(followed, _context.Authors);
+        Assert.DoesNotContain(myFollowRelation, _context.FollowRelations);
+    }
 }
