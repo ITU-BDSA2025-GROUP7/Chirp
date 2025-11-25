@@ -66,7 +66,7 @@ public class AuthorRepository : IAuthorRepository {
         if (!_dbContext.Authors.Any(author => author == follower) ||
             !_dbContext.Authors.Any(author => author == followed) ||
             follower.Id == followed.Id ||
-            (await Following(follower)).Contains(followed)) //checks if follower already follows followed :3
+            (await Following(follower)).Contains(followed)) //checks if follower already follows followed
         {
             return true;
         }
