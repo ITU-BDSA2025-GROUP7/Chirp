@@ -17,14 +17,14 @@ public class ChirpDBContext : IdentityDbContext<Author> {
     {
         base.OnModelCreating(modelBuilder);
 
-    modelBuilder.Entity<FollowRelation>()
-        .HasOne(fr => fr.Follower)
-        .WithMany(u => u.followerRelations)
-        .OnDelete(DeleteBehavior.Cascade);
+    modelBuilder.Entity<Author>()
+        .HasMany(a => a.followerRelations)
+        .WithOne(fr => fr.Follower)
+        .OnDelete(DeleteBehavior.ClientCascade);
 
-    modelBuilder.Entity<FollowRelation>()
-        .HasOne(fr => fr.Followed)
-        .WithMany(u => u.followedRelations)
-        .OnDelete(DeleteBehavior.Cascade);;
+    modelBuilder.Entity<Author>()
+        .HasMany(a => a.followedRelations)
+        .WithOne(fd => fd.Followed)
+        .OnDelete(DeleteBehavior.ClientCascade);;
     }
 }

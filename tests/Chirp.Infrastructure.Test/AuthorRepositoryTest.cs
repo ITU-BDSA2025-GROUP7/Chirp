@@ -241,7 +241,7 @@ public class AuthorRepositoryTest {
     }
     [Fact]
     public async Task FollowRelationDeletedWithFollower() {
-        var follower = new Author {DisplayName = "Barton Cooper", Email = "TheCakeMaster@copper.com", UserName = "TheCakeMaster@copper.com"};
+        var follower = new Author {DisplayName = "Barton Cooper", Email = "TheCakeMaster@copper.com", UserName = "Kent From barbie"};
         var followed = new Author { DisplayName = "DisappearingSoon", Email = "test@itu.dk", UserName = "test@itu.dk" };
         
         var myFollowRelation = new FollowRelation {
@@ -257,13 +257,13 @@ public class AuthorRepositoryTest {
         Assert.DoesNotContain(myFollowRelation, _context.FollowRelations);
 
         _context.Authors.Add(followed);
+        _context.Authors.Remove(follower);
         await _context.SaveChangesAsync();
 
         Assert.DoesNotContain(follower, _context.Authors);
         Assert.Contains(followed, _context.Authors);
         Assert.DoesNotContain(myFollowRelation, _context.FollowRelations);
 
-        _context.Authors.Remove(follower);
         _context.Authors.Remove(followed);
         await _context.SaveChangesAsync();
 
