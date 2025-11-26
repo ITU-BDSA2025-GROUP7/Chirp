@@ -1,5 +1,6 @@
 using System.Text;
 using Chirp.Core;
+using static Chirp.Core.ICheepRepository;
 using Chirp.Core.Domain_Model;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
@@ -103,19 +104,22 @@ public class CheepRepositoryTest {
 
     /** Testing that the cheeps contain the expeected author, message and timestamp */
     [Theory]
-    [InlineData(0, "Jacqualine Gilcoine", "Starbuck now is what we hear the worst.", "2023-08-01 13:17:39")]
-    [InlineData(1, "Jacqualine Gilcoine",
-        "The train pulled up at his bereavement; but his eyes riveted upon that heart for ever; who ever conquered it?",
-        "2023-08-01 13:17:36")]
+    [InlineData(0, "Jacqualine Gilcoine", "Starbuck now is what we hear the worst.",
+                "2023-08-01 13:17:39")]
+    [InlineData(1, "Helge", "Hello, BDSA students!", "2023-08-01 13:17:37")]
     [InlineData(2, "Jacqualine Gilcoine",
-        "I wonder if he''d give a very shiny top hat and my outstretched hand and countless subtleties, to which it contains.",
-        "2023-08-01 13:17:34")]
-    [InlineData(3, "Mellie Yost", "But what was behind the barricade.", "2023-08-01 13:17:33")]
-    [InlineData(4, "Quintin Sitts",
-        "It''s bad enough to appal the stoutest man who was my benefactor, and all for our investigation.",
-        "2023-08-01 13:17:32")]
-    [InlineData(5, "Jacqualine Gilcoine",
-        "Seems to me of Darmonodes'' elephant that so caused him to the kitchen door.", "2023-08-01 13:17:29")]
+                "The train pulled up at his bereavement; but his eyes riveted upon that heart for ever; who ever conquered it?",
+                "2023-08-01 13:17:36")]
+    [InlineData(3, "Jacqualine Gilcoine",
+                "I wonder if he''d give a very shiny top hat and my outstretched hand and countless subtleties, to which it contains.",
+                "2023-08-01 13:17:34")]
+    [InlineData(4, "Mellie Yost", "But what was behind the barricade.", "2023-08-01 13:17:33")]
+    [InlineData(5, "Quintin Sitts",
+                "It''s bad enough to appal the stoutest man who was my benefactor, and all for our investigation.",
+                "2023-08-01 13:17:32")]
+    [InlineData(6, "Jacqualine Gilcoine",
+                "Seems to me of Darmonodes'' elephant that so caused him to the kitchen door.",
+                "2023-08-01 13:17:29")]
     public async Task ReadCheepsTest(int index, string author, string message, string timestamp) {
         var cheep = await _cheepRepository.GetCheeps(1);
         Assert.Equal(author, cheep[index].AuthorDisplayName);
@@ -135,11 +139,11 @@ public class CheepRepositoryTest {
     [Fact]
     public async Task PaginationTest() {
         var cheeps1 = await _cheepRepository.GetCheeps(1);
-        Assert.Equal(32, cheeps1.Count);
+        Assert.Equal(CHEEPS_PER_PAGE, cheeps1.Count);
 
         // there should also be 32 cheeps on the second page
         var cheeps2 = await _cheepRepository.GetCheeps(2);
-        Assert.Equal(32, cheeps2.Count);
+        Assert.Equal(CHEEPS_PER_PAGE, cheeps2.Count);
 
         // unique pages
         Assert.NotStrictEqual(cheeps1, cheeps2);
@@ -156,7 +160,7 @@ public class CheepRepositoryTest {
         // DbInitializer.SeedDatabase(_context);
 
         var cheeps = await _cheepRepository.GetCheeps(1);
-        Assert.Equal(32, cheeps.Count);
+        Assert.Equal(CHEEPS_PER_PAGE, cheeps.Count);
         string lastTimeStamp = "2050-07-10 21:21:13";
 
         foreach (var cheep in cheeps) {
@@ -175,7 +179,7 @@ public class CheepRepositoryTest {
         var cheeps1 = await _cheepRepository.GetCheeps(1);
         var cheepsWeird = await _cheepRepository.GetCheeps(pagenr);
 
-        Assert.Equal(32, cheepsWeird.Count);
+        Assert.Equal(CHEEPS_PER_PAGE, cheepsWeird.Count);
         Assert.Equivalent(cheeps1, cheepsWeird);
     }
 

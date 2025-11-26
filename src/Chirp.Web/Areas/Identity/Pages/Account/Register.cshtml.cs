@@ -6,6 +6,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Text;
 using System.Text.Encodings.Web;
+using Chirp.Core;
 using Microsoft.AspNetCore.Authentication;
 using Chirp.Core.Domain_Model;
 using Microsoft.AspNetCore.Identity;
@@ -22,19 +23,25 @@ namespace Chirp.Web.Areas.Identity.Pages.Account {
         private readonly IUserEmailStore<Author> _emailStore;
         private readonly ILogger<RegisterModel> _logger;
         private readonly IEmailSender _emailSender;
+        private readonly ICheepRepository _cheepRepository;
+        private readonly IAuthorRepository _authorRepository;
 
         public RegisterModel(
             UserManager<Author> userManager,
             IUserStore<Author> userStore,
             SignInManager<Author> signInManager,
             ILogger<RegisterModel> logger,
-            IEmailSender emailSender) {
+            IEmailSender emailSender,
+            ICheepRepository cheepRepository,
+            IAuthorRepository authorRepository) {
             _userManager = userManager;
             _userStore = userStore;
             _emailStore = GetEmailStore();
             _signInManager = signInManager;
             _logger = logger;
             _emailSender = emailSender;
+            _cheepRepository = cheepRepository;
+            _authorRepository = authorRepository;
         }
 
         /// <summary>
@@ -140,6 +147,7 @@ namespace Chirp.Web.Areas.Identity.Pages.Account {
             if (result.Succeeded) {
                 _logger.LogInformation("User created a new account with password.");
 
+                await _authorRepository.Follow(user, user);
                 string userId = await _userManager.GetUserIdAsync(user);
                 string code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                 code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));

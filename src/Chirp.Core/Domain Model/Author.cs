@@ -18,9 +18,16 @@ public class Author : IdentityUser {
     public List<FollowRelation> followedRelations {get; set;}=[];
 
     /** Create an Author which would be a valid user in the database,
-     * generating a username based on the given <c>displayName</c>.<br/>
+     * generating a username based on the given <c>displayName</c> by removing all spaces.<br/>
+     * The word "valid" here refers to the Author having a non-null <c>NormalizedUserName</c>
+     * and <c>NormalizedEmail</c>.<br/>
      * The optional parameter <c>passwordHash</c> needs to be included to
-     * be able to actually log in as the person in practice.
+     * be able to actually log in as the person in practice.<br/>
+     * This is a convenience function for automatically setting fields that would otherwise be
+     * set if the user was created through the UserStore, UserEmailStore, and UserManager in
+     * Register.cshtml.cs.<br/>
+     * If just creating an Author for testing purposes,
+     * the standard constructor will probably suffice.
      */
     public static Author Create(string displayName, string email,
                                 bool emailConfirmed = true,

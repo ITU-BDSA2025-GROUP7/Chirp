@@ -1,6 +1,5 @@
 namespace Chirp.Infrastructure;
 
-using System.Diagnostics.CodeAnalysis;
 using Chirp.Core;
 using Chirp.Core.Domain_Model;
 using Microsoft.EntityFrameworkCore;
@@ -16,11 +15,14 @@ public class AuthorRepository : IAuthorRepository {
         var author = Author.Create(name, email);
         await _dbContext.Authors.AddAsync(author);
         await _dbContext.SaveChangesAsync();
+        await Follow(author, author);
     }
+
     public async Task<List<Author>> GetAuthor(string identifier) {
-        if (identifier.Contains("@")) {
+        if (identifier.Contains('@')) {
             return await GetAuthorByEmail(identifier);
         }
+
         return await GetAuthorByUserName(identifier);
     }
 
@@ -41,9 +43,10 @@ public class AuthorRepository : IAuthorRepository {
     }
 
     public async Task Follow(Author follower, Author followed) {
-        if (await ValidifyfollowRelationAsync(follower, followed)) {
+        if (await IsFollowRelationInvalid(follower, followed)) {
             return;
         }
+
         FollowRelation newFollowRelation = new FollowRelation() { Follower = follower, Followed = followed };
         await _dbContext.AddAsync(newFollowRelation);
         await _dbContext.SaveChangesAsync();
@@ -51,29 +54,30 @@ public class AuthorRepository : IAuthorRepository {
 
     public async Task Unfollow(Author followerToDelete, Author followedToDelete) {
         FollowRelation followRelationToDelete = (from followRelation in _dbContext.FollowRelations
-                                                 where followRelation.Follower == followerToDelete && followRelation.Followed == followedToDelete
+                                                 where followRelation.Follower ==
+                                                     followerToDelete && followRelation.Followed ==
+                                                     followedToDelete
                                                  select followRelation).First();
-        if (followedToDelete == null) {
+        if (followerToDelete == followedToDelete) {
             return;
         }
+
         _dbContext.FollowRelations.Remove(followRelationToDelete);
         await _dbContext.SaveChangesAsync();
     }
+
     /**
      * Returns true if breaks rules
      */
-    private async Task<bool> ValidifyfollowRelationAsync(Author follower, Author followed) {
-        if (!_dbContext.Authors.Any(author => author == follower) ||
-            !_dbContext.Authors.Any(author => author == followed) ||
-            follower.Id == followed.Id ||
-            (await Following(follower)).Contains(followed)) //checks if follower already follows followed
-        {
-            return true;
-        }
-        return false;
+    private async Task<bool> IsFollowRelationInvalid(Author follower, Author followed) {
+        return !_dbContext.Authors.Any(author => author == follower) ||
+               !_dbContext.Authors.Any(author => author == followed) ||
+               (await Following(follower))
+              .Contains(followed); //checks if follower already follows followed :3
     }
+
     /**
-     * returns all FollowRelations where `author` is follower 
+     * returns all FollowRelations where `author` is follower
      */
     public async Task<List<FollowRelation>> GetFollowRelations(Author author) {
         return await (from followRelation in _dbContext.FollowRelations
@@ -108,7 +112,8 @@ public class AuthorRepository : IAuthorRepository {
      */
     public async Task<bool> IsFollowing(Author authorA, Author authorB) {
         var matches = await (from followRelation in _dbContext.FollowRelations
-                             where followRelation.Follower == authorA && followRelation.Followed == authorB
+                             where followRelation.Follower == authorA &&
+                                   followRelation.Followed == authorB
                              select followRelation).ToListAsync();
         return matches.Count > 0;
     }
