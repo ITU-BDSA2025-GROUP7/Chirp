@@ -5,6 +5,7 @@
 
 using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
+using Chirp.Core;
 using Chirp.Core.Domain_Model;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
@@ -12,7 +13,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-
 using SignInResult = Microsoft.AspNetCore.Identity.SignInResult;
 
 namespace Chirp.Web.Areas.Identity.Pages.Account {
@@ -24,19 +24,25 @@ namespace Chirp.Web.Areas.Identity.Pages.Account {
         private readonly IUserEmailStore<Author> _emailStore;
         private readonly IEmailSender _emailSender;
         private readonly ILogger<ExternalLoginModel> _logger;
+        private readonly ICheepRepository _cheepRepository;
+        private readonly IAuthorRepository _authorRepository;
 
         public ExternalLoginModel(
             SignInManager<Author> signInManager,
             UserManager<Author> userManager,
             IUserStore<Author> userStore,
             ILogger<ExternalLoginModel> logger,
-            IEmailSender emailSender) {
+            IEmailSender emailSender,
+            ICheepRepository cheepRepository,
+            IAuthorRepository authorRepository) {
             _signInManager = signInManager;
             _userManager = userManager;
             _userStore = userStore;
             _emailStore = GetEmailStore();
             _logger = logger;
             _emailSender = emailSender;
+            _cheepRepository = cheepRepository;
+            _authorRepository = authorRepository;
         }
 
         /// <summary>
@@ -106,7 +112,7 @@ namespace Chirp.Web.Areas.Identity.Pages.Account {
         }
 
         public async Task<IActionResult> OnGetCallbackAsync(string returnUrl = null,
-            string remoteError = null) {
+                                                            string remoteError = null) {
             returnUrl = returnUrl ?? Url.Content("~/");
 
             if (remoteError != null) {
@@ -124,12 +130,12 @@ namespace Chirp.Web.Areas.Identity.Pages.Account {
             // Sign in the user with this external login provider if the user already has a login.
             SignInResult result =
                 await _signInManager.ExternalLoginSignInAsync(info.LoginProvider,
-                    info.ProviderKey,
-                    isPersistent: false,
-                    bypassTwoFactor: true);
+                                                              info.ProviderKey,
+                                                              isPersistent: false,
+                                                              bypassTwoFactor: true);
             if (result.Succeeded) {
                 _logger.LogWarning("{Name} logged in with {LoginProvider} provider.",
-                    info.Principal.Identity?.Name, info.LoginProvider);
+                                   info.Principal.Identity?.Name, info.LoginProvider);
                 return LocalRedirect(returnUrl);
             }
 
@@ -143,13 +149,10 @@ namespace Chirp.Web.Areas.Identity.Pages.Account {
             Input = GetInputFromInfo(info);
 
             if (ModelState.IsValid) {
-
                 return await CreateAndSignIn(info, returnUrl);
-
             }
 
             return Page();
-
         }
 
         public async Task<IActionResult> OnPostConfirmationAsync(string returnUrl = null) {
@@ -181,11 +184,11 @@ namespace Chirp.Web.Areas.Identity.Pages.Account {
                               string.Empty
             };
             return Input;
-
         }
 
 
-        private async Task<IActionResult> CreateAndSignIn(ExternalLoginInfo info, string returnUrl) {
+        private async Task<IActionResult>
+            CreateAndSignIn(ExternalLoginInfo info, string returnUrl) {
             // create
             Author user = CreateUser();
             user.DisplayName = string.IsNullOrWhiteSpace(Input.DisplayName)
@@ -199,33 +202,35 @@ namespace Chirp.Web.Areas.Identity.Pages.Account {
 
             // Login
             if (createResult.Succeeded) {
-
                 createResult = await _userManager.AddLoginAsync(user, info);
                 if (createResult.Succeeded) {
                     _logger.LogWarning("User created an account using {Name} provider.",
-                        info.LoginProvider);
+                                       info.LoginProvider);
                     string userId = await _userManager.GetUserIdAsync(user);
                     await _signInManager.SignInAsync(user, isPersistent: false,
-                        info.LoginProvider);
+                                                     info.LoginProvider);
+                    await _authorRepository.Follow(user, user);
                     return LocalRedirect(returnUrl);
                 }
             }
+
             // Errors
             foreach (IdentityError error in createResult.Errors) {
                 ModelState.AddModelError(string.Empty, error.Description);
 
                 // see if the user has a regular account, and if that is causing the error
                 Author existingUser = await _userManager.FindByEmailAsync(Input.Email);
-                if (existingUser == null) return Page(); // if not - go to the register page (externallogin.cshtml)
+                if (existingUser == null)
+                    return Page(); // if not - go to the register page (externallogin.cshtml)
 
                 // else login with the account that is configured to the email
                 await _userManager.AddLoginAsync(existingUser, info);
                 await _signInManager.SignInAsync(existingUser, isPersistent: false);
                 return LocalRedirect(returnUrl);
             }
+
             // register page (externallogin.cshtml) - looks like register
             return Page();
-
         }
 
         private Author CreateUser() {
