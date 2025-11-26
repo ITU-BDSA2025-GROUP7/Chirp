@@ -85,7 +85,7 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
         await Expect(Page.Locator("body")).ToBeVisibleAsync();
         await Expect(Page.Locator("h2")).ToContainTextAsync("Public Timeline");
         await Expect(Page.Locator("body"))
-           .ToContainTextAsync("My Timeline | Public Timeline | Helge | Logout");
+           .ToContainTextAsync("My Timeline | Public Timeline | About me | Logout");
         await Expect(Page.Locator("body")).ToContainTextAsync("What's on your mind, Helge? Share");
         await Expect(Page.Locator("h1")).ToContainTextAsync("Chirp!");
     }
@@ -294,7 +294,7 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
         await Expect(Page.GetByRole(AriaRole.Heading, new() { Name = "Icon1Chirp!" }))
            .ToBeVisibleAsync();
 
-        await Page.GetByRole(AriaRole.Link, new() { Name = "Tester" }).ClickAsync();
+        await Page.GetByRole(AriaRole.Link, new() { Name = "About me" }).ClickAsync();
         await Expect(Page.GetByRole(AriaRole.Heading, new() { Name = "Icon1Chirp!" }))
            .ToBeVisibleAsync();
 
