@@ -18,16 +18,17 @@ IConfigurationRoot config = new ConfigurationBuilder()
                            .Build();
 
 // use in memory database for testing
-if (environment.Equals("Development")) {
+/*if (environment.Equals("Development")) {
     Console.WriteLine("We are running in Development mode");
     var connection = new SqliteConnection("DataSource=:memory:");
     connection.Open();
     builder.Services.AddDbContext<ChirpDBContext>();
     builder.Services.AddDbContext<ChirpDBContext>(options => options.UseSqlite(connection));
 } else {
-    string? connectionString = config["ConnectionStrings:DefaultConnection"];
-    builder.Services.AddDbContext<ChirpDBContext>(options => options.UseSqlite(connectionString));
-}
+} */
+
+string? connectionString = config["ConnectionStrings:DefaultConnection"];
+builder.Services.AddDbContext<ChirpDBContext>(options => options.UseSqlite(connectionString));
 
 builder.Services.AddScoped<ICheepRepository, CheepRepository>();
 builder.Services.AddScoped<ICheepService, CheepService>();
