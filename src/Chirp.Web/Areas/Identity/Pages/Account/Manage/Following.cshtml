@@ -1,4 +1,5 @@
 @page
+@using Microsoft.IdentityModel.Tokens
 @model Following
 @{
     ViewData["Title"] = "Following";
@@ -6,15 +7,16 @@
 }
 
 <h3>@ViewData["Title"]</h3>
-<partial name="_StatusMessage" model="Model.StatusMessage" />
-<p>Here are the accounts you follow</p>
-<div class="row">
-    <div class="col-md-6">
 
-        @foreach (var followRelation in Model.FollowRelations)
-        {
-            <li style="list-style-type: none">
-               <div style="display: flex; align-items: center; gap: 5px">
+@if (Model.FollowRelations.Count > 1) { // 1 because we are always following ourselves
+
+    <p>Here are the accounts you follow</p>
+    <div class="row">
+        <div class="col-md-6">
+
+            @foreach (var followRelation in Model.FollowRelations) {
+                <li style="list-style-type: none">
+                    <div style="display: flex; align-items: center; gap: 5px">
                         @if (followRelation.Follower.UserName != followRelation.Followed.UserName) {
                             <strong>
                                 <a href="/@followRelation.Followed.UserName">@followRelation.Followed.DisplayName</a>
@@ -31,11 +33,15 @@
                         }
                     </div>
                     <br>
-            </li>
-        }
+                </li>
+            }
 
+        </div>
     </div>
-</div>
+} else {
+    <p>It doesn't seem like you are following anyone yet <br>
+        Head to the public timeline to see if there is someone you like</p>
+}
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
