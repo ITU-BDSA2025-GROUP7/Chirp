@@ -1,17 +1,50 @@
+using System.Data.Common;
+using Chirp.Infrastructure;
 using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Hosting.Server.Features;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.Data.Sqlite;
+using Microsoft.EntityFrameworkCore;
 
 namespace PlaywrightTests;
 
 /**
- * Custom WebApplicationFactory that alowes for starting the program within a test.
+ * Custom WebApplicationFactory that allows for starting the program within a test.
  * Look at PlayWrightTests.cs for how to use it
+ * Thise code was made with the help of this article https://danieldonbavand.com/2022/06/13/using-playwright-with-the-webapplicationfactory-to-test-a-blazor-application/
  */
 public class EndToEndWebApplicationFactory : WebApplicationFactory<Program> {
     private IHost? _host;
 
     protected override IHost CreateHost(IHostBuilder builder) {
+        // replaces the standard on disc database with a in memory database
+        // This code was made with the help of this article https://learn.microsoft.com/en-us/aspnet/core/test/integration-tests?view=aspnetcore-10.0&pivots=xunit
+        builder.ConfigureServices(services => {
+            var dbContextDescriptor =
+                    services.SingleOrDefault(d => d.ServiceType ==
+                                                  typeof(DbContextOptions<ChirpDBContext>))
+                ;
+
+            services.Remove(dbContextDescriptor!);
+
+            var dbConnectionDescriptor =
+                services.SingleOrDefault(d => d.ServiceType == typeof(DbConnection));
+
+            services.Remove(dbConnectionDescriptor!);
+
+            services.AddSingleton<DbConnection>(container => {
+                var connection = new SqliteConnection("DataSource=:memory:");
+                connection.Open();
+
+                return connection;
+            });
+
+            services.AddDbContext<ChirpDBContext>((container, options) => {
+                var connection = container.GetRequiredService<DbConnection>();
+                options.UseSqlite(connection);
+            });
+        });
+
         // Create the host for TestServer now before we
         // modify the builder to use Kestrel instead.
         var testHost = builder.Build();
