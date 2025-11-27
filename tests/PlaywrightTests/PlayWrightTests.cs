@@ -874,4 +874,79 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
     }
 
     #endregion
+
+    #region AccountManagementPage
+
+    /** Tests that the user's cheeps are displayed when have cheeps. */
+    [Test]
+    public async Task ListOfOwnCheeps() {
+        await Page.GotoAsync(_serverUrl);
+        await Page.GetByRole(AriaRole.Link, new() { Name = "Login" }).ClickAsync();
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "Email" }).ClickAsync();
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "Email" }).FillAsync("ropf@itu.dk");
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "Password" }).ClickAsync();
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "Password" }).FillAsync("LetM31n!");
+        await Page.GetByRole(AriaRole.Button, new() { Name = "Log in" }).ClickAsync();
+        await Page.GetByRole(AriaRole.Link, new() { Name = "About me" }).ClickAsync();
+        await Page.GetByRole(AriaRole.Link, new() { Name = "My cheeps" }).ClickAsync();
+        await Expect(Page.GetByRole(AriaRole.Heading, new() { Name = "Icon1Chirp!" }))
+           .ToBeVisibleAsync();
+        await Expect(Page.Locator("body")).ToBeVisibleAsync();
+        await Expect(Page.Locator("h3")).ToContainTextAsync("My cheeps");
+
+        // Ensure that own cheeps are shown
+        await Expect(Page.GetByText("Helge — 2023-08-01 13:17:37")).ToBeVisibleAsync();
+
+        // Ensure that cheeps from followed authors are not shown
+        await Expect(Page.GetByText("Jacqualine Gilcoine")).Not.ToBeVisibleAsync();
+    }
+
+    /** Tests that the no cheeps are displayed on the list if the user has no cheeps. */
+    [Test]
+    public async Task ListOfOwnCheepsNoCheeps() {
+        await Page.GotoAsync(_serverUrl);
+
+        // Register a new user
+        await Page.GetByRole(AriaRole.Link, new() { Name = "Register" }).ClickAsync();
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Email" }).ClickAsync();
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Email" })
+                  .FillAsync("Test@EmailsYayaya.dk");
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Username" }).ClickAsync();
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Username" }).FillAsync("Tester");
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Password" }).ClickAsync();
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Password" }).FillAsync("Lillek4t!");
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Confirm Password" }).ClickAsync();
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Confirm Password" })
+                  .FillAsync("Lillek4t!");
+        await Page.GetByRole(AriaRole.Button, new() { Name = "Register" }).ClickAsync();
+        await Page.GetByRole(AriaRole.Link, new() { Name = "Click here to confirm your" })
+                  .ClickAsync();
+
+        // Login
+        await Page.GetByRole(AriaRole.Link, new() { Name = "Login" }).ClickAsync();
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "Email" }).ClickAsync();
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "Email" })
+                  .FillAsync("Test@EmailsYayaya.dk");
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "Password" }).ClickAsync();
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "Password" }).FillAsync("Lillek4t!");
+        await Page.GetByRole(AriaRole.Button, new() { Name = "Log in" }).ClickAsync();
+
+        // Go to account page
+        await Page.GetByRole(AriaRole.Link, new() { Name = "About me" }).ClickAsync();
+
+        // Go to list of personal cheeps
+        await Page.GetByRole(AriaRole.Link, new() { Name = "My cheeps" }).ClickAsync();
+        await Expect(Page.GetByRole(AriaRole.Heading, new() { Name = "Icon1Chirp!" }))
+           .ToBeVisibleAsync();
+        await Expect(Page.Locator("body")).ToBeVisibleAsync();
+        await Expect(Page.Locator("h3")).ToContainTextAsync("My cheeps");
+
+        // Ensure that no cheeps from self are shown (since this user has no cheeps)
+        await Expect(Page.GetByText("Tester")).Not.ToBeVisibleAsync();
+
+        // Ensure that cheeps from followed authors are not shown
+        await Expect(Page.GetByText("Jacqualine Gilcoine")).Not.ToBeVisibleAsync();
+    }
+
+    #endregion
 }

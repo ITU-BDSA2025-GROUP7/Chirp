@@ -20,4 +20,10 @@
             id="two-factor" asp-page="./TwoFactorAuthentication">Two-factor authentication</a></li>
     <li class="nav-item"><a class="nav-link @ManageNavPages.PersonalDataNavClass(ViewContext)"
                             id="personal-data" asp-page="./PersonalData">Personal data</a></li>
+    <li class="nav-item">
+        <a class="nav-link @ManageNavPages.MyCheepsNavClass(ViewContext)"
+           id="own-cheeps" asp-page="./MyCheeps">
+            My cheeps
+        </a>
+    </li>
 </ul>
