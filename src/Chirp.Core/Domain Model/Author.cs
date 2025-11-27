@@ -7,7 +7,7 @@ namespace Chirp.Core.Domain_Model;
 [Index(nameof(Email), IsUnique = true)]
 public class Author : IdentityUser {
     [MaxLength(256)]
-    [PersonalData]
+    [PersonalData] 
     public string DisplayName { get; set; } = "";
 
     [PersonalData]
