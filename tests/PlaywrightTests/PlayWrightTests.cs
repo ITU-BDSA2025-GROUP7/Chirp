@@ -877,6 +877,7 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
 
     #region AccountManagementPage
 
+    /** Tests that the user's cheeps are displayed when have cheeps. */
     [Test]
     public async Task ListOfOwnCheeps() {
         await Page.GotoAsync(_serverUrl);
@@ -892,9 +893,15 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
            .ToBeVisibleAsync();
         await Expect(Page.Locator("body")).ToBeVisibleAsync();
         await Expect(Page.Locator("h3")).ToContainTextAsync("My cheeps");
+
+        // Ensure that own cheeps are shown
         await Expect(Page.GetByText("Helge — 2023-08-01 13:17:37")).ToBeVisibleAsync();
+
+        // Ensure that cheeps from followed authors are not shown
+        await Expect(Page.GetByText("Jacqualine Gilcoine")).Not.ToBeVisibleAsync();
     }
 
+    /** Tests that the no cheeps are displayed on the list if the user has no cheeps. */
     [Test]
     public async Task ListOfOwnCheepsNoCheeps() {
         await Page.GotoAsync(_serverUrl);
@@ -933,7 +940,12 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
            .ToBeVisibleAsync();
         await Expect(Page.Locator("body")).ToBeVisibleAsync();
         await Expect(Page.Locator("h3")).ToContainTextAsync("My cheeps");
+
+        // Ensure that no cheeps from self are shown (since this user has no cheeps)
         await Expect(Page.GetByText("Tester")).Not.ToBeVisibleAsync();
+
+        // Ensure that cheeps from followed authors are not shown
+        await Expect(Page.GetByText("Jacqualine Gilcoine")).Not.ToBeVisibleAsync();
     }
 
     #endregion
