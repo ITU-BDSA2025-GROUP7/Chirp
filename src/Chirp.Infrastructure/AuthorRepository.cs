@@ -1,3 +1,5 @@
+using System.Net.Mail;
+
 namespace Chirp.Infrastructure;
 
 using Chirp.Core;
@@ -116,5 +118,14 @@ public class AuthorRepository : IAuthorRepository {
                                    followRelation.Followed == authorB
                              select followRelation).ToListAsync();
         return matches.Count > 0;
+    }
+
+    /**
+     *
+     */
+    public async Task<bool> isValidEmail(string email) {
+        MailAddress validation = new MailAddress(email);
+
+        return !(validation == null);
     }
 }
