@@ -168,7 +168,195 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
                   .GetByRole(AriaRole.Button)
                   .ClickAsync();
     }
+    /**
+    * Users can  unfollow from following page, when logged in
+    */
+    [Test]
+    public async Task UnfollowOnFollowingPage() {
+        await Page.GotoAsync(_serverUrl);
+        await Expect(Page.GetByRole(AriaRole.Heading, new() { Name = "Icon1Chirp!" }))
+           .ToBeVisibleAsync();
+        // log in
+        await Page.GetByRole(AriaRole.Link, new() { Name = "Login" }).ClickAsync();
+        await Expect(Page.GetByRole(AriaRole.Heading, new() { Name = "Icon1Chirp!" }))
+           .ToBeVisibleAsync();
 
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "Email" }).ClickAsync();
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "Email" }).FillAsync("ropf@itu.dk");
+        await Page.Locator("#account div").Nth(1).ClickAsync();
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "Password" }).ClickAsync();
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "Password" }).FillAsync("LetM31n!");
+        await Page.GetByRole(AriaRole.Button, new() { Name = "Log in" }).ClickAsync();
+
+        // page is not down
+        await Expect(Page.GetByRole(AriaRole.Heading, new() { Name = "Icon1Chirp!" }))
+           .ToBeVisibleAsync();
+        // follow an account
+        await Page.GetByRole(AriaRole.Listitem)
+                  .Filter(new() { HasText = "Mellie Yost Follow" })
+                  .GetByRole(AriaRole.Button, new() {Name ="Follow"}).First
+                  .ClickAsync();
+
+        // page is not gone
+        await Expect(Page.GetByRole(AriaRole.Heading, new() { Name = "Icon1Chirp!" }))
+           .ToBeVisibleAsync();
+        // go to about me page
+        await Page.GetByRole(AriaRole.Link, new() { Name = "About me" }).ClickAsync();
+        // go to following page
+        await Page.GetByRole(AriaRole.Link, new() { Name = "Following" }).ClickAsync();
+
+        await Expect(Page.GetByRole(AriaRole.Link, new() { Name = "Mellie Yost" }))
+           .ToBeVisibleAsync();
+        // unfollow
+        await Page.GetByRole(AriaRole.Listitem)
+                  .Filter(new() { HasText = "Mellie Yost" })
+                  .GetByRole(AriaRole.Button, new() {Name ="Unfollow"}).First
+                  .ClickAsync();
+        // expect previously followed account to be gone
+        await Expect(Page.GetByRole(AriaRole.Link, new() { Name = "Mellie Yost" }))
+           .ToHaveCountAsync(0);
+        // page is not gone
+        await Expect(Page.GetByRole(AriaRole.Heading, new() { Name = "Icon1Chirp!" }))
+           .ToBeVisibleAsync();
+    }
+    /**
+    * The link on the following page leads to the accounts timeline
+    */
+    [Test]
+    public async Task LinkOnFollowingPageWorks() {
+        await Page.GotoAsync(_serverUrl);
+        await Expect(Page.GetByRole(AriaRole.Heading, new() { Name = "Icon1Chirp!" }))
+           .ToBeVisibleAsync();
+        // log in
+        await Page.GetByRole(AriaRole.Link, new() { Name = "Login" }).ClickAsync();
+        await Expect(Page.GetByRole(AriaRole.Heading, new() { Name = "Icon1Chirp!" }))
+           .ToBeVisibleAsync();
+
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "Email" }).ClickAsync();
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "Email" }).FillAsync("ropf@itu.dk");
+        await Page.Locator("#account div").Nth(1).ClickAsync();
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "Password" }).ClickAsync();
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "Password" }).FillAsync("LetM31n!");
+        await Page.GetByRole(AriaRole.Button, new() { Name = "Log in" }).ClickAsync();
+
+        // page is not down
+        await Expect(Page.GetByRole(AriaRole.Heading, new() { Name = "Icon1Chirp!" }))
+           .ToBeVisibleAsync();
+        // follow an account
+        await Page.GetByRole(AriaRole.Listitem)
+                  .Filter(new() { HasText = "Mellie Yost" })
+                  .GetByRole(AriaRole.Button, new() {Name ="Follow"}).First
+                  .ClickAsync();
+
+        // page is not gone
+        await Expect(Page.GetByRole(AriaRole.Heading, new() { Name = "Icon1Chirp!" }))
+           .ToBeVisibleAsync();
+        // go to about me page
+        await Page.GetByRole(AriaRole.Link, new() { Name = "About me" }).ClickAsync();
+        // go to following page
+        await Page.GetByRole(AriaRole.Link, new() { Name = "Following" }).ClickAsync();
+
+        await Expect(Page.GetByRole(AriaRole.Link, new() { Name = "Mellie Yost" }))
+           .ToBeVisibleAsync();
+        // click on account
+        await Page.GetByRole(AriaRole.Link, new() { Name = "Mellie Yost" }).ClickAsync();
+
+        // expect to be on the right timeline
+        await Expect(Page.GetByRole(AriaRole.Heading, new() { Name = "Mellie Yost's Timeline" }))
+           .ToBeVisibleAsync();
+
+        // page is not gone
+        await Expect(Page.GetByRole(AriaRole.Heading, new() { Name = "Icon1Chirp!" }))
+           .ToBeVisibleAsync();
+        // unfollow to return to normal state
+        await Page.GetByRole(AriaRole.Listitem)
+                  .Filter(new() { HasText = "Mellie Yost" })
+                  .GetByRole(AriaRole.Button, new() {Name ="Unfollow"}).First
+                  .ClickAsync();
+        // go to my timeline
+        await Page.GetByRole(AriaRole.Link, new() { Name = "My Timeline" }).ClickAsync();
+        // expect previously followed account to be gone
+        await Expect(Page.GetByRole(AriaRole.Link, new() { Name = "Mellie Yost" }))
+           .ToHaveCountAsync(0);
+
+
+    }
+    /**
+    * The following page displays all the users one is following
+    */
+    [Test]
+    public async Task FollowingPageWorksForMultipleUsers() {
+
+        await Page.GotoAsync(_serverUrl);
+        await Expect(Page.GetByRole(AriaRole.Heading, new() { Name = "Icon1Chirp!" }))
+           .ToBeVisibleAsync();
+        // log in
+        await Page.GetByRole(AriaRole.Link, new() { Name = "Login" }).ClickAsync();
+        await Expect(Page.GetByRole(AriaRole.Heading, new() { Name = "Icon1Chirp!" }))
+           .ToBeVisibleAsync();
+
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "Email" }).ClickAsync();
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "Email" }).FillAsync("ropf@itu.dk");
+        await Page.Locator("#account div").Nth(1).ClickAsync();
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "Password" }).ClickAsync();
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "Password" }).FillAsync("LetM31n!");
+        await Page.GetByRole(AriaRole.Button, new() { Name = "Log in" }).ClickAsync();
+        
+        // public timeline
+        await Page.GetByRole(AriaRole.Link, new() { Name = "Public Timeline" }).ClickAsync();
+        // page is not down
+        await Expect(Page.GetByRole(AriaRole.Heading, new() { Name = "Icon1Chirp!" }))
+           .ToBeVisibleAsync();
+
+
+        // follow an account
+        await Page.GetByRole(AriaRole.Listitem)
+                  .Filter(new() { HasText = "Mellie Yost" })
+                  .GetByRole(AriaRole.Button, new() {Name ="Follow"}).First
+                  .ClickAsync();
+        // follow one more
+        await Page.GetByRole(AriaRole.Listitem)
+                  .Filter(new() { HasText = "Quintin Sitts" })
+                  .GetByRole(AriaRole.Button, new() {Name ="Follow"}).First
+                  .ClickAsync();
+        // page is not gone
+        await Expect(Page.GetByRole(AriaRole.Heading, new() { Name = "Icon1Chirp!" }))
+           .ToBeVisibleAsync();
+        // go to about me page
+        await Page.GetByRole(AriaRole.Link, new() { Name = "About me" }).ClickAsync();
+        // go to following page
+        await Page.GetByRole(AriaRole.Link, new() { Name = "Following" }).ClickAsync();
+
+        // expect both followed accounts to show
+        await Expect(Page.GetByRole(AriaRole.Link, new() { Name = "Mellie Yost" }))
+           .ToBeVisibleAsync();
+
+        await Expect(Page.GetByRole(AriaRole.Link, new() { Name = "Quintin Sitts" }))
+           .ToBeVisibleAsync();
+
+        // expect that an account that is not followed doesn't show up
+        await Expect(Page.GetByRole(AriaRole.Link, new() { Name = "Wendell Ballan" }))
+           .ToHaveCountAsync(0);
+
+
+        // page is not gone
+        await Expect(Page.GetByRole(AriaRole.Heading, new() { Name = "Icon1Chirp!" }))
+           .ToBeVisibleAsync();
+        // unfollow to return to normal state
+        await Page.GetByRole(AriaRole.Listitem)
+                  .Filter(new() { HasText = "Mellie Yost" })
+                  .GetByRole(AriaRole.Button, new() {Name ="Unfollow"}).First
+                  .ClickAsync();
+        // unfollow to return to normal state
+        await Page.GetByRole(AriaRole.Listitem)
+                  .Filter(new() { HasText = "Quintin Sitts" })
+                  .GetByRole(AriaRole.Button, new() {Name ="Unfollow"}).First
+                  .ClickAsync();
+
+
+
+
+    }
     /**
      * There is no button to follow/unfollow yourself
      */

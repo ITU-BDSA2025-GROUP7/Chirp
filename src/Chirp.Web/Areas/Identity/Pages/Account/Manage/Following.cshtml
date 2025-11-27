@@ -13,7 +13,7 @@
 
         @foreach (var followRelation in Model.FollowRelations)
         {
-            <li>
+            <li style="list-style-type: none">
                <div style="display: flex; align-items: center; gap: 5px">
                         @if (followRelation.Follower.UserName != followRelation.Followed.UserName) {
                             <strong>
