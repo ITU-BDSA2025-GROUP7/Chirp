@@ -11,5 +11,7 @@ public interface IAuthorService {
 
     public Task Follow(string authorA, string authorB);
 
-    public Task Unfollow(string authorA, string authorB);
+    public Task Unfollow(string follower, string followed);
+
+    public Task<List<FollowRelation> > GetFollowRelations(Author author);
 }
