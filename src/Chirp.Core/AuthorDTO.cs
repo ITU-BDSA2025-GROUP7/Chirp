@@ -26,10 +26,8 @@ public class AuthorDTO : IComparable<AuthorDTO> {
         UserName = authorUserName ?? displayName;
     }
 
-    public AuthorDTO(Author source) {
-        DisplayName = source.DisplayName;
-        UserName = source.UserName ?? DisplayName;
-    }
+    public AuthorDTO(Author source)
+        : this(source.DisplayName, source.UserName ?? source.DisplayName) { }
 
     public int CompareTo(AuthorDTO? other) {
         if (other == null) return 1;
