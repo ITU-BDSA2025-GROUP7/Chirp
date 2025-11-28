@@ -11,8 +11,8 @@ public class CheepRepository : ICheepRepository {
         this._dbContext = dbContext;
     }
 
-    public async Task<List<CheepDTO>> GetOwnAndFollowedCheeps(Author author, int pageNr = 1) {
-        return await QueryCheepsFromFollowedAuthors(author.UserName!)
+    public async Task<List<CheepDTO>> GetOwnAndFollowedCheeps(string username, int pageNr = 1) {
+        return await QueryCheepsFromFollowedAuthors(username)
                     .Pick(pageNr)
                     .ToListAsync();
     }
@@ -36,6 +36,7 @@ public class CheepRepository : ICheepRepository {
             throw new ArgumentException("Message is too long. Maximum length is "
                                       + Cheep.MAX_TEXT_LENGTH);
         }
+
 
         Cheep cheep = new Cheep() { Author = author, Text = message, TimeStamp = timestamp };
         await _dbContext.Cheeps.AddAsync(cheep);
