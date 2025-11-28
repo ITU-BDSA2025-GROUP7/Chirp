@@ -75,7 +75,7 @@ public class AuthorRepository : IAuthorRepository {
                                                     && followRelation.Followed.UserName ==
                                                        followedToDelete.UserName
                                                  select followRelation).First();
-        if (followerToDelete == followedToDelete) {
+        if (Equals(followerToDelete, followedToDelete)) {
             return;
         }
 
@@ -97,9 +97,11 @@ public class AuthorRepository : IAuthorRepository {
      * returns all FollowRelations where `author` is follower
      */
     public async Task<List<FollowRelation>> GetFollowRelations(AuthorDTO author) {
-        return await (from followRelation in _dbContext.FollowRelations
-                      where followRelation.Follower.UserName == author.UserName
-                      select followRelation).ToListAsync();
+        return await _dbContext.FollowRelations
+                               .Include(fr => fr.Follower)
+                               .Include(fr => fr.Followed)
+                               .Where(fr => fr.Follower.UserName == author.UserName)
+                               .ToListAsync();
     }
 
     /**

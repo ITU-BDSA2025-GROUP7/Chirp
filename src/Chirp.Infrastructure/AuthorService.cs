@@ -21,7 +21,11 @@ public class AuthorService : IAuthorService {
         await authorRepository.Follow(authorA, authorB);
     }
 
-    public async Task Unfollow(string authorA, string authorB) {
-        await authorRepository.Unfollow(authorA, authorB);
+    public async Task Unfollow(string follower, string followed) {
+        await authorRepository.Unfollow(follower, followed);
+    }
+
+    public async Task<List<FollowRelation>> GetFollowRelations(Author author) {
+        return await authorRepository.GetFollowRelations(author);
     }
 }
