@@ -9,7 +9,6 @@ namespace Chirp.Infrastructure.Test;
 public class AuthorRepositoryTest {
     private readonly ChirpDBContext _context;
     private SqliteConnection _connection;
-    private ICheepRepository _cheepRepository;
     private IAuthorRepository _authorRepository;
 
     public AuthorRepositoryTest() {
@@ -21,7 +20,6 @@ public class AuthorRepositoryTest {
         _context = new ChirpDBContext(options);
         _context.Database.EnsureCreated();
 
-        _cheepRepository = new CheepRepository(_context);
         _authorRepository = new AuthorRepository(_context);
 
         DbInitializer.SeedDatabase(_context);
@@ -37,11 +35,13 @@ public class AuthorRepositoryTest {
         await _authorRepository.CreateAuthor(name, email1);
         List<AuthorDTO> authors = await _authorRepository.GetAuthor("BartonCooper");
         AuthorDTO barton = authors.Single();
-        List<FollowRelation> beforeFollowing = await _authorRepository.GetFollowRelations(barton);
+        List<FollowRelation> beforeFollowing =
+            await _authorRepository.GetFollowRelations(barton.UserName);
         //act
         await _authorRepository.Follow(barton, barton);
         //assert
-        List<FollowRelation> afterFollowing = await _authorRepository.GetFollowRelations(barton);
+        List<FollowRelation> afterFollowing =
+            await _authorRepository.GetFollowRelations(barton.UserName);
         Assert.Single(afterFollowing);
         Assert.Equal(beforeFollowing, afterFollowing);
     }
@@ -59,7 +59,18 @@ public class AuthorRepositoryTest {
         //act
         _ = _authorRepository.Follow(barton, Wendell);
         //assert
-        Assert.Equal(2, (await _authorRepository.GetFollowRelations(barton)).Count);
+        Assert.Equal(2, (await _authorRepository.GetFollowRelations(barton.UserName)).Count);
+    }
+
+    [Fact]
+    public async Task AttemptToUnfollowSelf() {
+        Author user = _context.Authors.First();
+        int followersBefore = (await _authorRepository.Following(user.UserName!)).Count;
+        Assert.True(await _authorRepository.IsFollowing(user.UserName!, user.UserName!));
+        await _authorRepository.Unfollow(user.UserName!, user.UserName!);
+        int followersAfter = (await _authorRepository.Following(user.UserName!)).Count;
+        Assert.True(await _authorRepository.IsFollowing(user.UserName!, user.UserName!));
+        Assert.Equal(followersBefore, followersAfter);
     }
 
     [Fact]
@@ -75,7 +86,7 @@ public class AuthorRepositoryTest {
         //act
         _ = _authorRepository.Follow(barton, Wendell);
         _ = _authorRepository.Follow(barton, Wendell);
-        List<AuthorDTO> myList = await _authorRepository.Following(barton);
+        List<AuthorDTO> myList = await _authorRepository.Following(barton.UserName);
         //assert
         Assert.Equal(2, myList.Count);
     }
@@ -94,7 +105,7 @@ public class AuthorRepositoryTest {
         _ = _authorRepository.Follow(barton, Wendell);
         _ = _authorRepository.Unfollow(barton, Wendell);
         //assert
-        Assert.Single(await _authorRepository.GetFollowRelations(barton));
+        Assert.Single(await _authorRepository.GetFollowRelations(barton.UserName));
     }
 
     [Fact]
@@ -107,11 +118,11 @@ public class AuthorRepositoryTest {
         AuthorDTO Wendell = authors1.Single();
         List<AuthorDTO> authors2 = await _authorRepository.GetAuthor("BartonCooper");
         AuthorDTO barton = authors2.Single();
-        Assert.Single(await _authorRepository.GetFollowRelations(barton));
+        Assert.Single(await _authorRepository.GetFollowRelations(barton.UserName));
         //act
         _ = _authorRepository.Unfollow(barton, Wendell);
         //assert
-        Assert.Single(await _authorRepository.GetFollowRelations(barton));
+        Assert.Single(await _authorRepository.GetFollowRelations(barton.UserName));
     }
 
     [Fact]
@@ -123,13 +134,13 @@ public class AuthorRepositoryTest {
         List<AuthorDTO> authors2 = await _authorRepository.GetAuthor("BartonCooper");
         AuthorDTO barton = authors2.Single();
         AuthorDTO? Wendell = null;
-        Assert.Single(await _authorRepository.GetFollowRelations(barton));
+        Assert.Single(await _authorRepository.GetFollowRelations(barton.UserName));
         //act
 #pragma warning disable CS8604 // Possible null reference argument.
         _ = _authorRepository.Follow(barton, Wendell);
         //assert
         Assert.Null(Wendell);
-        Assert.Single(await _authorRepository.GetFollowRelations(barton));
+        Assert.Single(await _authorRepository.GetFollowRelations(barton.UserName));
     }
 
     [Fact]
@@ -144,18 +155,19 @@ public class AuthorRepositoryTest {
         //act
         _ = _authorRepository.Follow(barton, myAuthor);
         //assert
-        Assert.Single(await _authorRepository.GetFollowRelations(barton));
+        Assert.Single(await _authorRepository.GetFollowRelations(barton.UserName));
     }
 
     /** Verifies that you cannot unfollow yourself. */
     [Fact]
     public async Task UnfollowSelf() {
         AuthorDTO author = (await _authorRepository.GetAuthor("Helge")).Single();
-        var followCountBefore = (await _authorRepository.GetFollowRelations(author)).Count;
+        var followCountBefore = (await _authorRepository.GetFollowRelations(author.UserName)).Count;
 
         await _authorRepository.Unfollow(author, author);
 
-        Assert.Equal((await _authorRepository.GetFollowRelations(author)).Count, followCountBefore);
+        Assert.Equal((await _authorRepository.GetFollowRelations(author.UserName)).Count,
+                     followCountBefore);
     }
 
     /**
