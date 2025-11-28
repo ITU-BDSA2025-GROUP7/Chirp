@@ -147,7 +147,8 @@ namespace Chirp.Web.Areas.Identity.Pages.Account {
             if (result.Succeeded) {
                 _logger.LogInformation("User created a new account with password.");
 
-                await _authorRepository.Follow(user, user);
+                var userDTO = new AuthorDTO(user);
+                await _authorRepository.Follow(userDTO, userDTO);
                 string userId = await _userManager.GetUserIdAsync(user);
                 string code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                 code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
@@ -163,7 +164,9 @@ namespace Chirp.Web.Areas.Identity.Pages.Account {
                     protocol: Request.Scheme);
 
                 await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
-                                                  $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+                                                  $"Please confirm your account by <a href='{
+                                                      HtmlEncoder.Default.Encode(callbackUrl)
+                                                  }'>clicking here</a>.");
 
                 if (_userManager.Options.SignIn.RequireConfirmedAccount) {
                     return RedirectToPage("RegisterConfirmation",
@@ -188,7 +191,9 @@ namespace Chirp.Web.Areas.Identity.Pages.Account {
             } catch {
                 throw new InvalidOperationException(
                     $"Can't create an instance of '{nameof(Author)}'. " +
-                    $"Ensure that '{nameof(Author)}' is not an abstract class and has a parameterless constructor, or alternatively " +
+                    $"Ensure that '{
+                        nameof(Author)
+                    }' is not an abstract class and has a parameterless constructor, or alternatively " +
                     $"override the register page in /Areas/Identity/Pages/Account/Register.cshtml");
             }
         }
