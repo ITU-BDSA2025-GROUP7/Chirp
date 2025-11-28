@@ -33,7 +33,6 @@ public class AuthorDTO : IComparable<AuthorDTO> {
 
     public int CompareTo(AuthorDTO? other) {
         if (other == null) return 1;
-        return string.CompareOrdinal(DisplayName, other.DisplayName)
-             * -1;
+        return string.CompareOrdinal(DisplayName, other.DisplayName);
     }
 }
