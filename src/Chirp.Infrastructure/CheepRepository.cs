@@ -7,11 +7,11 @@ namespace Chirp.Infrastructure;
 
 public class CheepRepository : ICheepRepository {
     private ChirpDBContext _dbContext;
-    private ILogger<CheepRepository> _logger;
 
-    public CheepRepository(ChirpDBContext dbContext,  ILogger<CheepRepository> logger) {
+
+    public CheepRepository(ChirpDBContext dbContext) {
         this._dbContext = dbContext;
-        _logger = logger;
+
 
     }
 
@@ -92,20 +92,12 @@ public class CheepRepository : ICheepRepository {
     }
 
     public async Task DeleteCheep(CheepDTO cheep) {
-        _logger.LogError($"Cheep {cheep.TimeStamp} is going to be deleted.");
-        // var cheepthatMatch = (from cheeps in _dbContext.Cheeps
-        //                                  where cheeps.Author.UserName == cheep.AuthorUserName &&
-        //                                        cheeps.Text == cheep.Message &&
-        //                                        cheeps.TimeStamp.Equals(cheep.TimeStamp)
-        //                                  select cheeps).ToListAsync();
         var cheepToDie = _dbContext.Cheeps.SingleOrDefault(c =>  c.Text == cheep.Message &&
                                                                  c.Author.UserName == cheep.AuthorUserName &&
                                                                  c.TimeStamp.ToString() == cheep.TimeStamp);
-
         if (cheepToDie != null) {
             _dbContext.Cheeps.Remove(cheepToDie);
             await _dbContext.SaveChangesAsync();
-            _logger.LogError($"Cheep {cheep.TimeStamp} has been deleted.");
         }
 
     }
