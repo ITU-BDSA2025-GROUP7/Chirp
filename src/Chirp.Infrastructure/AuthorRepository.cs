@@ -62,8 +62,7 @@ public class AuthorRepository : IAuthorRepository {
             return;
         }
 
-        var newFollowRelation = new FollowRelation
-            { Follower = followerAuthor, Followed = followedAuthor };
+        var newFollowRelation = new FollowRelation { Follower = followerAuthor, Followed = followedAuthor };
         await _dbContext.AddAsync(newFollowRelation);
         await _dbContext.SaveChangesAsync();
     }
