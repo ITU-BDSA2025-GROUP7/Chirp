@@ -80,9 +80,11 @@ public class AuthorRepository : IAuthorRepository {
      * returns all FollowRelations where `author` is follower
      */
     public async Task<List<FollowRelation>> GetFollowRelations(Author author) {
-        return await (from followRelation in _dbContext.FollowRelations
-                      where followRelation.Follower == author
-                      select followRelation).ToListAsync();
+        return await _dbContext.FollowRelations
+                               .Include(fr => fr.Follower)
+                               .Include(fr => fr.Followed)
+                               .Where(fr => fr.Follower.Id == author.Id)
+                               .ToListAsync();
     }
 
     /**
