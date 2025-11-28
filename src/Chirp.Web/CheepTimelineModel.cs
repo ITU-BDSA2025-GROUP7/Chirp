@@ -13,6 +13,7 @@ namespace Chirp.Web;
 public abstract class CheepTimelineModel : PageModel {
     protected readonly ICheepService _cheepService;
     protected readonly IAuthorService _authorService;
+    private ILogger<CheepTimelineModel> _logger;
     public List<CheepDTO> Cheeps { get; set; } = new();
 
     [BindProperty]
@@ -23,9 +24,10 @@ public abstract class CheepTimelineModel : PageModel {
     [Display(Name = "Message")]
     public string Text { get; set; } = "";
 
-    public CheepTimelineModel(ICheepService cheepService, IAuthorService authorService) {
+    public CheepTimelineModel(ICheepService cheepService, IAuthorService authorService, ILogger<CheepTimelineModel> logger) {
         this._cheepService = cheepService;
         this._authorService = authorService;
+        _logger = logger;
     }
 
     /**
@@ -64,5 +66,19 @@ public abstract class CheepTimelineModel : PageModel {
     public async Task<IActionResult> OnPostUnfollowAsync(string? authorA, string? authorB) {
         await _authorService.Unfollow(authorA!, authorB!);
         return RedirectToPage();
+    }
+
+    public async Task<IActionResult> OnPostDeleteCheepAsync (string? username, string? text, string? timestamp) {
+        _logger.LogCritical("OnDeleteCheep");
+        _logger.LogCritical(username + " "  +  text + " " + timestamp);
+
+        if (username == null || text == null || timestamp == null) return RedirectToPage();
+
+        CheepDTO cheep = new CheepDTO("", text, timestamp, username);
+
+        _logger.LogCritical(cheep.ToString());
+        await _cheepService.DeleteCheep(cheep);
+
+        return  RedirectToPage();
     }
 }
