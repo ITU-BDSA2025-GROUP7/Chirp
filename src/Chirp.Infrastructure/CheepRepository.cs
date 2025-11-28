@@ -37,7 +37,6 @@ public class CheepRepository : ICheepRepository {
                                       + Cheep.MAX_TEXT_LENGTH);
         }
 
-
         Cheep cheep = new Cheep() { Author = author, Text = message, TimeStamp = timestamp };
         await _dbContext.Cheeps.AddAsync(cheep);
         await _dbContext.SaveChangesAsync();

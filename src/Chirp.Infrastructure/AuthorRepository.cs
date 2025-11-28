@@ -69,16 +69,16 @@ public class AuthorRepository : IAuthorRepository {
     }
 
     public async Task Unfollow(AuthorDTO followerToDelete, AuthorDTO followedToDelete) {
+        if (Equals(followerToDelete, followedToDelete)) {
+            return;
+        }
+
         FollowRelation followRelationToDelete = (from followRelation in _dbContext.FollowRelations
                                                  where followRelation.Follower.UserName ==
                                                        followerToDelete.UserName
                                                     && followRelation.Followed.UserName ==
                                                        followedToDelete.UserName
                                                  select followRelation).First();
-        if (Equals(followerToDelete, followedToDelete)) {
-            return;
-        }
-
         _dbContext.FollowRelations.Remove(followRelationToDelete);
         await _dbContext.SaveChangesAsync();
     }
@@ -94,7 +94,7 @@ public class AuthorRepository : IAuthorRepository {
     }
 
     /**
-     * returns all FollowRelations where `author` is follower
+     * returns all FollowRelations where `follower` is follower
      */
     public async Task<List<FollowRelation>> GetFollowRelations(string follower) {
         return await _dbContext.FollowRelations
@@ -128,7 +128,7 @@ public class AuthorRepository : IAuthorRepository {
     }
 
     /**
-     * Returns true if authorA is following authorB, false otherwise.
+     * Returns true if `follower` is following `followed`, false otherwise.
      */
     public async Task<bool> IsFollowing(string follower, string followed) {
         var matches = await (from followRelation in _dbContext.FollowRelations
