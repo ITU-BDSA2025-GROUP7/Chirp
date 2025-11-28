@@ -1,4 +1,5 @@
 using Chirp.Core;
+using Chirp.Core.Domain_Model;
 
 namespace Chirp.Infrastructure;
 
@@ -11,5 +12,5 @@ public interface IAuthorService {
 
     public Task Unfollow(string follower, string followed);
 
-    public Task<List<FollowRelation> > GetFollowRelations(Author author);
+    public Task<List<FollowRelation>> GetFollowRelations(string follower);
 }

@@ -27,9 +27,9 @@ public interface IAuthorRepository {
      */
     public Task Unfollow(AuthorDTO follower, AuthorDTO followed);
 
-    public Task<List<FollowRelation>> GetFollowRelations(AuthorDTO author);
+    public Task<List<FollowRelation>> GetFollowRelations(string follower);
 
-    public Task<List<AuthorDTO>> Following(AuthorDTO author);
+    public Task<List<AuthorDTO>> Following(string follower);
 
     /**
      * Creates a follow relation, and adds a reference of the followed to follower
@@ -37,12 +37,12 @@ public interface IAuthorRepository {
     public Task Follow(string follower, string followed);
 
     /**
-     * Creates a follow relation, and adds a reference of the followed to follower
+     * Removes a follow relation if `follower` and `followed` are not identical.
      */
     public Task Unfollow(string follower, string followed);
 
     /**
-     * Returns true if authorA is following authorB, false otherwise.
+     * Returns true if `follower` is following `followed`, false otherwise.
      */
     public Task<bool> IsFollowing(string follower, string followed);
 }

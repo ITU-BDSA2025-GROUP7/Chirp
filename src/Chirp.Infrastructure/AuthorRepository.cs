@@ -89,27 +89,27 @@ public class AuthorRepository : IAuthorRepository {
     private async Task<bool> IsFollowRelationInvalid(AuthorDTO follower, AuthorDTO followed) {
         return !_dbContext.Authors.Any(author => author.UserName == follower.UserName) ||
                !_dbContext.Authors.Any(author => author.UserName == followed.UserName) ||
-               (await Following(follower))
+               (await Following(follower.UserName))
               .Contains(followed); //checks if follower already follows followed :3
     }
 
     /**
      * returns all FollowRelations where `author` is follower
      */
-    public async Task<List<FollowRelation>> GetFollowRelations(AuthorDTO author) {
+    public async Task<List<FollowRelation>> GetFollowRelations(string follower) {
         return await _dbContext.FollowRelations
                                .Include(fr => fr.Follower)
                                .Include(fr => fr.Followed)
-                               .Where(fr => fr.Follower.UserName == author.UserName)
+                               .Where(fr => fr.Follower.UserName == follower)
                                .ToListAsync();
     }
 
     /**
-     * this is borderline unreadable, but it just gets all Authors which `author` follows
+     * this is borderline unreadable, but it just gets all Authors which `follower` follows
      */
-    public async Task<List<AuthorDTO>> Following(AuthorDTO author) {
+    public async Task<List<AuthorDTO>> Following(string follower) {
         return await (from user in _dbContext.FollowRelations
-                      where user.Follower.UserName == author.UserName
+                      where user.Follower.UserName == follower
                       select new AuthorDTO(user.Followed.DisplayName, user.Followed.UserName))
            .ToListAsync();
     }

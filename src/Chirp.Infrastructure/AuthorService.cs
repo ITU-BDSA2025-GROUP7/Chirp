@@ -1,4 +1,5 @@
 using Chirp.Core;
+using Chirp.Core.Domain_Model;
 
 namespace Chirp.Infrastructure;
 
@@ -25,7 +26,7 @@ public class AuthorService : IAuthorService {
         await authorRepository.Unfollow(follower, followed);
     }
 
-    public async Task<List<FollowRelation>> GetFollowRelations(Author author) {
-        return await authorRepository.GetFollowRelations(author);
+    public async Task<List<FollowRelation>> GetFollowRelations(string follower) {
+        return await authorRepository.GetFollowRelations(follower);
     }
 }
