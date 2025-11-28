@@ -12,8 +12,9 @@ public class MyCheepsModel : CheepTimelineModel {
     public MyCheepsModel(UserManager<Author> userManager,
                          SignInManager<Author> signInManager,
                          ICheepService cheepService,
-                         IAuthorService authorService)
-        : base(cheepService, authorService) {
+                         IAuthorService authorService,
+                         ILogger<CheepTimelineModel> logger)
+        : base(cheepService, authorService, logger) {
         _userManager = userManager;
         _signInManager = signInManager;
     }

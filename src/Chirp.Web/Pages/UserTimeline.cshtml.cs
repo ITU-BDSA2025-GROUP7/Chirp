@@ -16,8 +16,9 @@ public class UserTimelineModel : CheepTimelineModel {
     public UserTimelineModel(ICheepService cheepService,
                              IAuthorService authorService,
                              UserManager<Author> userManager,
-                             SignInManager<Author> signInManager)
-        : base(cheepService, authorService) {
+                             SignInManager<Author> signInManager,
+                             ILogger<CheepTimelineModel> logger)
+        : base(cheepService, authorService,logger) {
         _userManager = userManager;
         _signInManager = signInManager;
     }

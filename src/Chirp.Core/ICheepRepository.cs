@@ -21,4 +21,5 @@ public interface ICheepRepository {
     public Task<List<CheepDTO>> GetOwnAndFollowedCheeps(Author author, int pageNr = 1);
 
     public Task CreateCheep(Author author, string message, DateTime timestamp);
+    public Task DeleteCheep(CheepDTO cheep);
 }

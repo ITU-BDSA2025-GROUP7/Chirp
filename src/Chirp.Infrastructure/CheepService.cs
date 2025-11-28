@@ -35,4 +35,9 @@ public class CheepService : ICheepService {
                                           new DateTime(date.Year, date.Month, date.Day, date.Hour,
                                                        date.Minute, date.Second));
     }
+
+    public async Task DeleteCheep(CheepDTO cheep) {
+        await cheepRepository.DeleteCheep(cheep);
+
+    }
 }
