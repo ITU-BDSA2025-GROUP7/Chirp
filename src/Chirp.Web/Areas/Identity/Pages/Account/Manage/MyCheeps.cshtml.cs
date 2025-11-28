@@ -6,15 +6,13 @@ using Microsoft.AspNetCore.Mvc;
 namespace Chirp.Web.Areas.Identity.Pages.Account.Manage;
 
 public class MyCheepsModel : CheepTimelineModel {
-    private readonly UserManager<Author> _userManager;
     private readonly SignInManager<Author> _signInManager;
 
     public MyCheepsModel(UserManager<Author> userManager,
                          SignInManager<Author> signInManager,
                          ICheepService cheepService,
                          IAuthorService authorService)
-        : base(cheepService, authorService) {
-        _userManager = userManager;
+        : base(cheepService, authorService, userManager) {
         _signInManager = signInManager;
     }
 
