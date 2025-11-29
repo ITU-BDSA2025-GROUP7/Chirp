@@ -1,0 +1,8 @@
+﻿@page
+@model MyCheepsModel
+@{
+    ViewData["Title"] = "Chirp!";
+    Layout = "_Layout";
+}
+<h3>My cheeps</h3>
+<partial name="_CheepListPartial" model="@Model"/>
