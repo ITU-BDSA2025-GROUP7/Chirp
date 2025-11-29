@@ -9,7 +9,6 @@ namespace Chirp.Infrastructure.Test;
 public class AuthorRepositoryTest {
     private readonly ChirpDBContext _context;
     private SqliteConnection _connection;
-    private ICheepRepository _cheepRepository;
     private IAuthorRepository _authorRepository;
     public AuthorRepositoryTest() {
         _connection = new SqliteConnection("DataSource=:memory:");
@@ -20,7 +19,6 @@ public class AuthorRepositoryTest {
         _context = new ChirpDBContext(options);
         _context.Database.EnsureCreated();
 
-        _cheepRepository = new CheepRepository(_context);
         _authorRepository = new AuthorRepository(_context);
 
         DbInitializer.SeedDatabase(_context);
@@ -34,13 +32,15 @@ public class AuthorRepositoryTest {
         const string name = "Barton Cooper";
         const string email1 = "TheCakeMaster@copper.com";
         await _authorRepository.CreateAuthor(name, email1);
-        List<Author> authors = await _authorRepository.GetAuthor("BartonCooper");
-        Author barton = authors.Single();
-        List<FollowRelation> beforeFollowing = await _authorRepository.GetFollowRelations(barton);
+        List<AuthorDTO> authors = await _authorRepository.GetAuthor("BartonCooper");
+        AuthorDTO barton = authors.Single();
+        List<FollowRelation> beforeFollowing =
+            await _authorRepository.GetFollowRelations(barton.UserName);
         //act
         await _authorRepository.Follow(barton, barton);
         //assert
-        List<FollowRelation> afterFollowing = await _authorRepository.GetFollowRelations(barton);
+        List<FollowRelation> afterFollowing =
+            await _authorRepository.GetFollowRelations(barton.UserName);
         Assert.Single(afterFollowing);
         Assert.Equal(beforeFollowing, afterFollowing);
     }
@@ -51,14 +51,25 @@ public class AuthorRepositoryTest {
         const string name = "Barton Cooper";
         const string email1 = "TheCakeMaster@copper.com";
         await _authorRepository.CreateAuthor(name, email1);
-        List<Author> authors1 = await _authorRepository.GetAuthor("WendellBallan");
-        Author Wendell = authors1.Single();
-        List<Author> authors2 = await _authorRepository.GetAuthor("BartonCooper");
-        Author barton = authors2.Single();
+        List<AuthorDTO> authors1 = await _authorRepository.GetAuthor("WendellBallan");
+        AuthorDTO Wendell = authors1.Single();
+        List<AuthorDTO> authors2 = await _authorRepository.GetAuthor("BartonCooper");
+        AuthorDTO barton = authors2.Single();
         //act
         _ = _authorRepository.Follow(barton, Wendell);
         //assert
-        Assert.Equal(2, (await _authorRepository.GetFollowRelations(barton)).Count);
+        Assert.Equal(2, (await _authorRepository.GetFollowRelations(barton.UserName)).Count);
+    }
+
+    [Fact]
+    public async Task AttemptToUnfollowSelf() {
+        Author user = _context.Authors.First();
+        int followersBefore = (await _authorRepository.Following(user.UserName!)).Count;
+        Assert.True(await _authorRepository.IsFollowing(user.UserName!, user.UserName!));
+        await _authorRepository.Unfollow(user.UserName!, user.UserName!);
+        int followersAfter = (await _authorRepository.Following(user.UserName!)).Count;
+        Assert.True(await _authorRepository.IsFollowing(user.UserName!, user.UserName!));
+        Assert.Equal(followersBefore, followersAfter);
     }
 
     [Fact]
@@ -67,14 +78,14 @@ public class AuthorRepositoryTest {
         const string name = "Barton Cooper";
         const string email1 = "TheCakeMaster@copper.com";
         await _authorRepository.CreateAuthor(name, email1);
-        List<Author> authors1 = await _authorRepository.GetAuthor("WendellBallan");
-        Author Wendell = authors1.Single();
-        List<Author> authors2 = await _authorRepository.GetAuthor("BartonCooper");
-        Author barton = authors2.Single();
+        List<AuthorDTO> authors1 = await _authorRepository.GetAuthor("WendellBallan");
+        AuthorDTO Wendell = authors1.Single();
+        List<AuthorDTO> authors2 = await _authorRepository.GetAuthor("BartonCooper");
+        AuthorDTO barton = authors2.Single();
         //act
         _ = _authorRepository.Follow(barton, Wendell);
         _ = _authorRepository.Follow(barton, Wendell);
-        List<Author> myList = await _authorRepository.Following(barton);
+        List<AuthorDTO> myList = await _authorRepository.Following(barton.UserName);
         //assert
         Assert.Equal(2, myList.Count);
     }
@@ -85,15 +96,15 @@ public class AuthorRepositoryTest {
         const string name = "Barton Cooper";
         const string email1 = "TheCakeMaster@copper.com";
         await _authorRepository.CreateAuthor(name, email1);
-        List<Author> authors1 = await _authorRepository.GetAuthor("WendellBallan");
-        Author Wendell = authors1.Single();
-        List<Author> authors2 = await _authorRepository.GetAuthor("BartonCooper");
-        Author barton = authors2.Single();
+        List<AuthorDTO> authors1 = await _authorRepository.GetAuthor("WendellBallan");
+        AuthorDTO Wendell = authors1.Single();
+        List<AuthorDTO> authors2 = await _authorRepository.GetAuthor("BartonCooper");
+        AuthorDTO barton = authors2.Single();
         //act
         _ = _authorRepository.Follow(barton, Wendell);
         _ = _authorRepository.Unfollow(barton, Wendell);
         //assert
-        Assert.Single(await _authorRepository.GetFollowRelations(barton));
+        Assert.Single(await _authorRepository.GetFollowRelations(barton.UserName));
     }
 
     [Fact]
@@ -102,15 +113,15 @@ public class AuthorRepositoryTest {
         const string name = "Barton Cooper";
         const string email1 = "TheCakeMaster@copper.com";
         await _authorRepository.CreateAuthor(name, email1);
-        List<Author> authors1 = await _authorRepository.GetAuthor("WendellBallan");
-        Author Wendell = authors1.Single();
-        List<Author> authors2 = await _authorRepository.GetAuthor("BartonCooper");
-        Author barton = authors2.Single();
-        Assert.Single(await _authorRepository.GetFollowRelations(barton));
+        List<AuthorDTO> authors1 = await _authorRepository.GetAuthor("WendellBallan");
+        AuthorDTO Wendell = authors1.Single();
+        List<AuthorDTO> authors2 = await _authorRepository.GetAuthor("BartonCooper");
+        AuthorDTO barton = authors2.Single();
+        Assert.Single(await _authorRepository.GetFollowRelations(barton.UserName));
         //act
         _ = _authorRepository.Unfollow(barton, Wendell);
         //assert
-        Assert.Single(await _authorRepository.GetFollowRelations(barton));
+        Assert.Single(await _authorRepository.GetFollowRelations(barton.UserName));
     }
 
     [Fact]
@@ -119,16 +130,16 @@ public class AuthorRepositoryTest {
         const string name = "Barton Cooper";
         const string email1 = "TheCakeMaster@copper.com";
         await _authorRepository.CreateAuthor(name, email1);
-        List<Author> authors2 = await _authorRepository.GetAuthor("BartonCooper");
-        Author barton = authors2.Single();
-        Author? Wendell = null;
-        Assert.Single(await _authorRepository.GetFollowRelations(barton));
+        List<AuthorDTO> authors2 = await _authorRepository.GetAuthor("BartonCooper");
+        AuthorDTO barton = authors2.Single();
+        AuthorDTO? Wendell = null;
+        Assert.Single(await _authorRepository.GetFollowRelations(barton.UserName));
         //act
 #pragma warning disable CS8604 // Possible null reference argument.
         _ = _authorRepository.Follow(barton, Wendell);
         //assert
         Assert.Null(Wendell);
-        Assert.Single(await _authorRepository.GetFollowRelations(barton));
+        Assert.Single(await _authorRepository.GetFollowRelations(barton.UserName));
     }
 
     [Fact]
@@ -137,24 +148,25 @@ public class AuthorRepositoryTest {
         const string name = "Barton Cooper";
         const string email1 = "TheCakeMaster@copper.com";
         await _authorRepository.CreateAuthor(name, email1);
-        List<Author> authors2 = await _authorRepository.GetAuthor("BartonCooper");
-        Author barton = authors2.Single();
-        Author myAuthor = Author.Create("Bartoon2", "batman@gmail.com");
+        List<AuthorDTO> authors2 = await _authorRepository.GetAuthor("BartonCooper");
+        AuthorDTO barton = authors2.Single();
+        AuthorDTO myAuthor = new AuthorDTO(Author.Create("Bartoon2", "batman@gmail.com"));
         //act
         _ = _authorRepository.Follow(barton, myAuthor);
         //assert
-        Assert.Single(await _authorRepository.GetFollowRelations(barton));
+        Assert.Single(await _authorRepository.GetFollowRelations(barton.UserName));
     }
 
     /** Verifies that you cannot unfollow yourself. */
     [Fact]
     public async Task UnfollowSelf() {
-        Author author = (await _authorRepository.GetAuthor("Helge")).Single();
-        var followCountBefore = (await _authorRepository.GetFollowRelations(author)).Count;
+        AuthorDTO author = (await _authorRepository.GetAuthor("Helge")).Single();
+        var followCountBefore = (await _authorRepository.GetFollowRelations(author.UserName)).Count;
 
         await _authorRepository.Unfollow(author, author);
 
-        Assert.Equal((await _authorRepository.GetFollowRelations(author)).Count, followCountBefore);
+        Assert.Equal((await _authorRepository.GetFollowRelations(author.UserName)).Count,
+                     followCountBefore);
     }
 
     /**
@@ -167,19 +179,21 @@ public class AuthorRepositoryTest {
         string usernameA = nameA.Replace(" ", "");
         const string emailA = "TheCakeMaster@copper.com";
         await _authorRepository.CreateAuthor(nameA, emailA);
-        Author authorA = (await _authorRepository.GetAuthor(usernameA)).First();
+        AuthorDTO authorA = (await _authorRepository.GetAuthor(usernameA)).First();
         const string nameB = "Abba Booper";
         string usernameB = nameB.Replace(" ", "");
         const string emailB = "Abba@Booper.com";
         await _authorRepository.CreateAuthor(nameB, emailB);
-        Author authorB = (await _authorRepository.GetAuthor(usernameB)).First();
+        AuthorDTO authorB = (await _authorRepository.GetAuthor(usernameB)).First();
 
         // act
-        var AFollowBBefore = await _authorRepository.IsFollowing(authorA, authorB);
-        var BFollowABefore = await _authorRepository.IsFollowing(authorB, authorA);
+        var AFollowBBefore =
+            await _authorRepository.IsFollowing(authorA.UserName, authorB.UserName);
+        var BFollowABefore =
+            await _authorRepository.IsFollowing(authorB.UserName, authorA.UserName);
         await _authorRepository.Follow(authorA, authorB);
-        var AFollowBAfter = await _authorRepository.IsFollowing(authorA, authorB);
-        var BFollowAAfter = await _authorRepository.IsFollowing(authorB, authorA);
+        var AFollowBAfter = await _authorRepository.IsFollowing(authorA.UserName, authorB.UserName);
+        var BFollowAAfter = await _authorRepository.IsFollowing(authorB.UserName, authorA.UserName);
 
         // Assert
         Assert.False(AFollowBBefore);
@@ -198,18 +212,19 @@ public class AuthorRepositoryTest {
         string usernameA = nameA.Replace(" ", "");
         const string emailA = "TheCakeMaster@copper.com";
         await _authorRepository.CreateAuthor(nameA, emailA);
-        Author authorA = (await _authorRepository.GetAuthor(usernameA)).First();
+        AuthorDTO authorA = (await _authorRepository.GetAuthor(usernameA)).First();
         const string nameB = "Abba Booper";
         string usernameB = nameB.Replace(" ", "");
         const string emailB = "Abba@Booper.com";
         await _authorRepository.CreateAuthor(nameB, emailB);
-        Author authorB = (await _authorRepository.GetAuthor(usernameB)).First();
+        AuthorDTO authorB = (await _authorRepository.GetAuthor(usernameB)).First();
         await _authorRepository.Follow(authorA, authorB);
 
         // act
-        var AFollowBBefore = await _authorRepository.IsFollowing(authorA, authorB);
+        var AFollowBBefore =
+            await _authorRepository.IsFollowing(authorA.UserName, authorB.UserName);
         await _authorRepository.Unfollow(authorA, authorB);
-        var AFollowBAfter = await _authorRepository.IsFollowing(authorA, authorB);
+        var AFollowBAfter = await _authorRepository.IsFollowing(authorA.UserName, authorB.UserName);
 
         // Assert
         Assert.True(AFollowBBefore);

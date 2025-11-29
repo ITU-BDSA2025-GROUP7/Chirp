@@ -1,0 +1,48 @@
+@page
+@using Microsoft.IdentityModel.Tokens
+@model Following
+@{
+    ViewData["Title"] = "Following";
+    ViewData["ActivePage"] = ManageNavPages.Following;
+}
+
+<h3>@ViewData["Title"]</h3>
+
+@if (Model.FollowRelations.Count > 1) { // 1 because we are always following ourselves
+
+    <p>Here are the accounts you follow</p>
+    <div class="row">
+        <div class="col-md-6">
+
+            @foreach (var followRelation in Model.FollowRelations) {
+                <li style="list-style-type: none">
+                    <div style="display: flex; align-items: center; gap: 5px">
+                        @if (followRelation.Follower.UserName != followRelation.Followed.UserName) {
+                            <strong>
+                                <a href="/@followRelation.Followed.UserName">@followRelation.Followed.DisplayName</a>
+                            </strong>
+                            <form method="post" style="display:inline; margin: 0; padding: 0;">
+                                <button type="submit"
+                                        asp-page-handler="UnFollow"
+                                        style="background:none; color:black; border:none;padding:0;margin:0">
+                                    Unfollow
+                                </button>
+                                <input type="hidden" name="authorA" value="@followRelation.Followed.UserName"/>
+                                <input type="hidden" name="authorB" value="@followRelation.Follower.UserName"/>
+                            </form>
+                        }
+                    </div>
+                    <br>
+                </li>
+            }
+
+        </div>
+    </div>
+} else {
+    <p>It doesn't seem like you are following anyone yet <br>
+        Head to the public timeline to see if there is someone you like</p>
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

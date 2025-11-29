@@ -3,33 +3,33 @@ namespace Chirp.Core;
 using Domain_Model;
 
 public interface IAuthorRepository {
-
     public Task CreateAuthor(string name, string email);
 
     /**
      * recognizes the string as a name or email and calls the relevant GetAuthor method
      */
-    public Task<List<Author>> GetAuthor(string identifier);
+    public Task<List<AuthorDTO>> GetAuthor(string identifier);
 
     /**
      * Function used in GetAuthor if its argument is recognized as an Email.
      */
-    public Task<List<Author>> GetAuthorByEmail(string email);
+    public Task<List<AuthorDTO>> GetAuthorByEmail(string email);
 
     /**
      * Function used in GetAuthor if its argument is recognized as a name.
      */
-    public Task<List<Author>> GetAuthorByUserName(string username);
+    public Task<List<AuthorDTO>> GetAuthorByUserName(string username);
 
-    public Task Follow(Author follower, Author followed);
+    public Task Follow(AuthorDTO follower, AuthorDTO followed);
+
     /**
      * Deletes a follow relation
      */
-    public Task Unfollow(Author follower, Author followed);
+    public Task Unfollow(AuthorDTO follower, AuthorDTO followed);
 
-    public Task<List<FollowRelation>> GetFollowRelations(Author author);
-    public Task<List<Author>> Following(Author author);
+    public Task<List<FollowRelation>> GetFollowRelations(string follower);
 
+    public Task<List<AuthorDTO>> Following(string follower);
 
     /**
      * Creates a follow relation, and adds a reference of the followed to follower
@@ -37,13 +37,12 @@ public interface IAuthorRepository {
     public Task Follow(string follower, string followed);
 
     /**
-     * Creates a follow relation, and adds a reference of the followed to follower
+     * Removes a follow relation if `follower` and `followed` are not identical.
      */
     public Task Unfollow(string follower, string followed);
 
-
     /**
-     * Returns true if authorA is following authorB, false otherwise.
+     * Returns true if `follower` is following `followed`, false otherwise.
      */
-    public Task<bool> IsFollowing(Author authorA, Author authorB);
+    public Task<bool> IsFollowing(string follower, string followed);
 }

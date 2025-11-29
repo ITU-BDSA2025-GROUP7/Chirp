@@ -7,6 +7,8 @@
                             asp-page="./Index">Profile</a></li>
     <li class="nav-item"><a class="nav-link @ManageNavPages.EmailNavClass(ViewContext)" id="email"
                             asp-page="./Email">Email</a></li>
+    <li class="nav-item"><a class="nav-link @ManageNavPages.FollowingNavClass(ViewContext)" id="following"
+                            asp-page="./Following">Following</a></li>
     <li class="nav-item"><a class="nav-link @ManageNavPages.ChangePasswordNavClass(ViewContext)"
                             id="change-password" asp-page="./ChangePassword">Password</a></li>
     @if (hasExternalLogins) {
@@ -20,4 +22,10 @@
             id="two-factor" asp-page="./TwoFactorAuthentication">Two-factor authentication</a></li>
     <li class="nav-item"><a class="nav-link @ManageNavPages.PersonalDataNavClass(ViewContext)"
                             id="personal-data" asp-page="./PersonalData">Personal data</a></li>
+    <li class="nav-item">
+        <a class="nav-link @ManageNavPages.MyCheepsNavClass(ViewContext)"
+           id="own-cheeps" asp-page="./MyCheeps">
+            My cheeps
+        </a>
+    </li>
 </ul>
