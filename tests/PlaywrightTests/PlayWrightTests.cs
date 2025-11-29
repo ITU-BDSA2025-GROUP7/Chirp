@@ -263,7 +263,7 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
 
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Email" }).ClickAsync();
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Email" })
-                  .FillAsync("Test@EmailsYayaya.dk");
+                  .FillAsync("Test@emailsyayaya.dk");
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Username" }).ClickAsync();
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Username" }).FillAsync("Tester");
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Password" }).ClickAsync();
@@ -505,7 +505,7 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
 
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Email" }).ClickAsync();
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Email" })
-                  .FillAsync("Test@TestEmail.com");
+                  .FillAsync("Test@testemail.com");
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Username" }).ClickAsync();
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Username" }).FillAsync("TestName");
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "Display Name" }).ClickAsync();
@@ -529,7 +529,7 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
 
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Email" }).ClickAsync();
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Email" })
-                  .FillAsync("Test@TestEmail.com");
+                  .FillAsync("Test@testemail.com");
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Username" }).ClickAsync();
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Username" }).FillAsync("TestName");
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "Display Name" }).ClickAsync();
@@ -589,7 +589,7 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
 
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Email" }).ClickAsync();
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Email" })
-                  .FillAsync("Tester@Email1.dk");
+                  .FillAsync("Tester@email1.dk");
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Username" }).ClickAsync();
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Username" }).FillAsync("Username1");
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "Display Name" }).ClickAsync();
@@ -632,6 +632,32 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
         await Page.GetByRole(AriaRole.Button, new() { Name = "Register" }).ClickAsync();
         await Expect(Page.GetByRole(AriaRole.Listitem))
            .ToContainTextAsync("Username 'Username1' is already taken.");
+    }
+
+    /**
+     * Tests that if you register using an invalid email, the waring "Email is invalid" is displayed
+     */
+    [Test]
+    public async Task InvalidEmail() {
+        await Page.GotoAsync(_serverUrl);
+        await Expect(Page.GetByRole(AriaRole.Heading, new() { Name = "Icon1Chirp!" })).ToBeVisibleAsync();
+
+        await Page.GetByRole(AriaRole.Link, new() { Name = "Register" }).ClickAsync();
+        await Expect(Page.GetByRole(AriaRole.Heading, new() { Name = "Icon1Chirp!" })).ToBeVisibleAsync();
+
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Email" }).ClickAsync();
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Email" }).FillAsync("Invalid@Emails");
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Username" }).ClickAsync();
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Username" }).FillAsync("Nikki");
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "Display Name" }).ClickAsync();
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "Display Name" }).FillAsync("NikkiTester");
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Password" }).ClickAsync();
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Password" }).FillAsync("Lillek4t!");
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Confirm Password" }).ClickAsync();
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Confirm Password" }).FillAsync("Lillek4t!");
+        await Page.GetByRole(AriaRole.Button, new() { Name = "Register" }).ClickAsync();
+        await Expect(Page.GetByText("is invalid")).ToBeVisibleAsync();
+        await Page.GetByText("*Email").ClickAsync();
     }
 
     /**
@@ -695,7 +721,7 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
         await Page.GetByRole(AriaRole.Link, new() { Name = "Register" }).ClickAsync();
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Email" }).ClickAsync();
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Email" })
-                  .FillAsync("TestEmail@TestEmails.com");
+                  .FillAsync("TestEmail@testemails.com");
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Username" }).ClickAsync();
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Username" })
                   .FillAsync("TesterName");
@@ -910,7 +936,7 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
         await Page.GetByRole(AriaRole.Link, new() { Name = "Register" }).ClickAsync();
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Email" }).ClickAsync();
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Email" })
-                  .FillAsync("Test@EmailsYayaya.dk");
+                  .FillAsync("Test@emailsyayaya.dk");
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Username" }).ClickAsync();
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Username" }).FillAsync("Tester");
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Password" }).ClickAsync();

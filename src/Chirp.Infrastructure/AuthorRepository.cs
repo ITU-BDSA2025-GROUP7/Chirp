@@ -122,7 +122,7 @@ public class AuthorRepository : IAuthorRepository {
     }
 
     /**
-     *
+     * Determines if the input is valid as an Email according to the official RFC5322 as described here https://emailregex.com/
      */
     public static bool IsValidEmail(string input) {
         Regex regex = new Regex(
