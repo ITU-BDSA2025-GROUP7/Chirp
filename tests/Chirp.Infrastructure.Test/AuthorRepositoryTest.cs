@@ -231,4 +231,28 @@ public class AuthorRepositoryTest {
         Assert.True(AFollowBBefore);
         Assert.False(AFollowBAfter);
     }
+
+    /**
+     * Tests if email validation can correctly determen weather a given string is a valid email
+     */
+    [Theory]
+    [InlineData("IAmFulty@email", false)]
+    [InlineData("IAmFulty@Email.com", false)]
+    [InlineData("@email.com", false)]
+    [InlineData("IAmFulty@.com", false)]
+    [InlineData("I am not a email", false)]
+    [InlineData("IAmEmail@email.com", true)]
+    [InlineData("IAmEmail@email.dk", true)]
+    [InlineData("IAmEmail.true@email.com", true)]
+    [InlineData("IAmEmailtru2@email.com", true)]
+    [InlineData("IAmvalid@email.frtyujhvbnklok", true)]
+    public void EmailValidationTest(string email, bool shouldBeValid) {
+        // act
+        bool result = AuthorRepository.IsValidEmail(email);
+
+        // assert
+        Assert.Equal(shouldBeValid, result);
+    }
+
+
 }

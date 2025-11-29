@@ -88,7 +88,8 @@ namespace Chirp.Web.Areas.Identity.Pages.Account {
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
             [Required]
-            [EmailAddress]
+            [EmailAuthentication(
+                          ErrorMessage = "is invalid")]
             [Display(Name = "Email")]
             [StringLength(256,
                           ErrorMessage = "The {0} must be between {2} and {1} characters long.",
