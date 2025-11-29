@@ -128,8 +128,8 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
         await Page.GotoAsync(_serverUrl);
         await Expect(Page.GetByRole(AriaRole.Listitem)
                          .Filter(new() {
-                              HasText = "— 2023-08-01 13:17:39 Starbuck now is what we hear"
-                          })
+                             HasText = "— 2023-08-01 13:17:39 Starbuck now is what we hear"
+                         })
                          .GetByRole(AriaRole.Button))
              .Not.ToBeVisibleAsync();
     }
@@ -194,7 +194,7 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
         // follow an account
         await Page.GetByRole(AriaRole.Listitem)
                   .Filter(new() { HasText = "Mellie Yost Follow" })
-                  .GetByRole(AriaRole.Button, new() {Name ="Follow"}).First
+                  .GetByRole(AriaRole.Button, new() { Name = "Follow" }).First
                   .ClickAsync();
 
         // page is not gone
@@ -210,7 +210,7 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
         // unfollow
         await Page.GetByRole(AriaRole.Listitem)
                   .Filter(new() { HasText = "Mellie Yost" })
-                  .GetByRole(AriaRole.Button, new() {Name ="Unfollow"}).First
+                  .GetByRole(AriaRole.Button, new() { Name = "Unfollow" }).First
                   .ClickAsync();
         // expect previously followed account to be gone
         await Expect(Page.GetByRole(AriaRole.Link, new() { Name = "Mellie Yost" }))
@@ -245,7 +245,7 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
         // follow an account
         await Page.GetByRole(AriaRole.Listitem)
                   .Filter(new() { HasText = "Mellie Yost" })
-                  .GetByRole(AriaRole.Button, new() {Name ="Follow"}).First
+                  .GetByRole(AriaRole.Button, new() { Name = "Follow" }).First
                   .ClickAsync();
 
         // page is not gone
@@ -271,7 +271,7 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
         // unfollow to return to normal state
         await Page.GetByRole(AriaRole.Listitem)
                   .Filter(new() { HasText = "Mellie Yost" })
-                  .GetByRole(AriaRole.Button, new() {Name ="Unfollow"}).First
+                  .GetByRole(AriaRole.Button, new() { Name = "Unfollow" }).First
                   .ClickAsync();
         // go to my timeline
         await Page.GetByRole(AriaRole.Link, new() { Name = "My Timeline" }).ClickAsync();
@@ -312,12 +312,12 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
         // follow an account
         await Page.GetByRole(AriaRole.Listitem)
                   .Filter(new() { HasText = "Mellie Yost" })
-                  .GetByRole(AriaRole.Button, new() {Name ="Follow"}).First
+                  .GetByRole(AriaRole.Button, new() { Name = "Follow" }).First
                   .ClickAsync();
         // follow one more
         await Page.GetByRole(AriaRole.Listitem)
                   .Filter(new() { HasText = "Quintin Sitts" })
-                  .GetByRole(AriaRole.Button, new() {Name ="Follow"}).First
+                  .GetByRole(AriaRole.Button, new() { Name = "Follow" }).First
                   .ClickAsync();
         // page is not gone
         await Expect(Page.GetByRole(AriaRole.Heading, new() { Name = "Icon1Chirp!" }))
@@ -345,12 +345,12 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
         // unfollow to return to normal state
         await Page.GetByRole(AriaRole.Listitem)
                   .Filter(new() { HasText = "Mellie Yost" })
-                  .GetByRole(AriaRole.Button, new() {Name ="Unfollow"}).First
+                  .GetByRole(AriaRole.Button, new() { Name = "Unfollow" }).First
                   .ClickAsync();
         // unfollow to return to normal state
         await Page.GetByRole(AriaRole.Listitem)
                   .Filter(new() { HasText = "Quintin Sitts" })
-                  .GetByRole(AriaRole.Button, new() {Name ="Unfollow"}).First
+                  .GetByRole(AriaRole.Button, new() { Name = "Unfollow" }).First
                   .ClickAsync();
 
 

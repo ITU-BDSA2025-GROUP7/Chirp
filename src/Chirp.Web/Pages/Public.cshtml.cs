@@ -1,11 +1,14 @@
+using Chirp.Core.Domain_Model;
 using Chirp.Infrastructure;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Chirp.Web.Pages;
 
 public class PublicModel : CheepTimelineModel {
-    public PublicModel(ICheepService cheepService, IAuthorService authorService) : base(
-        cheepService, authorService) { }
+    public PublicModel(ICheepService cheepService, IAuthorService authorService,
+                       UserManager<Author> userManager)
+        : base(cheepService, authorService, userManager) { }
 
     public async Task<IActionResult> OnGet() {
         int pageNr = getPageNr(Request);
