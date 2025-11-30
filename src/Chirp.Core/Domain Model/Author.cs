@@ -17,8 +17,9 @@ public class Author : IdentityUser {
      * generating a username based on the given <c>displayName</c> by removing all spaces.<br/>
      * The word "valid" here refers to the Author having a non-null <c>NormalizedUserName</c>
      * and <c>NormalizedEmail</c>.<br/>
-     * The optional parameter <c>passwordHash</c> needs to be included to
-     * be able to actually log in as the person in practice.<br/>
+     * The optional parameters <c>passwordHash</c>, <c>concurrencyStamp</c>,
+     * and <c>securityStamp</c> need to be included to be able to actually log in as the person
+     * in practice.<br/>
      * This is a convenience function for automatically setting fields that would otherwise be
      * set if the user was created through the UserStore, UserEmailStore, and UserManager in
      * Register.cshtml.cs.<br/>
