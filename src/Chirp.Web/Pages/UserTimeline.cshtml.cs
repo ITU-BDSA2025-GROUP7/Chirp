@@ -27,18 +27,26 @@ public class UserTimelineModel : CheepTimelineModel {
         if (Author == null) {
             Header = NO_USER_HEADER;
             Cheeps = [];
+            TotalPageCount = 1;
+            PageNr = 1;
         } else {
-            int pageNr = getPageNr(Request);
-            Console.WriteLine("pageQuery: " + pageNr + " author: " + author);
             Header = FormatPageHeader(Author);
 
             if (_signInManager.IsSignedIn(User)
              && Author == await _userManager.GetUserAsync(User)) {
                 await _authorService.Follow(Author, Author);
-                Cheeps = await _cheepService.GetOwnAndFollowedCheeps(Author, pageNr);
+                TotalPageCount =
+                    PageCount(await _cheepService.CheepCountFromFollowed(author));
+                PageNr = ParsePageNr(Request);
+                Cheeps = await _cheepService.GetCheepsFromFollowed(Author, PageNr);
             } else {
-                Cheeps = await _cheepService.GetCheepsFromUserName(author, pageNr);
+                TotalPageCount =
+                    PageCount(await _cheepService.CheepCountFromUserName(author));
+                PageNr = ParsePageNr(Request);
+                Cheeps = await _cheepService.GetCheepsFromUserName(author, PageNr);
             }
+
+            GeneratePageLinks(author);
         }
 
         return Page();

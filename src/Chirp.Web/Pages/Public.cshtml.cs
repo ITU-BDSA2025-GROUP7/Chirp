@@ -8,9 +8,10 @@ public class PublicModel : CheepTimelineModel {
         cheepService, authorService) { }
 
     public async Task<IActionResult> OnGet() {
-        int pageNr = getPageNr(Request);
-
-        Cheeps = await _cheepService.GetCheeps(pageNr);
+        TotalPageCount = PageCount(_cheepService.TotalCheepCount);
+        PageNr = ParsePageNr(Request);
+        Cheeps = await _cheepService.GetCheeps(PageNr);
+        GeneratePageLinks("");
         return Page();
     }
 }
