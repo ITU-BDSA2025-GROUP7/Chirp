@@ -7,14 +7,26 @@ namespace Chirp.Infrastructure;
 public class CheepRepository : ICheepRepository {
     private ChirpDBContext _dbContext;
 
+    /** The total number of cheeps in the database. Updated whenever a cheep is added or removed. */
+    public int TotalCheepCount { get; private set; }
+
     public CheepRepository(ChirpDBContext dbContext) {
         this._dbContext = dbContext;
+        TotalCheepCount = _dbContext.Cheeps.Count();
     }
 
-    public async Task<List<CheepDTO>> GetOwnAndFollowedCheeps(Author author, int pageNr = 1) {
+    public async Task<int> CheepCountFromUserName(string username) {
+        return await _dbContext.Cheeps.CountAsync(cheep => cheep.Author.UserName == username);
+    }
+
+    public async Task<List<CheepDTO>> GetCheepsFromFollowed(Author author, int pageNr = 1) {
         return await QueryCheepsFromFollowedAuthors(author.UserName!)
                     .Pick(pageNr)
                     .ToListAsync();
+    }
+
+    public async Task<int> CheepCountFromFollowed(string username) {
+        return await QueryCheepsFromFollowedAuthors(username).CountAsync();
     }
 
     private IQueryable<CheepDTO> QueryCheepsFromFollowedAuthors(string username) {
@@ -39,7 +51,8 @@ public class CheepRepository : ICheepRepository {
 
         Cheep cheep = new Cheep() { Author = author, Text = message, TimeStamp = timestamp };
         await _dbContext.Cheeps.AddAsync(cheep);
-        await _dbContext.SaveChangesAsync();
+        int changes = await _dbContext.SaveChangesAsync();
+        TotalCheepCount += changes;
     }
 
     public async Task<List<CheepDTO>> GetCheeps(int pageNr) {
