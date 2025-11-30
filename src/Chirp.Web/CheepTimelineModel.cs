@@ -60,11 +60,16 @@ public abstract class CheepTimelineModel : PageModel {
     /// If null, the link is disabled. If empty, links to first page.
     public string? LastPageLink { get; set; }
 
+    private int _totalPageCount = 1;
+
     /** The number of pages needed to contain the current timeline's cheeps.
      This represents the (inclusive) upper bound of <see cref="PageNr"/>.<br/>
-     * <seealso cref="PageCount(int)"/>
-    */
-    public int TotalPageCount { get; set; } = 1;
+     Automatically clamped to be at least 1.
+     <seealso cref="PageCount(int)"/> */
+    public int TotalPageCount {
+        get => _totalPageCount;
+        set => _totalPageCount = Math.Max(value, 1);
+    }
 
     [BindProperty]
     [Required]
@@ -127,7 +132,7 @@ public abstract class CheepTimelineModel : PageModel {
     /** Computes the number of pages needed to display <c>totalCheepCount</c> cheeps. */
     protected static int PageCount(int totalCheepCount) {
         int totalPageCount = totalCheepCount / ICheepRepository.CHEEPS_PER_PAGE;
-        if (totalCheepCount % ICheepRepository.CHEEPS_PER_PAGE != 0) {
+        if (totalCheepCount % ICheepRepository.CHEEPS_PER_PAGE != 0 || totalPageCount == 0) {
             totalPageCount++;
         }
 
