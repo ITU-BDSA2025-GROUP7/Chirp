@@ -1,0 +1,51 @@
+﻿@model Chirp.Web.CheepTimelineModel
+
+<!-- Arrows only show up if there are multiple pages -->
+@if (Model.TotalPageCount > 1) {
+    <div style="display: flex; align-items: center; justify-content: center; gap: 5px;">
+        <!-- Link to first page -->
+        @if (Model.FirstPageLink != null) {
+            <a href="@Model.FirstPageLink"
+               style="text-decoration: none; font-kerning: none;">
+                @CheepTimelineModel.FirstPageSymbol
+            </a>
+        } else {
+            <span>@CheepTimelineModel.FirstPageSymbol</span>
+        }
+
+        <!-- Link to previous page -->
+        @if (Model.PrevPageLink != null) {
+            <a href="@Model.PrevPageLink"
+               style="text-decoration: none; font-kerning: none;">
+                @CheepTimelineModel.PrevPageSymbol
+            </a>
+        } else {
+            <span>@CheepTimelineModel.PrevPageSymbol</span>
+        }
+
+        <!-- Page number -->
+        <span>
+            @Model.PageNr / @Model.TotalPageCount
+        </span>
+
+        <!-- Link to next page -->
+        @if (Model.NextPageLink != null) {
+            <a href="@Model.NextPageLink"
+               style="text-decoration: none; font-kerning: none;">
+                @CheepTimelineModel.NextPageSymbol
+            </a>
+        } else {
+            <span>@CheepTimelineModel.NextPageSymbol</span>
+        }
+
+        <!-- Link to last page -->
+        @if (Model.LastPageLink != null) {
+            <a href="@Model.LastPageLink"
+               style="text-decoration: none; font-kerning: none;">
+                @CheepTimelineModel.LastPageSymbol
+            </a>
+        } else {
+            <span>@CheepTimelineModel.LastPageSymbol</span>
+        }
+    </div>
+}
