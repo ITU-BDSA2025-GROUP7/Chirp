@@ -19,8 +19,8 @@ public class CheepRepository : ICheepRepository {
         return await _dbContext.Cheeps.CountAsync(cheep => cheep.Author.UserName == username);
     }
 
-    public async Task<List<CheepDTO>> GetCheepsFromFollowed(Author author, int pageNr = 1) {
-        return await QueryCheepsFromFollowedAuthors(author.UserName!)
+    public async Task<List<CheepDTO>> GetCheepsFromFollowed(string username, int pageNr = 1) {
+        return await QueryCheepsFromFollowedAuthors(username)
                     .Pick(pageNr)
                     .ToListAsync();
     }

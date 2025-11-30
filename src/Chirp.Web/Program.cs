@@ -26,6 +26,7 @@ builder.Services.AddScoped<IAuthorRepository, AuthorRepository>();
 builder.Services.AddScoped<IAuthorService, AuthorService>();
 builder.Services.AddDefaultIdentity<Author>(options => {
     options.SignIn.RequireConfirmedAccount = true;
+    options.User.RequireUniqueEmail = true;
 })
        .AddEntityFrameworkStores<ChirpDBContext>();
 builder.Services.AddAuthentication(options => {

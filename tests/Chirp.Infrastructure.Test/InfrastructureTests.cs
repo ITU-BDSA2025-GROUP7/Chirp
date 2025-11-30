@@ -12,6 +12,7 @@ public class InfrastructureTests {
     private readonly ITestOutputHelper _testOutputHelper;
     private readonly ICheepRepository _cheepRepo;
     private readonly IAuthorRepository _authorRepo;
+    private readonly ChirpDBContext _context;
 
     public InfrastructureTests(ITestOutputHelper testOutputHelper) {
         _testOutputHelper = testOutputHelper;
@@ -20,12 +21,12 @@ public class InfrastructureTests {
         DbContextOptions<ChirpDBContext> options = new DbContextOptionsBuilder<ChirpDBContext>()
                                                   .UseSqlite(connection)
                                                   .Options;
-        var context = new ChirpDBContext(options);
-        context.Database.EnsureCreated();
-        _cheepRepo = new CheepRepository(context);
-        _authorRepo = new AuthorRepository(context);
-        DbInitializer.SeedDatabase(context);
-        context.SaveChanges();
+        _context = new ChirpDBContext(options);
+        _context.Database.EnsureCreated();
+        _cheepRepo = new CheepRepository(_context);
+        _authorRepo = new AuthorRepository(_context);
+        DbInitializer.SeedDatabase(_context);
+        _context.SaveChanges();
     }
 
     /** Asserts that the GetOwnAndFollowedCheeps returns an empty list if an Author
@@ -33,13 +34,13 @@ public class InfrastructureTests {
     [Fact]
     public async Task PrivateTimelineNoOwnCheepsNoFollowedCheeps() {
         await _authorRepo.CreateAuthor("Ms Mute and Deaf", "mad@test.dk");
-        List<Author> users = await _authorRepo.GetAuthor("mad@test.dk");
-        Author user = users.Single();
+        List<AuthorDTO> users = await _authorRepo.GetAuthor("mad@test.dk");
+        AuthorDTO user = users.Single();
 
-        List<Author> followed = await _authorRepo.Following(user);
+        List<AuthorDTO> followed = await _authorRepo.Following(user.UserName);
         Assert.Single(followed);
 
-        List<CheepDTO> cheeps = await _cheepRepo.GetCheepsFromFollowed(user);
+        List<CheepDTO> cheeps = await _cheepRepo.GetCheepsFromFollowed(user.UserName);
         Assert.Empty(cheeps);
     }
 
@@ -49,15 +50,15 @@ public class InfrastructureTests {
     [Fact]
     public async Task PrivateTimelineNoFollowedCheeps() {
         await _authorRepo.CreateAuthor("Ms Mute and Deaf", "mad@test.dk");
-        List<Author> users = await _authorRepo.GetAuthor("mad@test.dk");
-        Author user = users.Single();
+        List<AuthorDTO> users = await _authorRepo.GetAuthor("mad@test.dk");
+        AuthorDTO user = users.Single();
 
-        List<Author> followed = await _authorRepo.Following(user);
+        List<AuthorDTO> followed = await _authorRepo.Following(user.UserName);
         Assert.Single(followed);
+        Author? a = GetAuthorFromDatabase(user);
+        await _cheepRepo.CreateCheep(a!, "Test message", DateTime.Now);
 
-        await _cheepRepo.CreateCheep(user, "Test message", DateTime.Now);
-
-        List<CheepDTO> cheeps = await _cheepRepo.GetCheepsFromFollowed(user);
+        List<CheepDTO> cheeps = await _cheepRepo.GetCheepsFromFollowed(user.UserName);
         Assert.Single(cheeps);
     }
 
@@ -69,24 +70,25 @@ public class InfrastructureTests {
     public async Task PrivateTimelineNoOwnCheepsOneFollowedAuthor() {
         // Create a new user account, and ensure it now exists.
         await _authorRepo.CreateAuthor("Ms Mute", "mad@test.dk");
-        Author user = (await _authorRepo.GetAuthor("mad@test.dk")).Single();
+        AuthorDTO user = (await _authorRepo.GetAuthor("mad@test.dk")).Single();
         Assert.Empty(await _cheepRepo.GetCheepsFromUserName(user.UserName!, 1));
 
         // Select a different user account to follow, making sure it has cheeps.
-        Author toFollow = (await _authorRepo.GetAuthor("Jacqualine.Gilcoine@gmail.com")).Single();
+        AuthorDTO toFollow =
+            (await _authorRepo.GetAuthor("Jacqualine.Gilcoine@gmail.com")).Single();
         List<CheepDTO> cheepsFromFollowed =
             await _cheepRepo.GetCheepsFromUserName(toFollow.UserName!, 1);
         Assert.NotEmpty(cheepsFromFollowed);
 
         // Follow the secondary user account, and ensure this has occurred successfully.
         await _authorRepo.Follow(user, toFollow);
-        List<Author> following = await _authorRepo.Following(user);
+        List<AuthorDTO> following = await _authorRepo.Following(user.UserName);
         Assert.Equal(user, following.First());
         Assert.Equal(toFollow, following[1]);
 
         // Assert that the list of cheeps is exactly equal to the list of cheeps from the one
         // follower.
-        List<CheepDTO> timelineCheeps = await _cheepRepo.GetCheepsFromFollowed(user, 1);
+        List<CheepDTO> timelineCheeps = await _cheepRepo.GetCheepsFromFollowed(user.UserName, 1);
         Assert.Equal(cheepsFromFollowed, timelineCheeps);
     }
 
@@ -98,7 +100,7 @@ public class InfrastructureTests {
     public async Task PrivateTimelineNoOwnCheepsMultipleFollowedAuthors() {
         // Create a new user account, and ensure it now exists.
         await _authorRepo.CreateAuthor("Ms Mute", "mad@test.dk");
-        Author user = (await _authorRepo.GetAuthor("mad@test.dk")).Single();
+        AuthorDTO user = (await _authorRepo.GetAuthor("mad@test.dk")).Single();
 
         // Follow these three authors in the seeded database
         List<string> emails = [
@@ -108,10 +110,10 @@ public class InfrastructureTests {
         ];
         List<CheepDTO> cheepsFromFollowed = [];
         foreach (string email in emails) {
-            Author author = (await _authorRepo.GetAuthor(email)).Single();
+            AuthorDTO author = (await _authorRepo.GetAuthor(email)).Single();
             await _authorRepo.Follow(user, author);
             cheepsFromFollowed.AddRange(
-                await _cheepRepo.GetAllCheepsFromUserName(author.UserName!));
+                await _cheepRepo.GetAllCheepsFromUserName(author.UserName));
         }
 
         // Sort the combined list of cheeps from followers so that they are mixed together and
@@ -131,7 +133,7 @@ public class InfrastructureTests {
         }
 
         for (int i = 0; i < totalPages; i++) {
-            List<CheepDTO> cheeps = await _cheepRepo.GetCheepsFromFollowed(user, i + 1);
+            List<CheepDTO> cheeps = await _cheepRepo.GetCheepsFromFollowed(user.UserName, i + 1);
             timelineCheepCount += cheeps.Count;
             int lowerBound = i * CHEEPS_PER_PAGE;
             int upperBound = lowerBound + cheeps.Count;
@@ -145,24 +147,24 @@ public class InfrastructureTests {
     [Fact]
     public async Task NewAuthorFollowsOnlySelf() {
         await _authorRepo.CreateAuthor("Ms Deaf", "mad@test.dk");
-        List<Author> users = await _authorRepo.GetAuthor("mad@test.dk");
-        Author user = users.Single();
-        Assert.Equal(user, (await _authorRepo.Following(user)).Single());
+        List<AuthorDTO> users = await _authorRepo.GetAuthor("mad@test.dk");
+        AuthorDTO user = users.Single();
+        Assert.Equal(user, (await _authorRepo.Following(user.UserName)).Single());
     }
 
     [Fact]
     public async Task NewAuthorHasNoCheeps() {
         await _authorRepo.CreateAuthor("Ms Mute", "mad@test.dk");
-        List<Author> users = await _authorRepo.GetAuthor("mad@test.dk");
-        Author user = users.Single();
-        Assert.Empty(await _cheepRepo.GetCheepsFromUserName(user.UserName!, 1));
+        List<AuthorDTO> users = await _authorRepo.GetAuthor("mad@test.dk");
+        AuthorDTO user = users.Single();
+        Assert.Empty(await _cheepRepo.GetCheepsFromUserName(user.UserName, 1));
     }
 
     [Fact]
     public async Task NewAuthorHasNonNullUserName() {
         await _authorRepo.CreateAuthor("Ms HasAName", "mad@test.dk");
-        List<Author> users = await _authorRepo.GetAuthor("mad@test.dk");
-        Author user = users.Single();
+        List<AuthorDTO> users = await _authorRepo.GetAuthor("mad@test.dk");
+        AuthorDTO user = users.Single();
         Assert.NotNull(user.UserName);
         Assert.NotEmpty(user.UserName); // Assert that it is not blank
     }
@@ -171,31 +173,72 @@ public class InfrastructureTests {
     public async Task FollowMultiplePeople() {
         // Create a new user account, and ensure it now exists.
         await _authorRepo.CreateAuthor("Ms Mute", "mad@test.dk");
-        List<Author> users = await _authorRepo.GetAuthor("mad@test.dk");
-        Author user = users.Single();
+        List<AuthorDTO> users = await _authorRepo.GetAuthor("mad@test.dk");
+        AuthorDTO user = users.Single();
 
         List<string> authors = [
             "Jacqualine.Gilcoine@gmail.com",
             "Roger+Histand@hotmail.com",
             "Luanna-Muro@ku.dk",
         ];
-        List<Author> authorsToFollow = [];
+        List<AuthorDTO> authorsToFollow = [];
         // Add several authors, making sure they each have cheeps.
         foreach (string email in authors) {
-            List<Author> toBeFollowed = await _authorRepo.GetAuthor(email);
+            List<AuthorDTO> toBeFollowed = await _authorRepo.GetAuthor(email);
             authorsToFollow.Add(toBeFollowed.Single());
 
-            string username = authorsToFollow.Last().UserName!;
+            string username = authorsToFollow.Last().UserName;
             List<CheepDTO> cheepsFromFollowed = await _cheepRepo.GetCheepsFromUserName(username, 1);
             Assert.NotEmpty(cheepsFromFollowed);
 
             await _authorRepo.Follow(user, authorsToFollow.Last());
         }
 
-        List<Author> following = await _authorRepo.Following(user);
+        List<AuthorDTO> following = await _authorRepo.Following(user.UserName);
         Assert.Equal(authors.Count + 1, following.Count);
-        foreach (Author author in authorsToFollow) {
+        foreach (AuthorDTO author in authorsToFollow) {
             Assert.Contains(author, following);
         }
+    }
+
+    /** Tests that we can create an AuthorDTO based on an Author and have the correct */
+    [Fact]
+    private void CreateAuthorDTOFromAuthor() {
+        var a = Author.Create("Display name", "em@ail.com");
+        var derived = new AuthorDTO(a);
+        Assert.Equal(a.DisplayName, derived.DisplayName);
+        Assert.Equal(a.UserName, derived.UserName);
+    }
+
+    /** Tests that AuthorDTOs are compared by value rather than reference,
+     * since AuthorDTOs are structs derived from Author.
+     */
+    [Fact]
+    private void AuthorDTOEqualityByValue() {
+        var a = new AuthorDTO("Display name", "User name");
+        var b = new AuthorDTO("Display name", "User name");
+        Assert.Equal(a, b);
+        Assert.Equal(a.GetHashCode(), b.GetHashCode());
+    }
+
+    /** Test that AuthorDTO's default comparison is by display name, not
+     * username, */
+    [Fact]
+    private void AuthorDTOOrderedByDisplayName() {
+        var first = new AuthorDTO("A", "B");
+        var second = new AuthorDTO("B", "A");
+        var sameAsFirst = new AuthorDTO("A", "C");
+        Assert.Equal(-1, first.CompareTo(second));
+        Assert.Equal(1, second.CompareTo(first));
+        Assert.Equal(0, first.CompareTo(sameAsFirst));
+    }
+
+    /** Get an Author from the database. AuthorRepository returns an
+     * AuthorDTO, so we do it manually like this for the tests instead. */
+    private Author? GetAuthorFromDatabase(AuthorDTO authorDTO) {
+        return (from author in _context.Authors
+                where author.UserName == authorDTO.UserName
+                orderby author.DisplayName
+                select author).Single();
     }
 }

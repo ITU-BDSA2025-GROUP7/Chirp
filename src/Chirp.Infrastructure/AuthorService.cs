@@ -10,15 +10,11 @@ public class AuthorService : IAuthorService {
         this.authorRepository = authorRepository;
     }
 
-    public async Task<List<Author>> GetAuthorByUserName(string username) {
+    public async Task<List<AuthorDTO>> GetAuthorByUserName(string username) {
         return await authorRepository.GetAuthorByUserName(username);
     }
 
-    public async Task Follow(Author follower, Author followed) {
-        await authorRepository.Follow(follower, followed);
-    }
-
-    public async Task<bool> IsFollowing(Author authorA, Author authorB) {
+    public async Task<bool> IsFollowing(string authorA, string authorB) {
         return await authorRepository.IsFollowing(authorA, authorB);
     }
 
@@ -30,7 +26,7 @@ public class AuthorService : IAuthorService {
         await authorRepository.Unfollow(follower, followed);
     }
 
-    public async Task<List<FollowRelation>> GetFollowRelations(Author author) {
-        return await authorRepository.GetFollowRelations(author);
+    public async Task<List<FollowRelation>> GetFollowRelations(string follower) {
+        return await authorRepository.GetFollowRelations(follower);
     }
 }

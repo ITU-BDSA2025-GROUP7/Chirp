@@ -206,10 +206,10 @@ namespace Chirp.Web.Areas.Identity.Pages.Account {
                 if (createResult.Succeeded) {
                     _logger.LogWarning("User created an account using {Name} provider.",
                                        info.LoginProvider);
-                    string userId = await _userManager.GetUserIdAsync(user);
                     await _signInManager.SignInAsync(user, isPersistent: false,
                                                      info.LoginProvider);
-                    await _authorRepository.Follow(user, user);
+                    var userDTO = new AuthorDTO(user);
+                    await _authorRepository.Follow(userDTO, userDTO);
                     return LocalRedirect(returnUrl);
                 }
             }

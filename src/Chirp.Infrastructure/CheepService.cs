@@ -29,8 +29,8 @@ public class CheepService : ICheepService {
         return await cheepRepository.CheepCountFromUserName(username);
     }
 
-    public async Task<List<CheepDTO>> GetCheepsFromFollowed(Author author, int pageNr = 1) {
-        return await cheepRepository.GetCheepsFromFollowed(author, pageNr);
+    public async Task<List<CheepDTO>> GetCheepsFromFollowed(string username, int pageNr = 1) {
+        return await cheepRepository.GetCheepsFromFollowed(username, pageNr);
     }
 
     public async Task<int> CheepCountFromFollowed(string username) {

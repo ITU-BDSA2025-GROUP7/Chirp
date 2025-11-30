@@ -35,16 +35,25 @@ public class CheepRepositoryTest {
     [InlineData("Helge", "ropf@itu.dk")]
     [InlineData("Adrian", "adho@itu.dk")]
     public async Task RequiredAuthorsExist(string name, string email) {
-        List<Author> authors = await _authorRepository.GetAuthorByUserName(name);
-        Assert.NotNull(authors);
-        Assert.Single(authors);
-        Author author = authors.Single();
+        // Test they exist as Authors in the underlying database.
+        Author? author = (from user in _context.Authors
+                          where user.UserName == name
+                          orderby user.DisplayName
+                          select user).ToList()
+                                      .Single();
+
         Assert.Equal(name, author.DisplayName);
         Assert.Equal(email, author.Email);
         Assert.Equal(name, author.UserName);
         Assert.Equal(author.Email?.ToUpper(), author.NormalizedEmail);
         Assert.Equal(author.UserName?.ToUpper(), author.NormalizedUserName);
         Assert.True(author.EmailConfirmed);
+
+        // Test they exist and are found as AuthorDTOs.
+        List<AuthorDTO> authors = await _authorRepository.GetAuthorByUserName(name);
+        AuthorDTO authorDTO = authors.Single();
+        Assert.Equal(name, authorDTO.DisplayName);
+        Assert.Equal(name, authorDTO.UserName);
     }
 
     [Fact]
@@ -203,7 +212,8 @@ public class CheepRepositoryTest {
         name2 = "Bar2n Cooper";
         email = "cooper@copper.com";
         await _authorRepository.CreateAuthor(name1, email);
-        await Assert.ThrowsAsync<DbUpdateException>(() => _authorRepository.CreateAuthor(name2, email));
+        await Assert.ThrowsAsync<DbUpdateException>(() => _authorRepository.CreateAuthor(
+                                                        name2, email));
     }
 
     [Fact]
@@ -213,16 +223,17 @@ public class CheepRepositoryTest {
         const string email1 = "TheCakeMaster@copper.com";
         const string email2 = "muffinEnjoyer@copper.com";
         await _authorRepository.CreateAuthor(name, email1);
-        await Assert.ThrowsAsync<DbUpdateException>(() => _authorRepository.CreateAuthor(name, email2));
-        List<Author> bartons = await _authorRepository.GetAuthor(username);
+        await Assert.ThrowsAsync<DbUpdateException>(() => _authorRepository.CreateAuthor(
+                                                        name, email2));
+        List<AuthorDTO> bartons = await _authorRepository.GetAuthor(username);
         Assert.Equal(name, bartons.Single().DisplayName);
         Assert.Equal(username, bartons.Single().UserName);
-        Assert.Equal(email1, bartons.Single().Email);
     }
 
     [Fact]
     public async Task NoKnownAuthorTest() {
-        List<Author> authorsFound = await _authorRepository.GetAuthor("ThisNameorEmailDoesNotExist");
+        List<AuthorDTO> authorsFound =
+            await _authorRepository.GetAuthor("ThisNameorEmailDoesNotExist");
         Assert.Empty(authorsFound);
     }
 
@@ -241,10 +252,11 @@ public class CheepRepositoryTest {
 
     [Fact]
     public async Task CheepOwnershipTest() {
-        List<Author> users = await _authorRepository.GetAuthor("WendellBallan");
+        AuthorDTO authorDTO = (await _authorRepository.GetAuthor("WendellBallan")).Single();
+        Author? user = GetAuthorFromDatabase(authorDTO);
         string message = "I really like turtles";
         DateTime date = DateTime.Parse("2023-08-02 14:13:45");
-        await _cheepRepository.CreateCheep(users.Single(), message, date);
+        await _cheepRepository.CreateCheep(user!, message, date);
         var query = (from author in _context.Authors
                      where author.DisplayName == "Wendell Ballan"
                      select author.Cheeps);
@@ -267,10 +279,10 @@ public class CheepRepositoryTest {
                                          select cheep);
         Assert.Empty(queryBefore);
 
-        List<Author> authors = await _authorRepository.GetAuthor("WendellBallan");
-        Assert.NotEmpty(authors);
+        AuthorDTO authorDTO = (await _authorRepository.GetAuthor("WendellBallan")).Single();
+        Author? user = GetAuthorFromDatabase(authorDTO);
         DateTime date = DateTime.Parse("2023-08-02 13:13:45");
-        await _cheepRepository.CreateCheep(authors.First(), message, date);
+        await _cheepRepository.CreateCheep(user!, message, date);
         IQueryable<Cheep> query = (from cheep in _context.Cheeps
                                    where cheep.Text == message
                                    select cheep);
@@ -283,8 +295,8 @@ public class CheepRepositoryTest {
      */
     [Fact]
     public async Task CreateTooLongCheepTest() {
-        List<Author> authors = await _authorRepository.GetAuthor("WendellBallan");
-        Assert.NotEmpty(authors);
+        AuthorDTO authorDTO = (await _authorRepository.GetAuthor("WendellBallan")).Single();
+        Author? user = GetAuthorFromDatabase(authorDTO);
         StringBuilder sb = new StringBuilder(160);
         while (sb.Length <= Cheep.MAX_TEXT_LENGTH) {
             sb.Append("Cheep text");
@@ -294,7 +306,7 @@ public class CheepRepositoryTest {
 
         DateTime date = DateTime.Parse("2023-08-02 13:13:45");
         await Assert.ThrowsAsync<ArgumentException>(() => _cheepRepository.CreateCheep(
-                                                        authors.First(), message, date));
+                                                        user!, message, date));
     }
 
     /**
@@ -303,8 +315,8 @@ public class CheepRepositoryTest {
      */
     [Fact]
     public async Task CreateCheepAtExactlyLimit() {
-        List<Author> authors = await _authorRepository.GetAuthor("WendellBallan");
-        Assert.NotEmpty(authors);
+        AuthorDTO authorDTO = (await _authorRepository.GetAuthor("WendellBallan")).Single();
+        Author? user = GetAuthorFromDatabase(authorDTO);
         StringBuilder sb = new StringBuilder(160);
         while (sb.Length < Cheep.MAX_TEXT_LENGTH) {
             sb.Append('a');
@@ -319,7 +331,7 @@ public class CheepRepositoryTest {
         Assert.Empty(queryBefore);
 
         DateTime date = DateTime.Parse("2023-08-02 13:13:45");
-        await _cheepRepository.CreateCheep(authors.Single(), message, date);
+        await _cheepRepository.CreateCheep(user!, message, date);
         IQueryable<Cheep> query = (from cheep in _context.Cheeps
                                    where cheep.Text == message
                                    select cheep);
@@ -333,8 +345,8 @@ public class CheepRepositoryTest {
      */
     [Fact]
     public async Task CreateTooLongSqlInjectionCheepTest() {
-        List<Author> authors = await _authorRepository.GetAuthor("WendellBallan");
-        Assert.NotEmpty(authors);
+        AuthorDTO authorDTO = (await _authorRepository.GetAuthor("WendellBallan")).Single();
+        Author? user = GetAuthorFromDatabase(authorDTO);
         StringBuilder sb = new StringBuilder(160);
         while (sb.Length <= Cheep.MAX_TEXT_LENGTH) {
             sb.Append("msg', '2023-08-02 13:13:45'); DROP TABLE Cheeps;");
@@ -343,13 +355,21 @@ public class CheepRepositoryTest {
         string message = sb.ToString();
 
         DateTime date = DateTime.Parse("2023-08-02 13:13:45");
-        await Assert.ThrowsAsync<ArgumentException>(() =>
-                                                        _cheepRepository.CreateCheep(
-                                                            authors.Single(), message, date));
+        await Assert.ThrowsAsync<ArgumentException>(() => _cheepRepository.CreateCheep(
+                                                        user!, message, date));
 
         IQueryable<Cheep> queryBefore = (from cheep in _context.Cheeps
                                          where cheep.Text == message
                                          select cheep);
         Assert.Empty(queryBefore);
+    }
+
+    /** Get an Author from the database. AuthorRepository returns an
+     * AuthorDTO, so we do it manually like this for the tests instead. */
+    private Author? GetAuthorFromDatabase(AuthorDTO authorDTO) {
+        return (from author in _context.Authors
+                where author.UserName == authorDTO.UserName
+                orderby author.DisplayName
+                select author).Single();
     }
 }

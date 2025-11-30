@@ -1,3 +1,4 @@
+using Chirp.Core;
 using Chirp.Core.Domain_Model;
 using Chirp.Infrastructure;
 using Microsoft.AspNetCore.Identity;
@@ -7,43 +8,42 @@ namespace Chirp.Web.Pages;
 
 public class UserTimelineModel : CheepTimelineModel {
     private const string NO_USER_HEADER = "User not found";
-    private readonly UserManager<Author> _userManager;
     private readonly SignInManager<Author> _signInManager;
 
-    public Author? Author { get; set; }
+    public AuthorDTO? Author { get; set; }
     public string Header { get; set; } = NO_USER_HEADER;
 
     public UserTimelineModel(ICheepService cheepService,
                              IAuthorService authorService,
                              UserManager<Author> userManager,
                              SignInManager<Author> signInManager)
-        : base(cheepService, authorService) {
-        _userManager = userManager;
+        : base(cheepService, authorService, userManager) {
         _signInManager = signInManager;
     }
 
     public async Task<IActionResult> OnGet([FromRoute] string author) {
-        Author = await _userManager.FindByNameAsync(author);
-        if (Author == null) {
+        Author? authorSource = await _userManager.FindByNameAsync(author);
+        if (authorSource == null) {
             Header = NO_USER_HEADER;
             Cheeps = [];
             TotalPageCount = 1;
             PageNr = 1;
         } else {
+            Author = new AuthorDTO(authorSource);
             Header = FormatPageHeader(Author);
 
-            if (_signInManager.IsSignedIn(User)
-             && Author == await _userManager.GetUserAsync(User)) {
-                await _authorService.Follow(Author, Author);
+            if (_signInManager.IsSignedIn(User) &&
+                authorSource == await _userManager.GetUserAsync(User)) {
+                await _authorService.Follow(Author.UserName, Author.UserName);
                 TotalPageCount =
-                    PageCount(await _cheepService.CheepCountFromFollowed(author));
+                    PageCount(await _cheepService.CheepCountFromFollowed(Author.UserName));
                 PageNr = ParsePageNr(Request);
-                Cheeps = await _cheepService.GetCheepsFromFollowed(Author, PageNr);
+                Cheeps = await _cheepService.GetCheepsFromFollowed(Author.UserName, PageNr);
             } else {
                 TotalPageCount =
-                    PageCount(await _cheepService.CheepCountFromUserName(author));
+                    PageCount(await _cheepService.CheepCountFromUserName(Author.UserName));
                 PageNr = ParsePageNr(Request);
-                Cheeps = await _cheepService.GetCheepsFromUserName(author, PageNr);
+                Cheeps = await _cheepService.GetCheepsFromUserName(Author.UserName, PageNr);
             }
 
             GeneratePageLinks(author);
@@ -52,7 +52,7 @@ public class UserTimelineModel : CheepTimelineModel {
         return Page();
     }
 
-    private static string FormatPageHeader(Author author) {
+    private static string FormatPageHeader(AuthorDTO author) {
         if (author.DisplayName.EndsWith('s')) {
             return $"{author.DisplayName}' Timeline";
         }

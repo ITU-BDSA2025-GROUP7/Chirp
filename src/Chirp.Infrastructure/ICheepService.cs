@@ -14,7 +14,7 @@ public interface ICheepService {
     public Task<int> CheepCountFromUserName(string username);
 
     /** Retrieves the given page of cheeps written by all of <c>username</c>'s followers. */
-    public Task<List<CheepDTO>> GetCheepsFromFollowed(Author author, int pageNr = 1);
+    public Task<List<CheepDTO>> GetCheepsFromFollowed(string username, int pageNr = 1);
 
     /** Computes the number of cheeps written by all <c>username</c>'s followed accounts. */
     public Task<int> CheepCountFromFollowed(string username);
