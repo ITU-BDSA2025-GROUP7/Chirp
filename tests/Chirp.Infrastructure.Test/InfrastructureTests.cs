@@ -39,7 +39,7 @@ public class InfrastructureTests {
         List<Author> followed = await _authorRepo.Following(user);
         Assert.Single(followed);
 
-        List<CheepDTO> cheeps = await _cheepRepo.GetOwnAndFollowedCheeps(user);
+        List<CheepDTO> cheeps = await _cheepRepo.GetCheepsFromFollowed(user);
         Assert.Empty(cheeps);
     }
 
@@ -57,7 +57,7 @@ public class InfrastructureTests {
 
         await _cheepRepo.CreateCheep(user, "Test message", DateTime.Now);
 
-        List<CheepDTO> cheeps = await _cheepRepo.GetOwnAndFollowedCheeps(user);
+        List<CheepDTO> cheeps = await _cheepRepo.GetCheepsFromFollowed(user);
         Assert.Single(cheeps);
     }
 
@@ -86,7 +86,7 @@ public class InfrastructureTests {
 
         // Assert that the list of cheeps is exactly equal to the list of cheeps from the one
         // follower.
-        List<CheepDTO> timelineCheeps = await _cheepRepo.GetOwnAndFollowedCheeps(user, 1);
+        List<CheepDTO> timelineCheeps = await _cheepRepo.GetCheepsFromFollowed(user, 1);
         Assert.Equal(cheepsFromFollowed, timelineCheeps);
     }
 
@@ -131,7 +131,7 @@ public class InfrastructureTests {
         }
 
         for (int i = 0; i < totalPages; i++) {
-            List<CheepDTO> cheeps = await _cheepRepo.GetOwnAndFollowedCheeps(user, i + 1);
+            List<CheepDTO> cheeps = await _cheepRepo.GetCheepsFromFollowed(user, i + 1);
             timelineCheepCount += cheeps.Count;
             int lowerBound = i * CHEEPS_PER_PAGE;
             int upperBound = lowerBound + cheeps.Count;
