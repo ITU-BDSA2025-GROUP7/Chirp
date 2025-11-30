@@ -31,6 +31,6 @@ public interface ICheepRepository {
     /** Creates a new cheep by <c>author</c> with the given <c>message</c> content. */
     public Task CreateCheep(Author author, string message, DateTime timestamp);
 
-    /** The total number of cheeps in the database. */
+    /** The total number of cheeps in the database. Updated whenever a cheep is added or removed. */
     int TotalCheepCount { get; }
 }

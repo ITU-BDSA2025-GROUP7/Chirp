@@ -7,7 +7,6 @@ namespace Chirp.Infrastructure;
 public class CheepRepository : ICheepRepository {
     private ChirpDBContext _dbContext;
 
-    /** The total number of cheeps in the database. Updated whenever a cheep is added or removed. */
     public int TotalCheepCount { get; private set; }
 
     public CheepRepository(ChirpDBContext dbContext) {
