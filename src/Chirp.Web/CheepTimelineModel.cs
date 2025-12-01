@@ -45,19 +45,19 @@ public abstract class CheepTimelineModel : PageModel {
     }
 
     /// Link to the first page of cheeps.
-    /// If null, the link is disabled. If empty, links to first page.
+    /// If null, the link is disabled.
     public string? FirstPageLink { get; set; }
 
     /// Link to the previous page of cheeps.
-    /// If null, the link is disabled. If empty, links to first page.
+    /// If null, the link is disabled.
     public string? PrevPageLink { get; set; }
 
     /// Link to the next page of cheeps.
-    /// If null, the link is disabled. If empty, links to first page.
+    /// If null, the link is disabled.
     public string? NextPageLink { get; set; }
 
     /// Link to the last page of cheeps.
-    /// If null, the link is disabled. If empty, links to first page.
+    /// If null, the link is disabled.
     public string? LastPageLink { get; set; }
 
     private int _totalPageCount = 1;
