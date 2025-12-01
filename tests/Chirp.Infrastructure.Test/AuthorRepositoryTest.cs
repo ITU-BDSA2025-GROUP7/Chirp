@@ -10,7 +10,6 @@ public class AuthorRepositoryTest {
     private readonly ChirpDBContext _context;
     private SqliteConnection _connection;
     private IAuthorRepository _authorRepository;
-
     public AuthorRepositoryTest() {
         _connection = new SqliteConnection("DataSource=:memory:");
         _connection.Open();
