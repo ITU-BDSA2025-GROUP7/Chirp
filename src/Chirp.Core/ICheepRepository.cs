@@ -1,6 +1,6 @@
-namespace Chirp.Core;
+using Chirp.Core.Domain_Model;
 
-using Domain_Model;
+namespace Chirp.Core;
 
 public interface ICheepRepository {
     /// The number of cheeps to display on each page.
@@ -18,7 +18,7 @@ public interface ICheepRepository {
 
     public Task<List<CheepDTO>> GetAllCheepsFromUserName(string username);
 
-    public Task<List<CheepDTO>> GetOwnAndFollowedCheeps(Author author, int pageNr = 1);
+    public Task<List<CheepDTO>> GetOwnAndFollowedCheeps(string author, int pageNr = 1);
 
     public Task CreateCheep(Author author, string message, DateTime timestamp);
     public Task DeleteCheep(CheepDTO cheep);

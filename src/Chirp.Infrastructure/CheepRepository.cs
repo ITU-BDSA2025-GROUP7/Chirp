@@ -15,8 +15,8 @@ public class CheepRepository : ICheepRepository {
 
     }
 
-    public async Task<List<CheepDTO>> GetOwnAndFollowedCheeps(Author author, int pageNr = 1) {
-        return await QueryCheepsFromFollowedAuthors(author.UserName!)
+    public async Task<List<CheepDTO>> GetOwnAndFollowedCheeps(string username, int pageNr = 1) {
+        return await QueryCheepsFromFollowedAuthors(username)
                     .Pick(pageNr)
                     .ToListAsync();
     }

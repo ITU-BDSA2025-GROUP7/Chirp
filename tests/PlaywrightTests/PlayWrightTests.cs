@@ -14,6 +14,31 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
         _serverUrl = server.ServerAddress;
     }
 
+    [SetUp]
+    public async Task Setup()
+    {
+        await Context.Tracing.StartAsync(new()
+        {
+            Title = $"{TestContext.CurrentContext.Test.ClassName}.{TestContext.CurrentContext.Test.Name}",
+            Screenshots = true,
+            Snapshots = true,
+            Sources = true
+        });
+    }
+
+    [TearDown]
+    public async Task TearDown()
+    {
+        await Context.Tracing.StopAsync(new()
+        {
+            Path = Path.Combine(
+                TestContext.CurrentContext.WorkDirectory,
+                "playwright-traces",
+                $"{TestContext.CurrentContext.Test.ClassName}.{TestContext.CurrentContext.Test.Name}.zip"
+            )
+        });
+    }
+
     #region LoginTests
 
     /**
@@ -128,8 +153,8 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
         await Page.GotoAsync(_serverUrl);
         await Expect(Page.GetByRole(AriaRole.Listitem)
                          .Filter(new() {
-                              HasText = "— 2023-08-01 13:17:39 Starbuck now is what we hear"
-                          })
+                             HasText = "— 2023-08-01 13:17:39 Starbuck now is what we hear"
+                         })
                          .GetByRole(AriaRole.Button))
              .Not.ToBeVisibleAsync();
     }
@@ -194,7 +219,7 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
         // follow an account
         await Page.GetByRole(AriaRole.Listitem)
                   .Filter(new() { HasText = "Mellie Yost Follow" })
-                  .GetByRole(AriaRole.Button, new() {Name ="Follow"}).First
+                  .GetByRole(AriaRole.Button, new() { Name = "Follow" }).First
                   .ClickAsync();
 
         // page is not gone
@@ -210,7 +235,7 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
         // unfollow
         await Page.GetByRole(AriaRole.Listitem)
                   .Filter(new() { HasText = "Mellie Yost" })
-                  .GetByRole(AriaRole.Button, new() {Name ="Unfollow"}).First
+                  .GetByRole(AriaRole.Button, new() { Name = "Unfollow" }).First
                   .ClickAsync();
         // expect previously followed account to be gone
         await Expect(Page.GetByRole(AriaRole.Link, new() { Name = "Mellie Yost" }))
@@ -245,7 +270,7 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
         // follow an account
         await Page.GetByRole(AriaRole.Listitem)
                   .Filter(new() { HasText = "Mellie Yost" })
-                  .GetByRole(AriaRole.Button, new() {Name ="Follow"}).First
+                  .GetByRole(AriaRole.Button, new() { Name = "Follow" }).First
                   .ClickAsync();
 
         // page is not gone
@@ -271,7 +296,7 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
         // unfollow to return to normal state
         await Page.GetByRole(AriaRole.Listitem)
                   .Filter(new() { HasText = "Mellie Yost" })
-                  .GetByRole(AriaRole.Button, new() {Name ="Unfollow"}).First
+                  .GetByRole(AriaRole.Button, new() { Name = "Unfollow" }).First
                   .ClickAsync();
         // go to my timeline
         await Page.GetByRole(AriaRole.Link, new() { Name = "My Timeline" }).ClickAsync();
@@ -312,12 +337,12 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
         // follow an account
         await Page.GetByRole(AriaRole.Listitem)
                   .Filter(new() { HasText = "Mellie Yost" })
-                  .GetByRole(AriaRole.Button, new() {Name ="Follow"}).First
+                  .GetByRole(AriaRole.Button, new() { Name = "Follow" }).First
                   .ClickAsync();
         // follow one more
         await Page.GetByRole(AriaRole.Listitem)
                   .Filter(new() { HasText = "Quintin Sitts" })
-                  .GetByRole(AriaRole.Button, new() {Name ="Follow"}).First
+                  .GetByRole(AriaRole.Button, new() { Name = "Follow" }).First
                   .ClickAsync();
         // page is not gone
         await Expect(Page.GetByRole(AriaRole.Heading, new() { Name = "Icon1Chirp!" }))
@@ -345,12 +370,12 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
         // unfollow to return to normal state
         await Page.GetByRole(AriaRole.Listitem)
                   .Filter(new() { HasText = "Mellie Yost" })
-                  .GetByRole(AriaRole.Button, new() {Name ="Unfollow"}).First
+                  .GetByRole(AriaRole.Button, new() { Name = "Unfollow" }).First
                   .ClickAsync();
         // unfollow to return to normal state
         await Page.GetByRole(AriaRole.Listitem)
                   .Filter(new() { HasText = "Quintin Sitts" })
-                  .GetByRole(AriaRole.Button, new() {Name ="Unfollow"}).First
+                  .GetByRole(AriaRole.Button, new() { Name = "Unfollow" }).First
                   .ClickAsync();
 
 
@@ -451,7 +476,7 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
 
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Email" }).ClickAsync();
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Email" })
-                  .FillAsync("Test@EmailsYayaya.dk");
+                  .FillAsync("Test@emailsyayaya.dk");
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Username" }).ClickAsync();
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Username" }).FillAsync("Tester");
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Password" }).ClickAsync();
@@ -490,16 +515,16 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
         await Expect(Page.GetByRole(AriaRole.Heading, new() { Name = "Icon1Chirp!" }))
            .ToBeVisibleAsync();
 
-        await Page.GetByRole(AriaRole.Button, new() { Name = "Delete" }).ClickAsync();
+        await Page.GetByRole(AriaRole.Button, new() { Name = "Forget me!" }).ClickAsync();
+        
         await Expect(Page.GetByRole(AriaRole.Heading, new() { Name = "Icon1Chirp!" }))
            .ToBeVisibleAsync();
 
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "Password" }).ClickAsync();
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "Password" }).FillAsync("Lillek4t!");
-        await Page.GetByRole(AriaRole.Button, new() { Name = "Delete data and close my" })
-                  .ClickAsync();
-        await Expect(Page.GetByRole(AriaRole.Heading, new() { Name = "Icon1Chirp!" }))
-           .ToBeVisibleAsync();
+        await Page.GetByRole(AriaRole.Button, new() { Name = "Delete data and close my" }).ClickAsync();
+        await Expect(Page.GetByRole(AriaRole.Heading, new() { Name = "Icon1Chirp!" })).ToBeVisibleAsync();
+
 
         await Page.GetByRole(AriaRole.Link, new() { Name = "Login" }).ClickAsync();
         await Expect(Page.GetByRole(AriaRole.Heading, new() { Name = "Icon1Chirp!" }))
@@ -682,55 +707,45 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
      * the text "Username '<name>' is already taken." is shown.
      */
     [Test]
-    public async Task RegisteringWithSameUsernameTest() {
+    public async Task RegisterWithSameUsernameTest()
+    {
         await Page.GotoAsync(_serverUrl);
-        await Expect(Page.GetByRole(AriaRole.Heading, new() { Name = "Icon1Chirp!" }))
-           .ToBeVisibleAsync();
+        await Expect(Page.GetByRole(AriaRole.Heading, new() { Name = "Icon1Chirp!" })).ToBeVisibleAsync();
 
         await Page.GetByRole(AriaRole.Link, new() { Name = "Register" }).ClickAsync();
-        await Expect(Page.GetByRole(AriaRole.Heading, new() { Name = "Icon1Chirp!" }))
-           .ToBeVisibleAsync();
+        await Expect(Page.GetByRole(AriaRole.Heading, new() { Name = "Icon1Chirp!" })).ToBeVisibleAsync();
 
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Email" }).ClickAsync();
-        await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Email" })
-                  .FillAsync("Test@TestEmail.com");
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Email" }).FillAsync("Tester@email.com");
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Username" }).ClickAsync();
-        await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Username" }).FillAsync("TestName");
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Username" }).FillAsync("NikkiTester");
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "Display Name" }).ClickAsync();
-        await Page.GetByRole(AriaRole.Textbox, new() { Name = "Display Name" })
-                  .FillAsync("TestDisplayName");
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "Display Name" }).FillAsync("NikkiTesterDisplayName");
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Password" }).ClickAsync();
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Password" }).FillAsync("Lillek4t!");
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Confirm Password" }).ClickAsync();
-        await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Confirm Password" })
-                  .FillAsync("Lillek4t!");
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Confirm Password" }).FillAsync("Lillek4t!");
         await Page.GetByRole(AriaRole.Button, new() { Name = "Register" }).ClickAsync();
-        await Expect(Page.Locator("#confirm-link"))
-           .ToContainTextAsync("Click here to confirm your account");
-        await Page.GetByRole(AriaRole.Link, new() { Name = "Click here to confirm your" })
-                  .ClickAsync();
-        await Expect(Page.GetByRole(AriaRole.Alert))
-           .ToContainTextAsync("Thank you for confirming your email.");
+        await Expect(Page.GetByRole(AriaRole.Heading, new() { Name = "Icon1Chirp!" })).ToBeVisibleAsync();
+
+        await Page.GetByRole(AriaRole.Link, new() { Name = "Click here to confirm your" }).ClickAsync();
+        await Expect(Page.GetByRole(AriaRole.Heading, new() { Name = "Icon1Chirp!" })).ToBeVisibleAsync();
+
         await Page.GetByRole(AriaRole.Link, new() { Name = "Register" }).ClickAsync();
-        await Expect(Page.GetByRole(AriaRole.Heading, new() { Name = "Icon1Chirp!" }))
-           .ToBeVisibleAsync();
+        await Expect(Page.GetByRole(AriaRole.Heading, new() { Name = "Icon1Chirp!" })).ToBeVisibleAsync();
 
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Email" }).ClickAsync();
-        await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Email" })
-                  .FillAsync("Test@TestEmail.com");
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Email" }).FillAsync("Tester@emailstwo.com");
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Username" }).ClickAsync();
-        await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Username" }).FillAsync("TestName");
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Username" }).FillAsync("NikkiTester");
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "Display Name" }).ClickAsync();
-        await Page.GetByRole(AriaRole.Textbox, new() { Name = "Display Name" })
-                  .FillAsync("TestDisplayName");
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "Display Name" }).FillAsync("DisplayName");
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Password" }).ClickAsync();
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Password" }).FillAsync("Lillek4t!");
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Confirm Password" }).ClickAsync();
-        await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Confirm Password" })
-                  .FillAsync("Lillek4t!");
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Confirm Password" }).FillAsync("Lillek4t!");
         await Page.GetByRole(AriaRole.Button, new() { Name = "Register" }).ClickAsync();
-        await Expect(Page.GetByRole(AriaRole.Listitem))
-           .ToContainTextAsync("Username 'TestName' is already taken.");
+        await Expect(Page.GetByText("Username 'NikkiTester' is")).ToBeVisibleAsync();
     }
 
     /**
@@ -777,7 +792,7 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
 
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Email" }).ClickAsync();
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Email" })
-                  .FillAsync("Tester@Email1.dk");
+                  .FillAsync("Tester@email1.dk");
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Username" }).ClickAsync();
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Username" }).FillAsync("Username1");
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "Display Name" }).ClickAsync();
@@ -823,12 +838,37 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
     }
 
     /**
+     * Tests that if you register using an invalid email, the waring "Email is invalid" is displayed
+     */
+    [Test]
+    public async Task InvalidEmail() {
+        await Page.GotoAsync(_serverUrl);
+        await Expect(Page.GetByRole(AriaRole.Heading, new() { Name = "Icon1Chirp!" })).ToBeVisibleAsync();
+
+        await Page.GetByRole(AriaRole.Link, new() { Name = "Register" }).ClickAsync();
+        await Expect(Page.GetByRole(AriaRole.Heading, new() { Name = "Icon1Chirp!" })).ToBeVisibleAsync();
+
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Email" }).ClickAsync();
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Email" }).FillAsync("Invalid@Emails");
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Username" }).ClickAsync();
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Username" }).FillAsync("Nikki");
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "Display Name" }).ClickAsync();
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "Display Name" }).FillAsync("NikkiTester");
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Password" }).ClickAsync();
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Password" }).FillAsync("Lillek4t!");
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Confirm Password" }).ClickAsync();
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Confirm Password" }).FillAsync("Lillek4t!");
+        await Page.GetByRole(AriaRole.Button, new() { Name = "Register" }).ClickAsync();
+        await Expect(Page.GetByText("is invalid")).ToBeVisibleAsync();
+        await Page.GetByText("*Email").ClickAsync();
+    }
+
+    /**
      * It should not be possible to create two otherwise identical users with different usernames.
      * This test is a regression test to make sure a specific bug encountered is fixed.
      */
-    /*
     [Test]
-    public async Task SameEmailDifferentUserNameNotPossible()
+    public async Task SameEmailNotPossible()
     {
         await Page.GotoAsync(_serverUrl);
         await Expect(Page.GetByRole(AriaRole.Heading, new() { Name = "Icon1Chirp!" })).ToBeVisibleAsync();
@@ -837,18 +877,18 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
         await Expect(Page.GetByRole(AriaRole.Heading, new() { Name = "Icon1Chirp!" })).ToBeVisibleAsync();
 
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Email" }).ClickAsync();
-        await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Email" }).PressAsync("ControlOrMeta+c");
-        await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Email" }).FillAsync("Test@TestEmailTwo.com");
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Email" }).FillAsync("SameEmeil@emails.com");
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Username" }).ClickAsync();
-        await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Username" }).FillAsync("TestNameTwo");
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Username" }).FillAsync("NameOne");
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "Display Name" }).ClickAsync();
-        await Page.GetByRole(AriaRole.Textbox, new() { Name = "Display Name" }).FillAsync("TestDisplayNameTwo");
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "Display Name" }).FillAsync("Name");
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Password" }).ClickAsync();
-        await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Password" }).FillAsync("Lillek4t!Two");
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Password" }).FillAsync("Lillek4t!");
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Confirm Password" }).ClickAsync();
-        await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Confirm Password" }).FillAsync("Lillek4t!Two");
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Confirm Password" }).FillAsync("Lillek4t!");
         await Page.GetByRole(AriaRole.Button, new() { Name = "Register" }).ClickAsync();
-        await Expect(Page.Locator("#confirm-link")).ToContainTextAsync("Click here to confirm your account");
+        await Expect(Page.GetByRole(AriaRole.Heading, new() { Name = "Icon1Chirp!" })).ToBeVisibleAsync();
+
         await Page.GetByRole(AriaRole.Link, new() { Name = "Click here to confirm your" }).ClickAsync();
         await Expect(Page.GetByRole(AriaRole.Heading, new() { Name = "Icon1Chirp!" })).ToBeVisibleAsync();
 
@@ -856,18 +896,18 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
         await Expect(Page.GetByRole(AriaRole.Heading, new() { Name = "Icon1Chirp!" })).ToBeVisibleAsync();
 
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Email" }).ClickAsync();
-        await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Email" }).FillAsync("Test@TestEmailTwo.com");
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Email" }).FillAsync("SameEmeil@emails.com");
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Username" }).ClickAsync();
-        await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Username" }).FillAsync("TestDisplayNameTwoDifferent");
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Username" }).FillAsync("NameTwo");
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "Display Name" }).ClickAsync();
-        await Page.GetByRole(AriaRole.Textbox, new() { Name = "Display Name" }).FillAsync("TestDisplayNameTwo");
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "Display Name" }).FillAsync("Name");
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Password" }).ClickAsync();
-        await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Password" }).FillAsync("Lillek4t!Two");
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Password" }).FillAsync("Lillek4t!");
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Confirm Password" }).ClickAsync();
-        await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Confirm Password" }).FillAsync("Lillek4t!Two");
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Confirm Password" }).FillAsync("Lillek4t!");
         await Page.GetByRole(AriaRole.Button, new() { Name = "Register" }).ClickAsync();
-        await Expect(Page.Locator("h2")).Not.ToContainTextAsync("Error's Timeline");
-    }*/
+        await Expect(Page.GetByText("Email 'SameEmeil@emails.com'")).ToBeVisibleAsync();
+    }
 
     #endregion
 
@@ -883,7 +923,7 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
         await Page.GetByRole(AriaRole.Link, new() { Name = "Register" }).ClickAsync();
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Email" }).ClickAsync();
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Email" })
-                  .FillAsync("TestEmail@TestEmails.com");
+                  .FillAsync("TestEmail@testemails.com");
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Username" }).ClickAsync();
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Username" })
                   .FillAsync("TesterName");
@@ -1142,7 +1182,7 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
         await Page.GetByRole(AriaRole.Link, new() { Name = "Register" }).ClickAsync();
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Email" }).ClickAsync();
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Email" })
-                  .FillAsync("Test@EmailsYayaya.dk");
+                  .FillAsync("Test@emailsyayaya.dk");
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Username" }).ClickAsync();
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Username" }).FillAsync("Tester");
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "*Password" }).ClickAsync();

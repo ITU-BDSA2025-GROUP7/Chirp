@@ -25,8 +25,8 @@ public class CheepService : ICheepService {
         return await cheepRepository.GetCheepsFromUserName(username, pageNr);
     }
 
-    public async Task<List<CheepDTO>> GetOwnAndFollowedCheeps(Author author, int pageNr = 1) {
-        return await cheepRepository.GetOwnAndFollowedCheeps(author, pageNr);
+    public async Task<List<CheepDTO>> GetOwnAndFollowedCheeps(string username, int pageNr = 1) {
+        return await cheepRepository.GetOwnAndFollowedCheeps(username, pageNr);
     }
 
     public async Task CreateCheep(Author author, string message) {

@@ -1,4 +1,4 @@
-﻿using Chirp.Core.Domain_Model;
+using Chirp.Core.Domain_Model;
 using Chirp.Infrastructure;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -12,11 +12,11 @@ public class MyCheepsModel : CheepTimelineModel {
     public MyCheepsModel(UserManager<Author> userManager,
                          SignInManager<Author> signInManager,
                          ICheepService cheepService,
-                         IAuthorService authorService,
-                         ILogger<CheepTimelineModel> logger)
-        : base(cheepService, authorService, logger) {
+                         IAuthorService authorService)
+        : base(cheepService, authorService, userManager) {
         _userManager = userManager;
         _signInManager = signInManager;
+
     }
 
     public async Task<IActionResult> OnGet() {
