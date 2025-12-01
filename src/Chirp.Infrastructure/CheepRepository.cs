@@ -1,14 +1,18 @@
 using Microsoft.EntityFrameworkCore;
 using Chirp.Core;
 using Chirp.Core.Domain_Model;
+using Microsoft.Extensions.Logging;
 
 namespace Chirp.Infrastructure;
 
 public class CheepRepository : ICheepRepository {
     private ChirpDBContext _dbContext;
 
+
     public CheepRepository(ChirpDBContext dbContext) {
         this._dbContext = dbContext;
+
+
     }
 
     public async Task<List<CheepDTO>> GetOwnAndFollowedCheeps(string username, int pageNr = 1) {
@@ -85,5 +89,16 @@ public class CheepRepository : ICheepRepository {
                       )
             )
            .ToListAsync();
+    }
+
+    public async Task DeleteCheep(CheepDTO cheep) {
+        var cheepToDie = _dbContext.Cheeps.SingleOrDefault(c =>  c.Text == cheep.Message &&
+                                                                 c.Author.UserName == cheep.AuthorUserName &&
+                                                                 c.TimeStamp.ToString() == cheep.TimeStamp);
+        if (cheepToDie != null) {
+            _dbContext.Cheeps.Remove(cheepToDie);
+            await _dbContext.SaveChangesAsync();
+        }
+
     }
 }

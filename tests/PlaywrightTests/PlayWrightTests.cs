@@ -406,7 +406,7 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
         await Page.GetByRole(AriaRole.Link, new() { Name = "My Timeline" }).ClickAsync();
         await Expect(Page.GetByText("Jacqualine Gilcoine Unfollow — 2023-08-01 13:17:39"))
            .ToBeVisibleAsync();
-        await Expect(Page.GetByText("Helge — 2023-08-01 13:17:37")).ToBeVisibleAsync();
+        await Expect(Page.GetByText("Helge Delete — 2023-08-01 13:17:37")).ToBeVisibleAsync();
     }
 
 
@@ -1101,6 +1101,50 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
            .ToContainTextAsync("Look at this emoji 😁. It's cool");
     }
 
+    /**
+     * Deleting a cheep
+     */
+    [Test]
+    public async Task DeletingCheep() {
+        await Page.GotoAsync(_serverUrl);
+        await Expect(Page.GetByRole(AriaRole.Heading, new() { Name = "Icon1Chirp!" }))
+           .ToBeVisibleAsync();
+        // login
+        await Page.GetByRole(AriaRole.Link, new() { Name = "Login" }).ClickAsync();
+        await Expect(Page.GetByRole(AriaRole.Heading, new() { Name = "Icon1Chirp!" }))
+           .ToBeVisibleAsync();
+
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "Email" }).ClickAsync();
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "Email" }).FillAsync("ropf@itu.dk");
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "Password" }).ClickAsync();
+        await Page.GetByRole(AriaRole.Textbox, new() { Name = "Password" }).FillAsync("LetM31n!");
+        await Page.GetByRole(AriaRole.Button, new() { Name = "Log in" }).ClickAsync();
+        await Expect(Page.GetByRole(AriaRole.Heading, new() { Name = "Icon1Chirp!" }))
+           .ToBeVisibleAsync();
+
+        // write cheep
+
+        await Page.Locator("#Text").ClickAsync();
+        await Page.Locator("#Text").FillAsync("This is an embarrassing cheep");
+        await Page.GetByRole(AriaRole.Button, new() { Name = "Share" }).ClickAsync();
+
+        // expect the cheep to exist
+        await Expect(Page.Locator("#messagelist"))
+           .ToContainTextAsync("This is an embarrassing cheep");
+
+        // delete cheep
+        await Page.GetByRole(AriaRole.Button, new() { Name = "Delete" }).First.ClickAsync();
+
+        // expect the cheep to not exist
+        await Expect(Page.Locator("#messagelist")).Not
+           .ToContainTextAsync("This is an embarrassing cheep");
+
+    }
+
+
+
+
+
     #endregion
 
     #region AccountManagementPage
@@ -1123,7 +1167,7 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
         await Expect(Page.Locator("h3")).ToContainTextAsync("My cheeps");
 
         // Ensure that own cheeps are shown
-        await Expect(Page.GetByText("Helge — 2023-08-01 13:17:37")).ToBeVisibleAsync();
+        await Expect(Page.GetByText("Helge Delete — 2023-08-01 13:17:37")).ToBeVisibleAsync();
 
         // Ensure that cheeps from followed authors are not shown
         await Expect(Page.GetByText("Jacqualine Gilcoine")).Not.ToBeVisibleAsync();

@@ -8,4 +8,5 @@ public interface ICheepService {
     public Task<List<CheepDTO>> GetCheepsFromUserName(string username, int pageNr);
     public Task<List<CheepDTO>> GetOwnAndFollowedCheeps(string username, int pageNr = 1);
     public Task CreateCheep(Author author, string message);
+    public Task DeleteCheep(CheepDTO cheep);
 }
