@@ -80,8 +80,9 @@ public abstract class CheepTimelineModel : PageModel {
     [Display(Name = "Message")]
     public string Text { get; set; } = "";
 
-    public CheepTimelineModel(ICheepService cheepService, IAuthorService authorService, ILogger<CheepTimelineModel> logger,UserManager<Author> userManager) {
-        ._cheepService = cheepService;
+    public CheepTimelineModel(ICheepService cheepService, IAuthorService authorService,
+                              ILogger<CheepTimelineModel> logger, UserManager<Author> userManager) {
+        _cheepService = cheepService;
         _authorService = authorService;
         _logger = logger;
         _userManager = userManager;
@@ -130,9 +131,10 @@ public abstract class CheepTimelineModel : PageModel {
         return RedirectToPage();
     }
 
-    public async Task<IActionResult> OnPostDeleteCheepAsync (string? username, string? text, string? timestamp) {
+    public async Task<IActionResult> OnPostDeleteCheepAsync(string? username, string? text,
+                                                            string? timestamp) {
         _logger.LogCritical("OnDeleteCheep");
-        _logger.LogCritical(username + " "  +  text + " " + timestamp);
+        _logger.LogCritical(username + " " + text + " " + timestamp);
 
         if (username == null || text == null || timestamp == null) return RedirectToPage();
 
@@ -141,7 +143,7 @@ public abstract class CheepTimelineModel : PageModel {
         _logger.LogCritical(cheep.ToString());
         await _cheepService.DeleteCheep(cheep);
 
-        return  RedirectToPage();
+        return RedirectToPage();
     }
 
     /** Computes the number of pages needed to display <c>totalCheepCount</c> cheeps. */
