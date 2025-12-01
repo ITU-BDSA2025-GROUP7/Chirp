@@ -45,4 +45,9 @@ public class CheepService : ICheepService {
     }
 
     public int TotalCheepCount => cheepRepository.TotalCheepCount;
+
+    public async Task DeleteCheep(CheepDTO cheep) {
+        await cheepRepository.DeleteCheep(cheep);
+
+    }
 }

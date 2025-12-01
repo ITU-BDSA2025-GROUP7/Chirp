@@ -4,7 +4,7 @@ namespace Chirp.Core;
 
 public interface ICheepRepository {
     /// The number of cheeps to display on each page.
-    public const int CHEEPS_PER_PAGE = 32;
+    const int CHEEPS_PER_PAGE = 32;
 
     /**
      * Gets all cheeps within the given page nr
@@ -33,4 +33,6 @@ public interface ICheepRepository {
 
     /** The total number of cheeps in the database. Updated whenever a cheep is added or removed. */
     int TotalCheepCount { get; }
+
+    public Task DeleteCheep(CheepDTO cheep);
 }

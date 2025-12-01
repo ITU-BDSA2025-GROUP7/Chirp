@@ -1,10 +1,8 @@
 using Chirp.Core;
 using Chirp.Core.Domain_Model;
 using Chirp.Infrastructure;
-using Microsoft.Data.Sqlite;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 

@@ -6,14 +6,17 @@ using Microsoft.AspNetCore.Mvc;
 namespace Chirp.Web.Areas.Identity.Pages.Account.Manage;
 
 public class MyCheepsModel : CheepTimelineModel {
+    private new readonly UserManager<Author> _userManager;
     private readonly SignInManager<Author> _signInManager;
 
     public MyCheepsModel(UserManager<Author> userManager,
                          SignInManager<Author> signInManager,
                          ICheepService cheepService,
-                         IAuthorService authorService)
-        : base(cheepService, authorService, userManager) {
+                         IAuthorService authorService, ILogger<MyCheepsModel> logger)
+        : base(cheepService, authorService,logger, userManager) {
+        _userManager = userManager;
         _signInManager = signInManager;
+
     }
 
     public async Task<IActionResult> OnGet() {

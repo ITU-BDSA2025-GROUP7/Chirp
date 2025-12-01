@@ -24,4 +24,6 @@ public interface ICheepService {
 
     /** The total number of cheeps in the database. */
     int TotalCheepCount { get; }
+
+    public Task DeleteCheep(CheepDTO cheep);
 }

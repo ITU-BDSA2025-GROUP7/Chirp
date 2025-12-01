@@ -8,47 +8,69 @@
     <ul id="messagelist" class="cheeps">
         @foreach (CheepDTO cheep in Model.Cheeps) {
             <li>
-                <p>
-                <div style="display: flex; align-items: center; gap: 5px">
-                    <strong>
-                        <a href="/@cheep.AuthorUserName">@cheep.AuthorDisplayName</a>
-                    </strong>
+        <p>
+            <div style="display: flex; align-items: center; gap: 5px">
+                <strong>
+                    <a href="/@cheep.AuthorUserName">@cheep.AuthorDisplayName</a>
+                </strong>
 
-                    @if (SignInManager.IsSignedIn(User)) {
-                        Author? user = await UserManager.GetUserAsync(User);
-                        Author? postUser = await UserManager.FindByNameAsync(cheep.AuthorUserName);
+                @if (SignInManager.IsSignedIn(User))
+                {
+                    Author? user = await UserManager.GetUserAsync(User);
+                    Author? postUser = await UserManager.FindByNameAsync(cheep.AuthorUserName);
 
-                        if (user != null && postUser != null &&
-                            user.UserName != postUser.UserName &&
-                            user.UserName != null && postUser.UserName != null) {
-                            if (await Model.IsFollowing(user.UserName, postUser.UserName)) {
-                                <form method="post" style="display:inline; margin: 0; padding: 0;">
-                                    <button type="submit"
-                                            asp-page-handler="UnFollow"
-                                            style="background:none; color:black; border:none;padding:0;margin:0">
-                                        Unfollow
-                                    </button>
-                                    <input type="hidden" name="authorA" value="@user.UserName"/>
-                                    <input type="hidden" name="authorB" value="@postUser.UserName"/>
-                                </form>
-                            } else {
-                                <form method="post" style="display:inline; margin: 0; padding: 0;">
-                                    <button type="submit"
-                                            asp-page-handler="Follow"
-                                            style="background:none; color:black; border:none;padding:0;margin:0">
-                                        Follow
-                                    </button>
-                                    <input type="hidden" name="authorA" value="@user.UserName"/>
-                                    <input type="hidden" name="authorB" value="@postUser.UserName"/>
-                                </form>
-                            }
+                    if (user!.UserName != postUser!.UserName)
+                    {
+                        if (await Model.IsFollowing(user.UserName!,postUser.UserName!))
+                        {
+                            <form method="post" style="display:inline; margin: 0; padding: 0;">
+                                <button type="submit"
+                                        asp-page-handler="UnFollow"
+                                        style="background:none; color:black; border:none;padding:0;margin:0">
+                                    Unfollow
+                                </button>
+                                <input type="hidden" name="authorA" value="@user.UserName"/>
+                                <input type="hidden" name="authorB" value="@postUser.UserName"/>
+                            </form>
+                        }
+                        else
+                        {
+                            <form method="post" style="display:inline; margin: 0; padding: 0;">
+                                <button type="submit"
+                                        asp-page-handler="Follow"
+                                        style="background:none; color:black; border:none;padding:0;margin:0">
+                                    Follow
+                                </button>
+                                <input type="hidden" name="authorA" value="@user.UserName"/>
+                                <input type="hidden" name="authorB" value="@postUser.UserName"/>
+                            </form>
                         }
                     }
-                    <small>&mdash; @cheep.TimeStamp <br/></small>
-                </div>
 
-                @cheep.Message
-                </p>
+                    @if (user == postUser) {
+                        <form method="post" style="display:inline; margin: 0; padding: 0;">
+                            <button type="submit"
+                                    asp-page-handler="DeleteCheep"
+                                    style="background:none; color:indianred; border:none;padding:0;margin:0">
+                                Delete
+                            </button>
+                            <input type="hidden" name="username" value="@cheep.AuthorUserName"/>
+                            <input type="hidden" name="text" value="@cheep.Message"/>
+                            <input type="hidden" name="timestamp" value="@cheep.TimeStamp"/>
+
+
+
+                        </form>
+                    }
+
+                }
+                <small>&mdash; @cheep.TimeStamp <br/></small>
+            </div>
+
+            @cheep.Message
+        </p>
+
+
             </li>
         }
     </ul>

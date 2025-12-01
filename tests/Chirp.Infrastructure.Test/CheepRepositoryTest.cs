@@ -363,6 +363,43 @@ public class CheepRepositoryTest {
                                          select cheep);
         Assert.Empty(queryBefore);
     }
+    /**
+     * Deleting a cheep
+     *
+     */
+    [Fact]
+    public async Task DeletingCheepTest() {
+        string message = "This cheep should be deleted";
+        IQueryable<Cheep> queryFirst = (from cheep in _context.Cheeps
+                                         where cheep.Text == message
+                                         select cheep);
+        Assert.Empty(queryFirst);
+        // write new cheep
+        var author = new Author { DisplayName = "greatName", Email = "yolo@itu.dk", UserName = "username" };
+
+        await _cheepRepository.CreateCheep(author, message, DateTime.Parse("2025-11-28 22:25:45"));
+
+
+        // expect it to exist
+        IQueryable<Cheep> queryAfterAdding = (from cheep in _context.Cheeps
+                                         where cheep.Text == message
+                                         select cheep);
+        Assert.Equal(message, queryAfterAdding.First().Text);
+        Assert.Equal(author, queryAfterAdding.First().Author);
+        Assert.Single(queryAfterAdding);
+
+        // delete cheep
+        CheepDTO cheepToDelete = new CheepDTO("", message, "2025-11-28 22:25:45", "username");
+        await _cheepRepository.DeleteCheep(cheepToDelete);
+
+        // expect it not to exist
+        IQueryable<Cheep> queryAfterDelete = (from cheep in _context.Cheeps
+                            where cheep.Text == message
+                            select cheep);
+
+        Assert.Empty(queryAfterDelete);
+
+    }
 
     /** Get an Author from the database. AuthorRepository returns an
      * AuthorDTO, so we do it manually like this for the tests instead. */
