@@ -2,50 +2,59 @@
 
 <!-- Arrows only show up if there are multiple pages -->
 @if (Model.TotalPageCount > 1) {
-    <div style="display: flex; align-items: center; justify-content: center; gap: 5px;">
+    <div style="display: flex; align-items: center; justify-content: center; gap: 5px;"
+         class="nav-arrows">
         <!-- Link to first page -->
-        @if (Model.FirstPageLink != null) {
-            <a href="@Model.FirstPageLink"
-               style="text-decoration: none; font-kerning: none;">
-                @CheepTimelineModel.FirstPageSymbol
-            </a>
-        } else {
-            <span>@CheepTimelineModel.FirstPageSymbol</span>
-        }
+        <div class="arrow-first">
+            @if (Model.FirstPageLink != null) {
+                <a class="link-first" href="@Model.FirstPageLink"
+                   style="text-decoration: none; font-kerning: none;">
+                    @CheepTimelineModel.FirstPageSymbol
+                </a>
+            } else {
+                <span class="text-first">@CheepTimelineModel.FirstPageSymbol</span>
+            }
+        </div>
 
         <!-- Link to previous page -->
-        @if (Model.PrevPageLink != null) {
-            <a href="@Model.PrevPageLink"
-               style="text-decoration: none; font-kerning: none;">
-                @CheepTimelineModel.PrevPageSymbol
-            </a>
-        } else {
-            <span>@CheepTimelineModel.PrevPageSymbol</span>
-        }
+        <div class="arrow-prev">
+            @if (Model.PrevPageLink != null) {
+                <a class="link-prev" href="@Model.PrevPageLink"
+                   style="text-decoration: none; font-kerning: none;">
+                    @CheepTimelineModel.PrevPageSymbol
+                </a>
+            } else {
+                <span class="text-prev">@CheepTimelineModel.PrevPageSymbol</span>
+            }
+        </div>
 
         <!-- Page number -->
-        <span>
+        <span class="page-number">
             @Model.PageNr / @Model.TotalPageCount
         </span>
 
         <!-- Link to next page -->
-        @if (Model.NextPageLink != null) {
-            <a href="@Model.NextPageLink"
-               style="text-decoration: none; font-kerning: none;">
-                @CheepTimelineModel.NextPageSymbol
-            </a>
-        } else {
-            <span>@CheepTimelineModel.NextPageSymbol</span>
-        }
+        <div class="arrow-next">
+            @if (Model.NextPageLink != null) {
+                <a class="link-next" href="@Model.NextPageLink"
+                   style="text-decoration: none; font-kerning: none;">
+                    @CheepTimelineModel.NextPageSymbol
+                </a>
+            } else {
+                <span class="text-next">@CheepTimelineModel.NextPageSymbol</span>
+            }
+        </div>
 
         <!-- Link to last page -->
-        @if (Model.LastPageLink != null) {
-            <a href="@Model.LastPageLink"
-               style="text-decoration: none; font-kerning: none;">
-                @CheepTimelineModel.LastPageSymbol
-            </a>
-        } else {
-            <span>@CheepTimelineModel.LastPageSymbol</span>
-        }
+        <div class="arrow-last">
+            @if (Model.LastPageLink != null) {
+                <a class="link-last" href="@Model.LastPageLink"
+                   style="text-decoration: none; font-kerning: none;">
+                    @CheepTimelineModel.LastPageSymbol
+                </a>
+            } else {
+                <span class="text-last">@CheepTimelineModel.LastPageSymbol</span>
+            }
+        </div>
     </div>
 }
