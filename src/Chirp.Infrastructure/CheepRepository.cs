@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Chirp.Core;
 using Chirp.Core.Domain_Model;
-using Microsoft.Extensions.Logging;
 
 namespace Chirp.Infrastructure;
 
@@ -51,8 +50,8 @@ public class CheepRepository : ICheepRepository {
 
         Cheep cheep = new Cheep() { Author = author, Text = message, TimeStamp = timestamp };
         await _dbContext.Cheeps.AddAsync(cheep);
-        int changes = await _dbContext.SaveChangesAsync();
-        TotalCheepCount += changes;
+        await _dbContext.SaveChangesAsync();
+        TotalCheepCount++;
     }
 
     public async Task<List<CheepDTO>> GetCheeps(int pageNr) {
