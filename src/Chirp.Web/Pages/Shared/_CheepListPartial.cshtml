@@ -20,7 +20,7 @@
 
                     if (user!.UserName != postUser!.UserName)
                     {
-                        if (await Model.IsFollowing(user,postUser))
+                        if (await Model.IsFollowing(user.UserName!,postUser.UserName!))
                         {
                             <form method="post" style="display:inline; margin: 0; padding: 0;">
                                 <button type="submit"

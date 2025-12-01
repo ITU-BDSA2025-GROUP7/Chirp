@@ -8,8 +8,8 @@ namespace Chirp.Web.Pages;
 
 public class PublicModel : CheepTimelineModel {
     public PublicModel(ICheepService cheepService, IAuthorService authorService,
-                       UserManager<Author> userManager)
-        : base(cheepService, authorService, userManager) { }
+                       UserManager<Author> userManager, ILogger<PublicModel> logger)
+        : base(cheepService, authorService, logger, userManager) { }
 
     public async Task<IActionResult> OnGet() {
         int pageNr = getPageNr(Request);

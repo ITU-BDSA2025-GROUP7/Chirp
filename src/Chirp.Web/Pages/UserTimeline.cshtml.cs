@@ -10,14 +10,14 @@ public class UserTimelineModel : CheepTimelineModel {
     private const string NO_USER_HEADER = "User not found";
     private readonly SignInManager<Author> _signInManager;
 
-    public Author? Author { get; set; }
+    public AuthorDTO? Author { get; set; }
     public string Header { get; set; } = NO_USER_HEADER;
 
     public UserTimelineModel(ICheepService cheepService,
                              IAuthorService authorService,
                              UserManager<Author> userManager,
-                             SignInManager<Author> signInManager)
-        : base(cheepService, authorService, userManager) {
+                             SignInManager<Author> signInManager, ILogger<UserTimelineModel> logger)
+        : base(cheepService, authorService,logger, userManager) {
         _signInManager = signInManager;
     }
 

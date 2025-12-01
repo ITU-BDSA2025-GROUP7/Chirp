@@ -27,9 +27,7 @@ public abstract class CheepTimelineModel : PageModel {
     [Display(Name = "Message")]
     public string Text { get; set; } = "";
 
-    public CheepTimelineModel(ICheepService cheepService, IAuthorService authorService,
-                              UserManager<Author> userManager) {
-    public CheepTimelineModel(ICheepService cheepService, IAuthorService authorService, ILogger<CheepTimelineModel> logger,UserManager<Author> ) {
+    public CheepTimelineModel(ICheepService cheepService, IAuthorService authorService, ILogger<CheepTimelineModel> logger,UserManager<Author> userManager) {
         this._cheepService = cheepService;
         this._authorService = authorService;
         _logger = logger;
