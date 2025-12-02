@@ -19,11 +19,13 @@
             <div>
                 <a href="/@(User.Identity?.Name!)">My Timeline</a> |
                 <a href="/">Public Timeline</a> |
+                <a href="/search">Search</a> |
                 <partial name="_LoginPartial"/>
             </div>
         } else {
             <div>
                 <a href="/">Public Timeline</a> |
+                <a href="/search">Search</a> |
                 <partial name="_LoginPartial"/>
             </div>
         }
