@@ -1482,6 +1482,11 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
 
     #region SearchPage
 
+    /** Verifies that searching for 'j' when logged out retrieves the three authors with a
+     * 'j' in their name. Notice that the retrieved authors' js are all uppercase;
+     * this also verifies that the search is case-insensitive.
+     * Verifies that the follow/unfollow button is as expected, and that the links go to
+     * where they're supposed to. */
     [Test]
     public async Task SearchPageWhenLoggedOut() {
         await Page.GotoAsync(_serverUrl);
@@ -1520,6 +1525,11 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
         await Expect(Page).ToHaveURLAsync(_serverUrl + "MalcolmJanski");
     }
 
+    /** Verifies that searching for 'j' when logged in retrieves the three authors with a
+     * 'j' in their name. Notice that the retrieved authors' js are all uppercase;
+     * this also verifies that the search is case-insensitive.
+     * Verifies that the follow/unfollow button is as expected, and that the links go to
+     * where they're supposed to. */
     [Test]
     public async Task SearchPageWhenLoggedIn() {
         await Page.GotoAsync(_serverUrl);
@@ -1531,6 +1541,9 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
         await Page.Locator(".search-field")
                   .FillAsync("j");
         await Page.GetByRole(AriaRole.Button, new() { Name = "Search" }).ClickAsync();
+
+        // Used later to go back to this page so that we don't need to fill
+        // in the form each time.
         string url = Page.Url;
 
         // Ensure the three expected authors are listed in the expected order.
@@ -1559,8 +1572,69 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
         await Expect(Page).ToHaveURLAsync(_serverUrl + "MalcolmJanski");
     }
 
+    /** Verify that attempting to search for an empty string yields
+    * no results, and the text 'No authors match your query'. */
+    [Test]
+    public async Task SearchEmptyStringLoggedOut() {
+        await Page.GotoAsync(_serverUrl);
+        await Page.GetByRole(AriaRole.Link, new() { Name = "Search" }).ClickAsync();
+        await Expect(Page.Locator(".author")).ToHaveCountAsync(0);
+        await Expect(Page.GetByText("No authors match your query.")).ToBeVisibleAsync();
+        await Page.GetByRole(AriaRole.Button, new() { Name = "Search" }).ClickAsync();
+        await Expect(Page.Locator(".author")).ToHaveCountAsync(0);
+        await Expect(Page.GetByText("No authors match your query.")).ToBeVisibleAsync();
+    }
+
+    /** Verify that attempting to search for an empty string yields
+    * no results, and the text 'No authors match your query'. */
+    [Test]
+    public async Task SearchEmptyStringLoggedIn() {
+        await Page.GotoAsync(_serverUrl);
+        await Login("ropf@itu.dk", "LetM31n!");
+        await Page.GetByRole(AriaRole.Link, new() { Name = "Search" }).ClickAsync();
+        await Expect(Page.Locator(".author")).ToHaveCountAsync(0);
+        await Expect(Page.GetByText("No authors match your query.")).ToBeVisibleAsync();
+        await Page.GetByRole(AriaRole.Button, new() { Name = "Search" }).ClickAsync();
+        await Expect(Page.Locator(".author")).ToHaveCountAsync(0);
+        await Expect(Page.GetByText("No authors match your query.")).ToBeVisibleAsync();
+    }
+
+    /** Verify that searching for a bit of text that does not appear in any author's name yields
+    * no results, and the text 'No authors match your query'. */
+    [Test]
+    public async Task SearchNoResultsLoggedOut() {
+        await Page.GotoAsync(_serverUrl);
+        await Page.GetByRole(AriaRole.Link, new() { Name = "Search" }).ClickAsync();
+        await Expect(Page.Locator(".author")).ToHaveCountAsync(0);
+        await Expect(Page.GetByText("No authors match your query.")).ToBeVisibleAsync();
+        await Page.Locator(".search-field").ClickAsync();
+        await Page.Locator(".search-field")
+                  .FillAsync("Wayfarer");
+        await Page.GetByRole(AriaRole.Button, new() { Name = "Search" }).ClickAsync();
+        await Expect(Page.Locator(".author")).ToHaveCountAsync(0);
+        await Expect(Page.GetByText("No authors match your query.")).ToBeVisibleAsync();
+    }
+
+    /** Verify that searching for a bit of text that does not appear in any author's name yields
+     * no results, and the text 'No authors match your query'. */
+    [Test]
+    public async Task SearchNoResultsLoggedIn() {
+        await Page.GotoAsync(_serverUrl);
+        await Login("ropf@itu.dk", "LetM31n!");
+        await Page.GetByRole(AriaRole.Link, new() { Name = "Search" }).ClickAsync();
+        await Expect(Page.Locator(".author")).ToHaveCountAsync(0);
+        await Expect(Page.GetByText("No authors match your query.")).ToBeVisibleAsync();
+        await Page.Locator(".search-field").ClickAsync();
+        await Page.Locator(".search-field")
+                  .FillAsync("Wayfarer");
+        await Page.GetByRole(AriaRole.Button, new() { Name = "Search" }).ClickAsync();
+        await Expect(Page.Locator(".author")).ToHaveCountAsync(0);
+        await Expect(Page.GetByText("No authors match your query.")).ToBeVisibleAsync();
+    }
+
     #endregion
 
+    /** Convenience function for performing the actions to log into the website. */
     private async Task Login(string email, string password) {
         await Page.GetByRole(AriaRole.Link, new() { Name = "Login" }).ClickAsync();
         await Page.GetByRole(AriaRole.Textbox, new() { Name = "Email" }).ClickAsync();
@@ -1570,6 +1644,9 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
         await Page.GetByRole(AriaRole.Button, new() { Name = "Log in" }).ClickAsync();
     }
 
+    /** Convenience function for validating the arrow links at the top and bottom of cheep
+     * timelines.<br/>
+     * Clicks the link with the given name, and ensures it is correct. */
     private async Task ClickAndValidateLink(string linkText, int to) {
         // Since links with name "|<" are also matched by the string "<", we have
         // to make sure to grab the second such link if the input is "<".
@@ -1587,6 +1664,7 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
         await Expect(Page).ToHaveURLAsync(baseUrl + $"?page={to}");
     }
 
+    /** Remove all queries from the URL (e.g. ?page=... and ?query=...) */
     private static string StripQuery(string url) {
         int index = url.IndexOf('?');
         if (index != -1) {
@@ -1596,6 +1674,13 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
         return url;
     }
 
+    /** Verifies the correctness of the current page's arrow links.<br/>
+     * If the currentPageNr and totalPageCount are both 1, then it asserts there are no
+     * arrow links.<br/>
+     * If currentPageNr is the first page, then it ensures the arrows going first/back are
+     * disabled.<br/>
+     * If currentPageNr is at the limit given by the totalPageCount, then it ensures the
+     * arrows going last/forward are disabled. */
     private async Task ValidatePage(int currentPageNr, int totalPageCount) {
         if (currentPageNr == 1 && totalPageCount == 1) {
             await ValidateNoPageArrows();
@@ -1621,6 +1706,7 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
         }
     }
 
+    /** Ensures that the text showing the page number and total page count are correct. */
     private async Task ValidatePageNumberText(int pageNr, int totalPageCount) {
         await Expect(Page.Locator(".page-number")).ToHaveCountAsync(2);
         await Expect(Page.Locator(".page-number").First)
@@ -1629,6 +1715,7 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
            .ToContainTextAsync($"{pageNr} / {totalPageCount}");
     }
 
+    /** Asserts that the "?page=..." part of the URL matches the given <c>pageNr</c>. */
     private void ValidateUrlQuery(int pageNr) {
         if (pageNr == 1) {
             Assert.That(Page.Url, Does.Match($"[^?]*[?]page={pageNr}").Or.Match("[^?]*"));
@@ -1637,6 +1724,7 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
         }
     }
 
+    /** Verifies that the current page is not showing the arrow links for jumping between pages. */
     private async Task ValidateNoPageArrows() {
         await Expect(Page.Locator(".arrow-first")).ToHaveCountAsync(0);
         await Expect(Page.Locator(".arrow-prev")).ToHaveCountAsync(0);
