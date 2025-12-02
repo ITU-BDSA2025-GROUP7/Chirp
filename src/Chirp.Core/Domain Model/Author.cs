@@ -6,9 +6,21 @@ namespace Chirp.Core.Domain_Model;
 
 [Index(nameof(Email), IsUnique = true)]
 public class Author : IdentityUser {
+    private string _displayName = "";
+
     [MaxLength(256)]
     [PersonalData]
-    public string DisplayName { get; set; } = "";
+    public string DisplayName {
+        get => _displayName;
+        set {
+            _displayName = value;
+            NormalizedDisplayName = _displayName.ToUpper();
+        }
+    }
+
+    [MaxLength(256)]
+    [PersonalData]
+    public string NormalizedDisplayName { get; private set; } = "";
 
     [PersonalData]
     public List<Cheep> Cheeps { get; set; } = [];
@@ -34,6 +46,7 @@ public class Author : IdentityUser {
         string username = displayName.Replace(" ", "");
         return new Author {
             DisplayName = displayName,
+            NormalizedDisplayName = displayName.ToUpper(),
             UserName = username,
             NormalizedUserName = username.ToUpper(),
             Email = email,
