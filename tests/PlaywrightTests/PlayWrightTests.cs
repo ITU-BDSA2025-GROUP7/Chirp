@@ -111,7 +111,7 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
         await Expect(Page.Locator("body")).ToBeVisibleAsync();
         await Expect(Page.Locator("h2")).ToContainTextAsync("Public Timeline");
         await Expect(Page.Locator("body"))
-           .ToContainTextAsync("My Timeline | Public Timeline | About me | Logout");
+           .ToContainTextAsync("My Timeline | Public Timeline | Search | About me | Logout");
         await Expect(Page.Locator("body")).ToContainTextAsync("What's on your mind, Helge? Share");
         await Expect(Page.Locator("h1")).ToContainTextAsync("Chirp!");
     }
