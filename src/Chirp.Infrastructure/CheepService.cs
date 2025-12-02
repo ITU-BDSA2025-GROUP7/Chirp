@@ -25,8 +25,16 @@ public class CheepService : ICheepService {
         return await cheepRepository.GetCheepsFromUserName(username, pageNr);
     }
 
-    public async Task<List<CheepDTO>> GetOwnAndFollowedCheeps(string username, int pageNr = 1) {
-        return await cheepRepository.GetOwnAndFollowedCheeps(username, pageNr);
+    public async Task<int> CheepCountFromUserName(string username) {
+        return await cheepRepository.CheepCountFromUserName(username);
+    }
+
+    public async Task<List<CheepDTO>> GetCheepsFromFollowed(string username, int pageNr = 1) {
+        return await cheepRepository.GetCheepsFromFollowed(username, pageNr);
+    }
+
+    public async Task<int> CheepCountFromFollowed(string username) {
+        return await cheepRepository.CheepCountFromFollowed(username);
     }
 
     public async Task CreateCheep(Author author, string message) {
@@ -35,6 +43,8 @@ public class CheepService : ICheepService {
                                           new DateTime(date.Year, date.Month, date.Day, date.Hour,
                                                        date.Minute, date.Second));
     }
+
+    public int TotalCheepCount => cheepRepository.TotalCheepCount;
 
     public async Task DeleteCheep(CheepDTO cheep) {
         await cheepRepository.DeleteCheep(cheep);

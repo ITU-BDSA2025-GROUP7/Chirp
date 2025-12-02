@@ -4,6 +4,7 @@
 @inject UserManager<Author> UserManager
 
 @if (Model.Cheeps.Any()) {
+    <partial name="_pageArrowsPartial" model="@Model"/>
     <ul id="messagelist" class="cheeps">
         @foreach (CheepDTO cheep in Model.Cheeps) {
             <li>
@@ -73,6 +74,7 @@
             </li>
         }
     </ul>
+    <partial name="_pageArrowsPartial" model="@Model"/>
 } else {
     <em>There are no cheeps so far.</em>
 }

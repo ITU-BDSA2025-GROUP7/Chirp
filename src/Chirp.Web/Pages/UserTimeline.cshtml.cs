@@ -23,22 +23,30 @@ public class UserTimelineModel : CheepTimelineModel {
 
     public async Task<IActionResult> OnGet([FromRoute] string author) {
         Author? authorSource = await _userManager.FindByNameAsync(author);
-        if (authorSource != null) {
+        if (authorSource == null) {
+            Header = NO_USER_HEADER;
+            Cheeps = [];
+            TotalPageCount = 1;
+            PageNr = 1;
+        } else {
             Author = new AuthorDTO(authorSource);
-            int pageNr = getPageNr(Request);
-            Console.WriteLine("pageQuery: " + pageNr + " author: " + author);
             Header = FormatPageHeader(Author);
 
             if (_signInManager.IsSignedIn(User) &&
                 authorSource == await _userManager.GetUserAsync(User)) {
                 await _authorService.Follow(Author.UserName, Author.UserName);
-                Cheeps = await _cheepService.GetOwnAndFollowedCheeps(Author.UserName, pageNr);
+                TotalPageCount =
+                    PageCount(await _cheepService.CheepCountFromFollowed(Author.UserName));
+                PageNr = ParsePageNr(Request);
+                Cheeps = await _cheepService.GetCheepsFromFollowed(Author.UserName, PageNr);
             } else {
-                Cheeps = await _cheepService.GetCheepsFromUserName(author, pageNr);
+                TotalPageCount =
+                    PageCount(await _cheepService.CheepCountFromUserName(Author.UserName));
+                PageNr = ParsePageNr(Request);
+                Cheeps = await _cheepService.GetCheepsFromUserName(Author.UserName, PageNr);
             }
-        } else {
-            Header = NO_USER_HEADER;
-            Cheeps = [];
+
+            GeneratePageLinks(author);
         }
 
         return Page();

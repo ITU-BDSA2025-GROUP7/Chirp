@@ -363,9 +363,9 @@ public class CheepRepositoryTest {
                                          select cheep);
         Assert.Empty(queryBefore);
     }
+
     /**
      * Deleting a cheep
-     *
      */
     [Fact]
     public async Task DeletingCheepTest() {
@@ -377,8 +377,11 @@ public class CheepRepositoryTest {
         // write new cheep
         var author = new Author { DisplayName = "greatName", Email = "yolo@itu.dk", UserName = "username" };
 
+        int cheepCountBeforeCreating = _cheepRepository.TotalCheepCount;
         await _cheepRepository.CreateCheep(author, message, DateTime.Parse("2025-11-28 22:25:45"));
+        int cheepCountAfterCreating = _cheepRepository.TotalCheepCount;
 
+        Assert.Equal(cheepCountBeforeCreating + 1, cheepCountAfterCreating);
 
         // expect it to exist
         IQueryable<Cheep> queryAfterAdding = (from cheep in _context.Cheeps
@@ -391,6 +394,7 @@ public class CheepRepositoryTest {
         // delete cheep
         CheepDTO cheepToDelete = new CheepDTO("", message, "2025-11-28 22:25:45", "username");
         await _cheepRepository.DeleteCheep(cheepToDelete);
+        Assert.Equal(cheepCountBeforeCreating, _cheepRepository.TotalCheepCount);
 
         // expect it not to exist
         IQueryable<Cheep> queryAfterDelete = (from cheep in _context.Cheeps
@@ -398,7 +402,6 @@ public class CheepRepositoryTest {
                             select cheep);
 
         Assert.Empty(queryAfterDelete);
-
     }
 
     /** Get an Author from the database. AuthorRepository returns an
