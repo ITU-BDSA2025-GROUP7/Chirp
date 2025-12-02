@@ -29,4 +29,8 @@ public class AuthorService : IAuthorService {
     public async Task<List<FollowRelation>> GetFollowRelations(string follower) {
         return await authorRepository.GetFollowRelations(follower);
     }
+
+    public async Task<List<AuthorDTO>> Search(string query) {
+        return await authorRepository.Search(query);
+    }
 }

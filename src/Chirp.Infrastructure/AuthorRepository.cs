@@ -139,6 +139,17 @@ public class AuthorRepository : IAuthorRepository {
         return matches.Count > 0;
     }
 
+    public async Task<List<AuthorDTO>> Search(string query) {
+        query = query.ToUpper();
+        return await (from authors in _dbContext.Authors
+                      where (authors.NormalizedUserName != null
+                          && authors.NormalizedUserName.Contains(query))
+                         || authors.NormalizedDisplayName.Contains(query)
+                      orderby authors.DisplayName
+                      select new AuthorDTO(authors))
+           .ToListAsync();
+    }
+
     /**
      * Determines if the input is valid as an Email according to the official RFC5322 as described here https://emailregex.com/
      */
