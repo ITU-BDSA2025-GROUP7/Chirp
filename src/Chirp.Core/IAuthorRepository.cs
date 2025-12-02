@@ -45,4 +45,8 @@ public interface IAuthorRepository {
      * Returns true if `follower` is following `followed`, false otherwise.
      */
     public Task<bool> IsFollowing(string follower, string followed);
+
+    /** Search the database for any authors whose username or display name contain the
+     * given input <c>query</c>. Not case-sensitive. */
+    public Task<List<AuthorDTO>> Search(string query);
 }
