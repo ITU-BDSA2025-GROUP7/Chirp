@@ -9,33 +9,34 @@ author:
 - "Mette My Gabelgaard <mmga@itu.dk>"
 numbersections: true
 ---
+# Introduction (Hassan)
 
 # Design and Architecture of _Chirp!_
 
-## Domain model
+## Domain model (Nikki)
 
 Here comes a description of our domain model.
 
-## Architecture — In the small
+## Architecture — In the small (Kris)
 
-## Architecture of deployed application
+## Architecture of deployed application (Louis)
 
-## User activities
+## User activities (Hassan)
 
-## Sequence of functionality/calls trough _Chirp!_
+## Sequence of functionality/calls trough _Chirp!_ (My)
 
 # Process
 
-## Build, test, release, and deployment
+## Build, test, release, and deployment (Nikki)
 
-## Team work
+## Team work (Kris)
 
-## How to make _Chirp!_ work locally
+## How to make _Chirp!_ work locally (Louise)
 
-## How to run test suite locally
+## How to run test suite locally (Nikki)
 
 # Ethics
 
-## License
+## License (My)
 
-## LLMs, ChatGPT, CoPilot, and others
+## LLMs, ChatGPT, CoPilot, and others (Kris)
