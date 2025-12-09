@@ -20,9 +20,9 @@ Here comes a description of our domain model.
 ## Architecture — In the small (Kris)
 
 ## Architecture of deployed application (Louis)
-The application is deployed on Microsoft Azure
+The application is deployed to an application server on Microsoft Azure
 [here](https://bdsagroup7chirprazor-buhcfwanakgyaabx.germanywestcentral-01.azurewebsites.net/),
-but it can be run locally as well, in which case the executing terminal process is the application
+but it can be run locally as well, in which case your own device would represent the application
 server.
 
 ![Deployment diagram](images\deployment.png)
@@ -59,8 +59,9 @@ or, if you have an implementation of Make installed,
 make start
 ```
 
-A message in the console will inform you of the specific URL and port to navigate to in order to
-interact with the web application.
+A message in the console will inform you of the specific URL to navigate to in your browser in
+order to interact with the web application. Depending on your terminal emulator, you may be able to simply
+click the link to do so directly.
 
 ## How to run test suite locally (Nikki)
 
