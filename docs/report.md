@@ -20,6 +20,12 @@ Here comes a description of our domain model.
 ## Architecture — In the small (Kris)
 
 ## Architecture of deployed application (Louis)
+The application is deployed on Microsoft Azure
+[here](https://bdsagroup7chirprazor-buhcfwanakgyaabx.germanywestcentral-01.azurewebsites.net/),
+but it can be run locally as well, in which case the executing terminal process is the application
+server.
+
+![Deployment diagram](images\deployment.png)
 
 ## User activities (Hassan)
 
