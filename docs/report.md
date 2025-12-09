@@ -37,7 +37,30 @@ server.
 
 ## Team work (Kris)
 
-## How to make _Chirp!_ work locally (Louise)
+## How to make _Chirp!_ work locally (Louis)
+
+### Dependencies
+
+The application requires you to have installed [.NET 9.0](https://dotnet.microsoft.com/en-us/download)
+or later.
+You will be prompted to install any other missing dependencies.
+
+### Startup
+
+To build and start the programme on an available port, execute the following command:
+
+```
+dotnet run --project src/Chirp.Web
+```
+
+or, if you have an implementation of Make installed,
+
+```
+make start
+```
+
+A message in the console will inform you of the specific URL and port to navigate to in order to
+interact with the web application.
 
 ## How to run test suite locally (Nikki)
 
