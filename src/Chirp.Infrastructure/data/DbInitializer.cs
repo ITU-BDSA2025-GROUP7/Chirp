@@ -19,7 +19,11 @@ public static class DbInitializer {
             Author a7 = Author.Create("Malcolm Janski", "Malcolm-Janski@gmail.com");
             Author a8 = Author.Create("Octavio Wagganer", "Octavio.Wagganer@dtu.dk");
             Author a9 = Author.Create("Johnnie Calixto", "Johnnie+Calixto@itu.dk");
-            Author a10 = Author.Create("Jacqualine Gilcoine", "Jacqualine.Gilcoine@gmail.com");
+            Author a10 = Author.Create("Jacqualine Gilcoine", "Jacqualine.Gilcoine@gmail.com", true,
+                                       "AQAAAAIAAYagAAAAEG+ZZKSehNCeumdqUNwKJ2D5UhDSWSuPYMoRe7EB0gulzzPefMV3a5s87LQ4COgnJQ==",
+                                       "MIYKL5UXZTWLB43IV3JTPVDEUN44KCQ4",
+                                       "e794e5cb-56da-42e9-a273-689c44bda03f"
+            );
             Author a11 = Author.Create("Helge", "ropf@itu.dk", true,
                                        "AQAAAAIAAYagAAAAEKPXQMvnfuNS4pxtGy6tXdbeldyzDEWAr5QG0nBK2PYZPePB+dpwxCqQnBwks5J3FA==",
                                        "b5b7f191-ef9b-4b0c-a46d-13c7bd9bccf6",
@@ -30,7 +34,7 @@ public static class DbInitializer {
                                        "ELWNBXHSW66RMV4WC23TW5LB4QRG636W");
 
             FollowRelation f01 = new FollowRelation { Follower = a12, Followed = a10 };
-            FollowRelation f02 = new FollowRelation { Follower = a11, Followed = a10, FollowRelationId = 0 };
+            FollowRelation f02 = new FollowRelation { Follower = a11, Followed = a10 };
 
             var authors = new List<Author> { a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11, a12 };
 

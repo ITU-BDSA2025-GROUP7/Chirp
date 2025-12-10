@@ -9,30 +9,31 @@ author:
 - "Mette My Gabelgaard <mmga@itu.dk>"
 numbersections: true
 ---
+# Introduction (Hassan)
 
 # Design and Architecture of _Chirp!_
 
-## Domain model
+## Domain model (Nikki)
 
 Here comes a description of our domain model.
 
-## Architecture — In the small
+## Architecture — In the small (Kris)
 
-## Architecture of deployed application
+## Architecture of deployed application (Louis)
 
-## User activities
+## User activities (Hassan)
 
-## Sequence of functionality/calls trough _Chirp!_
+## Sequence of functionality/calls trough _Chirp!_ (My)
 
 # Process
 
-## Build, test, release, and deployment
+## Build, test, release, and deployment (Nikki)
 
-## Team work
+## Team work (Kris)
 
-## How to make _Chirp!_ work locally
+## How to make _Chirp!_ work locally (Louise)
 
-## How to run test suite locally
+## How to run test suite locally (Nikki)
 To run the test suite, the program does *not* need to be running locally in the background. Then running the test suite can be done in two ways, depending on if make installed on you local computer.
 If it is installed, running the command `make test` from the root directory will start the test suite.
 Alternatively if make is not installed, the command `dotnet test` from the root directory will start the test suite.
@@ -64,6 +65,6 @@ Here is a breaf list of what is being tested
 
 # Ethics
 
-## License
+## License (My)
 
-## LLMs, ChatGPT, CoPilot, and others
+## LLMs, ChatGPT, CoPilot, and others (Kris)

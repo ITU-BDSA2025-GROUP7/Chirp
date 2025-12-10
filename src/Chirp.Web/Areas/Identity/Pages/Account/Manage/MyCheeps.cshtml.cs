@@ -1,4 +1,4 @@
-﻿using Chirp.Core.Domain_Model;
+using Chirp.Core.Domain_Model;
 using Chirp.Infrastructure;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -6,25 +6,27 @@ using Microsoft.AspNetCore.Mvc;
 namespace Chirp.Web.Areas.Identity.Pages.Account.Manage;
 
 public class MyCheepsModel : CheepTimelineModel {
-    private readonly UserManager<Author> _userManager;
+    private new readonly UserManager<Author> _userManager;
     private readonly SignInManager<Author> _signInManager;
 
     public MyCheepsModel(UserManager<Author> userManager,
                          SignInManager<Author> signInManager,
                          ICheepService cheepService,
-                         IAuthorService authorService)
-        : base(cheepService, authorService) {
+                         IAuthorService authorService, ILogger<MyCheepsModel> logger)
+        : base(cheepService, authorService,logger, userManager) {
         _userManager = userManager;
         _signInManager = signInManager;
+
     }
 
     public async Task<IActionResult> OnGet() {
-        if (_signInManager.IsSignedIn(User)) {
-            Author? user = _userManager.GetUserAsync(User).Result;
-            if (user != null && user.UserName != null) {
-                int pageNr = getPageNr(Request);
-                Cheeps = await _cheepService.GetCheepsFromUserName(user.UserName, pageNr);
-            }
+        Author? author = await _userManager.GetUserAsync(User);
+        string? username = author?.UserName;
+        if (_signInManager.IsSignedIn(User) && username != null) {
+            TotalPageCount = PageCount(await _cheepService.CheepCountFromUserName(username));
+            PageNr = ParsePageNr(Request);
+            Cheeps = await _cheepService.GetCheepsFromUserName(username, PageNr);
+            GeneratePageLinks("");
         }
 
         return Page();

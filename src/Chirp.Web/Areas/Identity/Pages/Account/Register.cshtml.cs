@@ -88,7 +88,8 @@ namespace Chirp.Web.Areas.Identity.Pages.Account {
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
             [Required]
-            [EmailAddress]
+            [EmailAuthentication(
+                          ErrorMessage = "is invalid")]
             [Display(Name = "Email")]
             [StringLength(256,
                           ErrorMessage = "The {0} must be between {2} and {1} characters long.",
@@ -147,7 +148,8 @@ namespace Chirp.Web.Areas.Identity.Pages.Account {
             if (result.Succeeded) {
                 _logger.LogInformation("User created a new account with password.");
 
-                await _authorRepository.Follow(user, user);
+                var userDTO = new AuthorDTO(user);
+                await _authorRepository.Follow(userDTO, userDTO);
                 string userId = await _userManager.GetUserIdAsync(user);
                 string code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                 code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));

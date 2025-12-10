@@ -7,14 +7,25 @@ namespace Chirp.Infrastructure;
 public class CheepRepository : ICheepRepository {
     private ChirpDBContext _dbContext;
 
+    public int TotalCheepCount { get; private set; }
+
     public CheepRepository(ChirpDBContext dbContext) {
         this._dbContext = dbContext;
+        TotalCheepCount = _dbContext.Cheeps.Count();
     }
 
-    public async Task<List<CheepDTO>> GetOwnAndFollowedCheeps(Author author, int pageNr = 1) {
-        return await QueryCheepsFromFollowedAuthors(author.UserName!)
+    public async Task<int> CheepCountFromUserName(string username) {
+        return await _dbContext.Cheeps.CountAsync(cheep => cheep.Author.UserName == username);
+    }
+
+    public async Task<List<CheepDTO>> GetCheepsFromFollowed(string username, int pageNr = 1) {
+        return await QueryCheepsFromFollowedAuthors(username)
                     .Pick(pageNr)
                     .ToListAsync();
+    }
+
+    public async Task<int> CheepCountFromFollowed(string username) {
+        return await QueryCheepsFromFollowedAuthors(username).CountAsync();
     }
 
     private IQueryable<CheepDTO> QueryCheepsFromFollowedAuthors(string username) {
@@ -40,6 +51,7 @@ public class CheepRepository : ICheepRepository {
         Cheep cheep = new Cheep() { Author = author, Text = message, TimeStamp = timestamp };
         await _dbContext.Cheeps.AddAsync(cheep);
         await _dbContext.SaveChangesAsync();
+        TotalCheepCount++;
     }
 
     public async Task<List<CheepDTO>> GetCheeps(int pageNr) {
@@ -85,5 +97,18 @@ public class CheepRepository : ICheepRepository {
                       )
             )
            .ToListAsync();
+    }
+
+    public async Task DeleteCheep(CheepDTO cheep) {
+        var cheepToDie = _dbContext.Cheeps.SingleOrDefault(c => c.Text == cheep.Message &&
+                                                                c.Author.UserName ==
+                                                                cheep.AuthorUserName &&
+                                                                c.TimeStamp.ToString() ==
+                                                                cheep.TimeStamp);
+        if (cheepToDie != null) {
+            _dbContext.Cheeps.Remove(cheepToDie);
+            await _dbContext.SaveChangesAsync();
+            TotalCheepCount--;
+        }
     }
 }

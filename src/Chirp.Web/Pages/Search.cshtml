@@ -1,0 +1,76 @@
+﻿@page "/search"
+@inject SignInManager<Author> SignInManager
+@inject UserManager<Author> UserManager
+@inject IAuthorRepository AuthorRepository
+@using Chirp.Core.Domain_Model
+@model Chirp.Web.Pages.SearchPageModel
+@{
+    ViewData["Title"] = "Chirp!";
+    Layout = "Shared/_Layout";
+}
+
+<div>
+    <h2>Search Users</h2>
+    <div class="cheepbox">
+        <h3>Please enter part of a username or display name.</h3>
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+            <input style="float: left" type="text" asp-for="SearchQuery" class="search-field">
+            <span asp-validation-for="@Model.SearchQuery" class="text-danger"></span>
+            <input type="submit" value="Search">
+        </form>
+    </div>
+    <br/>
+    @if (Model.Authors.Count == 0) {
+        <em>No authors match your query.</em>
+    } else {
+        <div class="author-list">
+            @{
+                Author? currentUser = await UserManager.GetUserAsync(User);
+                if (SignInManager.IsSignedIn(User) && currentUser?.UserName != null) {
+                    foreach (AuthorDTO author in Model.Authors) {
+                        <div class="author" style="display: flex; align-items: center; gap: 5px">
+                            <strong>
+                                <a href="@author.UserName">@author.DisplayName (@author.UserName)</a>
+                            </strong>
+
+                            @if (await AuthorRepository.IsFollowing(currentUser.UserName, author.UserName)) {
+                                <form method="post" style="display:inline; margin: 0; padding: 0;">
+                                    <button type="submit"
+                                            asp-page-handler="UnFollow"
+                                            style="background:none; color:black; border:none;
+                                            padding:0; margin:0">
+                                        Unfollow
+                                    </button>
+                                    <input type="hidden" name="authorA"
+                                           value="@currentUser.UserName"/>
+                                    <input type="hidden" name="authorB" value="@author.UserName"/>
+                                </form>
+                            } else {
+                                <form method="post" style="display:inline; margin: 0; padding: 0;">
+                                    <button type="submit"
+                                            asp-page-handler="Follow"
+                                            style="background:none; color:black; border:none;
+                                            padding:0; margin:0">
+                                        Follow
+                                    </button>
+                                    <input type="hidden" name="authorA"
+                                           value="@currentUser.UserName"/>
+                                    <input type="hidden" name="authorB" value="@author.UserName"/>
+                                </form>
+                            }
+                        </div>
+                    }
+                } else {
+                    foreach (AuthorDTO author in Model.Authors) {
+                        <div class="author" style="display: flex; align-items: center; gap: 5px">
+                            <strong>
+                                <a href="@author.UserName">@author.DisplayName (@author.UserName)</a>
+                            </strong>
+                        </div>
+                    }
+                }
+            }
+        </div>
+    }
+</div>

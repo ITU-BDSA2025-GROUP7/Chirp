@@ -3,6 +3,7 @@
 
 #nullable disable
 
+using Chirp.Core.Domain_Model;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Chirp.Web.Areas.Identity.Pages.Account.Manage {
@@ -22,6 +23,8 @@ namespace Chirp.Web.Areas.Identity.Pages.Account.Manage {
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public static string Email => "Email";
+
+        public static string Following => "Following";
 
         /// <summary>
         ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
@@ -74,6 +77,8 @@ namespace Chirp.Web.Areas.Identity.Pages.Account.Manage {
         /// </summary>
         public static string EmailNavClass(ViewContext viewContext) =>
             PageNavClass(viewContext, Email);
+        public static string FollowingNavClass(ViewContext viewContext) =>
+            PageNavClass(viewContext, Following);
 
         /// <summary>
         ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
