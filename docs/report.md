@@ -45,14 +45,19 @@ The test suite comprises of (Insert number) tests. There are 3 types of tests in
 Here is a breaf list of what is being tested
 
 ##### Author Repository
-1. Following behaves as expected
+1. Creating authors
+2. Following behaves as expected
+3. Retrieving Authors
+4. Deleting Authors
+5.
 
 #### Cheep Repository
-1. It's possible to  get cheeps from author
+1. Retrieving Cheeps
 2. Retrieving pages of cheeps
 3. Cheep timestamps are correct
 4. Creating cheeps
-5. SQL-injection safe
+5. Cheep content
+6. SQL-injection safe
 
 # Ethics
 

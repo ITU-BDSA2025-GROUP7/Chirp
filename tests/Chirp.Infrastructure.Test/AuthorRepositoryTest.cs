@@ -216,4 +216,125 @@ public class AuthorRepositoryTest {
         Assert.True(AFollowBBefore);
         Assert.False(AFollowBAfter);
     }
+
+    /**
+     * Tests that the author gotten by Author GetAuthorByUserName exists and has valid feilds.
+     */
+    [Theory]
+    [InlineData("Helge", "ropf@itu.dk")]
+    [InlineData("Adrian", "adho@itu.dk")]
+    public async Task RequiredAuthorsExist(string name, string email) {
+        List<Author> authors = await _authorRepository.GetAuthorByUserName(name);
+        Assert.NotNull(authors);
+        Assert.Single(authors);
+        Author author = authors.Single();
+        Assert.Equal(name, author.DisplayName);
+        Assert.Equal(email, author.Email);
+        Assert.Equal(name, author.UserName);
+        Assert.Equal(author.Email?.ToUpper(), author.NormalizedEmail);
+        Assert.Equal(author.UserName?.ToUpper(), author.NormalizedUserName);
+        Assert.True(author.EmailConfirmed);
+    }
+
+    /**
+     * Tests that deleting an author also deletes their cheeps
+     */
+    [Fact]
+    public async Task CheepsDeletedWithAuthor() {
+        var author = new Author { DisplayName = "DisappearingSoon", Email = "test@itu.dk", UserName = "test@itu.dk" };
+        var cheep = new Cheep {
+            CheepId = 90000,
+            Author = author,
+            Text = "This is a cheep",
+            TimeStamp = DateTime.Now
+        };
+        author.Cheeps.Add(cheep);
+
+        Assert.DoesNotContain(author, _context.Authors);
+        Assert.DoesNotContain(cheep, _context.Cheeps);
+
+        _context.Authors.Add(author);
+        await _context.SaveChangesAsync();
+
+        Assert.Contains(author, _context.Authors);
+        Assert.Contains(cheep, _context.Cheeps);
+
+        _context.Authors.Remove(author);
+        await _context.SaveChangesAsync();
+
+        Assert.DoesNotContain(author, _context.Authors);
+        Assert.DoesNotContain(cheep, _context.Cheeps);
+    }
+
+    /**
+    * Tests creating an author
+    */
+    [Fact]
+    public async Task CreateAuthorTest() {
+        string name, email;
+        name = "Barton Cooper";
+        email = "cooper@copper.com";
+        await _authorRepository.CreateAuthor(name, email);
+        var query = (from author in _context.Authors
+                     where author.DisplayName == name
+                     select author);
+        Author actualAuthor = await query.FirstAsync();
+        Assert.Equal(email, actualAuthor.Email);
+    }
+
+    /**
+     * Cannot create 2 authors with same email
+     */
+    [Fact]
+    public async Task AuthorReusingEmailTest() {
+        string name1, name2, email;
+        name1 = "Barton Cooper";
+        name2 = "Bar2n Cooper";
+        email = "cooper@copper.com";
+        await _authorRepository.CreateAuthor(name1, email);
+        await Assert.ThrowsAsync<DbUpdateException>(() => _authorRepository.CreateAuthor(name2, email));
+    }
+
+    /**
+     * Cannot have multiple users with same username
+     */
+    [Fact]
+    public async Task AuthorSameNameTest() {
+        const string name = "Barton Cooper";
+        string username = name.Replace(" ", "");
+        const string email1 = "TheCakeMaster@copper.com";
+        const string email2 = "muffinEnjoyer@copper.com";
+        await _authorRepository.CreateAuthor(name, email1);
+        await Assert.ThrowsAsync<DbUpdateException>(() => _authorRepository.CreateAuthor(name, email2));
+        List<Author> bartons = await _authorRepository.GetAuthor(username);
+        Assert.Equal(name, bartons.Single().DisplayName);
+        Assert.Equal(username, bartons.Single().UserName);
+        Assert.Equal(email1, bartons.Single().Email);
+    }
+
+    /**
+     * Tests that retriving a author that does not exist, gives an empty list
+     */
+    [Fact]
+    public async Task NoKnownAuthorTest() {
+        List<Author> authorsFound = await _authorRepository.GetAuthor("ThisNameorEmailDoesNotExist");
+        Assert.Empty(authorsFound);
+    }
+
+    /**
+    * the name "" is valid
+    */
+    [Fact]
+    public async Task AuthorBlankName() {
+        string name, email;
+        name = "";
+        email = "cooper@copper.com";
+        await _authorRepository.CreateAuthor(name, email);
+        var query = (from author in _context.Authors
+                     where author.DisplayName == ""
+                     select author);
+        Author actualAuthor = query.Single();
+        Assert.NotNull(actualAuthor);
+    }
+
 }
