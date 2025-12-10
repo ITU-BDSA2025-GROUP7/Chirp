@@ -59,6 +59,9 @@ Here is a breaf list of what is being tested
 5. Cheep content
 6. SQL-injection safe
 
+
+1. Retrieving cheeps from user that follows another, also retrieves the followed user
+
 # Ethics
 
 ## License

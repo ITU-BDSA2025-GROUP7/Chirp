@@ -144,7 +144,6 @@ public class CheepRepositoryTest {
     /**
      * It's possible to retrieve a users cheeps based on the author.cheep
      */
-    // !!!!!!!! how does this work? when does the cheep get added to the author?
     [Fact]
     public async Task CheepOwnershipTest() {
         List<Author> users = await _authorRepository.GetAuthor("WendellBallan");

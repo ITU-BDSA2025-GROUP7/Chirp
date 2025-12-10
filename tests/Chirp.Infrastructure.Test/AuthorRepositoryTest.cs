@@ -3,6 +3,8 @@ using Chirp.Core.Domain_Model;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
+using Xunit.Abstractions;
+using static Chirp.Core.ICheepRepository;
 
 namespace Chirp.Infrastructure.Test;
 
@@ -11,8 +13,11 @@ public class AuthorRepositoryTest {
     private SqliteConnection _connection;
     private ICheepRepository _cheepRepository;
     private IAuthorRepository _authorRepository;
+    private readonly ITestOutputHelper _testOutputHelper;
 
-    public AuthorRepositoryTest() {
+    public AuthorRepositoryTest(ITestOutputHelper testOutputHelper) {
+        _testOutputHelper = testOutputHelper;
+
         _connection = new SqliteConnection("DataSource=:memory:");
         _connection.Open();
         var options = new DbContextOptionsBuilder<ChirpDBContext>()
@@ -335,6 +340,189 @@ public class AuthorRepositoryTest {
                      select author);
         Author actualAuthor = query.Single();
         Assert.NotNull(actualAuthor);
+    }
+
+    /** Asserts that the GetOwnAndFollowedCheeps returns an empty list if an Author
+     * has no cheeps of their own nor any people they follow. */
+    [Fact]
+    public async Task PrivateTimelineNoOwnCheepsNoFollowedCheeps() {
+        await _authorRepository.CreateAuthor("Ms Mute and Deaf", "mad@test.dk");
+        List<Author> users = await _authorRepository.GetAuthor("mad@test.dk");
+        Author user = users.Single();
+
+        List<Author> followed = await _authorRepository.Following(user);
+        Assert.Single(followed);
+
+        List<CheepDTO> cheeps = await _cheepRepository.GetOwnAndFollowedCheeps(user);
+        Assert.Empty(cheeps);
+    }
+
+    /** Asserts that if GetOwnAndFollowedCheeps returns a list containing exactly the author's
+    * own cheeps if they do not follow any authors.
+    */
+    [Fact]
+    public async Task PrivateTimelineNoFollowedCheeps() {
+        await _authorRepository.CreateAuthor("Ms Mute and Deaf", "mad@test.dk");
+        List<Author> users = await _authorRepository.GetAuthor("mad@test.dk");
+        Author user = users.Single();
+
+        List<Author> followed = await _authorRepository.Following(user);
+        Assert.Single(followed);
+
+        await _cheepRepository.CreateCheep(user, "Test message", DateTime.Now);
+
+        List<CheepDTO> cheeps = await _cheepRepository.GetOwnAndFollowedCheeps(user);
+        Assert.Single(cheeps);
+    }
+
+    /**
+     * New users follow themselves
+     */
+    [Fact]
+    public async Task NewAuthorFollowsOnlySelf() {
+        await _authorRepository.CreateAuthor("Ms Deaf", "mad@test.dk");
+        List<Author> users = await _authorRepository.GetAuthor("mad@test.dk");
+        Author user = users.Single();
+        Assert.Equal(user, (await _authorRepository.Following(user)).Single());
+    }
+
+    /** Asserts that, if an author has no cheeps but follows one author,
+     * the result of GetOwnAndFollowedCheeps is equal to a list of that followed author's
+     * cheeps.
+     */
+    [Fact]
+    public async Task PrivateTimelineNoOwnCheepsOneFollowedAuthor() {
+        // Create a new user account, and ensure it now exists.
+        await _authorRepository.CreateAuthor("Ms Mute", "mad@test.dk");
+        Author user = (await _authorRepository.GetAuthor("mad@test.dk")).Single();
+        Assert.Empty(await _cheepRepository.GetCheepsFromUserName(user.UserName!, 1));
+
+        // Select a different user account to follow, making sure it has cheeps.
+        Author toFollow = (await _authorRepository.GetAuthor("Jacqualine.Gilcoine@gmail.com")).Single();
+        List<CheepDTO> cheepsFromFollowed =
+            await _cheepRepository.GetCheepsFromUserName(toFollow.UserName!, 1);
+        Assert.NotEmpty(cheepsFromFollowed);
+
+        // Follow the secondary user account, and ensure this has occurred successfully.
+        await _authorRepository.Follow(user, toFollow);
+        List<Author> following = await _authorRepository.Following(user);
+        Assert.Equal(user, following.First());
+        Assert.Equal(toFollow, following[1]);
+
+        // Assert that the list of cheeps is exactly equal to the list of cheeps from the one
+        // follower.
+        List<CheepDTO> timelineCheeps = await _cheepRepository.GetOwnAndFollowedCheeps(user, 1);
+        Assert.Equal(cheepsFromFollowed, timelineCheeps);
+    }
+
+    /** Asserts that, if an author has no cheeps but follows several authors,
+     * the result of GetOwnAndFollowedCheeps is equal to a sorted list of those followed authors'
+     * cheeps.
+     */
+    [Fact]
+    public async Task PrivateTimelineNoOwnCheepsMultipleFollowedAuthors() {
+        // Create a new user account, and ensure it now exists.
+        await _authorRepository.CreateAuthor("Ms Mute", "mad@test.dk");
+        Author user = (await _authorRepository.GetAuthor("mad@test.dk")).Single();
+
+        // Follow these three authors in the seeded database
+        List<string> emails = [
+            "Jacqualine.Gilcoine@gmail.com",
+            "Roger+Histand@hotmail.com",
+            "Luanna-Muro@ku.dk",
+        ];
+        List<CheepDTO> cheepsFromFollowed = [];
+        foreach (string email in emails) {
+            Author author = (await _authorRepository.GetAuthor(email)).Single();
+            await _authorRepository.Follow(user, author);
+            cheepsFromFollowed.AddRange(
+                await _cheepRepository.GetAllCheepsFromUserName(author.UserName!));
+        }
+
+        // Sort the combined list of cheeps from followers so that they are mixed together and
+        // ordered by timestamp (CheepDTO implements IComparable<CheepDTO>).
+        cheepsFromFollowed.Sort();
+
+        // Assert that the list of cheeps is exactly equal to the list of cheeps from the followers.
+        // Does so by comparing 32-cheep subsections of the former to pages retrieved of the latter.
+        // Make sure there's a point to the loop.
+        Assert.True(cheepsFromFollowed.Count > CHEEPS_PER_PAGE);
+        _testOutputHelper.WriteLine(cheepsFromFollowed.Count.ToString());
+        int timelineCheepCount = 0;
+
+        int totalPages = cheepsFromFollowed.Count / CHEEPS_PER_PAGE;
+        if (cheepsFromFollowed.Count % CHEEPS_PER_PAGE != 0) {
+            totalPages++;
+        }
+
+        for (int i = 0; i < totalPages; i++) {
+            List<CheepDTO> cheeps = await _cheepRepository.GetOwnAndFollowedCheeps(user, i + 1);
+            timelineCheepCount += cheeps.Count;
+            int lowerBound = i * CHEEPS_PER_PAGE;
+            int upperBound = lowerBound + cheeps.Count;
+            Assert.Equal(cheepsFromFollowed[lowerBound..upperBound], cheeps);
+        }
+
+        // Mostly to feel a little more confident that above loop works correctly.
+        Assert.Equal(cheepsFromFollowed.Count, timelineCheepCount);
+    }
+
+    /**
+     * Tests that a new author has no cheeps created by them
+     */
+    [Fact]
+    public async Task NewAuthorHasNoCheeps() {
+        await _authorRepository.CreateAuthor("Ms Mute", "mad@test.dk");
+        List<Author> users = await _authorRepository.GetAuthor("mad@test.dk");
+        Author user = users.Single();
+        Assert.Empty(await _cheepRepository.GetCheepsFromUserName(user.UserName!, 1));
+    }
+
+    /**
+     * Author has valid Username even if they only specified
+     */
+    [Fact]
+    public async Task NewAuthorHasNonNullUserName() {
+        await _authorRepository.CreateAuthor("Ms HasAName", "mad@test.dk");
+        List<Author> users = await _authorRepository.GetAuthor("mad@test.dk");
+        Author user = users.Single();
+        Assert.NotNull(user.UserName);
+        Assert.NotEmpty(user.UserName); // Assert that it is not blank
+    }
+
+    /**
+     * Tests that an author can follow multiple authors
+     */
+    [Fact]
+    public async Task FollowMultiplePeople() {
+        // Create a new user account, and ensure it now exists.
+        await _authorRepository.CreateAuthor("Ms Mute", "mad@test.dk");
+        List<Author> users = await _authorRepository.GetAuthor("mad@test.dk");
+        Author user = users.Single();
+
+        List<string> authors = [
+            "Jacqualine.Gilcoine@gmail.com",
+            "Roger+Histand@hotmail.com",
+            "Luanna-Muro@ku.dk",
+        ];
+        List<Author> authorsToFollow = [];
+        // Add several authors, making sure they each have cheeps.
+        foreach (string email in authors) {
+            List<Author> toBeFollowed = await _authorRepository.GetAuthor(email);
+            authorsToFollow.Add(toBeFollowed.Single());
+
+            string username = authorsToFollow.Last().UserName!;
+            List<CheepDTO> cheepsFromFollowed = await _cheepRepository.GetCheepsFromUserName(username, 1);
+            Assert.NotEmpty(cheepsFromFollowed);
+
+            await _authorRepository.Follow(user, authorsToFollow.Last());
+        }
+
+        List<Author> following = await _authorRepository.Following(user);
+        Assert.Equal(authors.Count + 1, following.Count);
+        foreach (Author author in authorsToFollow) {
+            Assert.Contains(author, following);
+        }
     }
 
 }
