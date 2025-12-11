@@ -613,6 +613,4 @@ public class AuthorRepositoryTest {
                 orderby author.DisplayName
                 select author).Single();
     }
-
-
 }

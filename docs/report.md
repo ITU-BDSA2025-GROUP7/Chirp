@@ -50,18 +50,23 @@ Here is a breaf list of what is being tested
 2. Following behaves as expected
 3. Retrieving Authors
 4. Deleting Authors
-5.
+5. AuthorDTO works as expected
+6. CheepDTO works as expected
 
-#### Cheep Repository
+##### Cheep Repository
 1. Retrieving Cheeps
 2. Retrieving pages of cheeps
 3. Cheep timestamps are correct
 4. Creating cheeps
 5. Cheep content
 6. SQL-injection safe
+7. Retrieving cheeps from user that follows another, also retrieves the followed user
 
-
-1. Retrieving cheeps from user that follows another, also retrieves the followed user
+##### Playwright tests
+1. a
+2. b
+3. c
+4. d
 
 # Ethics
 
