@@ -63,10 +63,21 @@ Here is a breaf list of what is being tested
 7. Retrieving cheeps from user that follows another, also retrieves the followed user
 
 ##### Playwright tests
-1. a
-2. b
-3. c
-4. d
+1. User can log in
+2. User can register
+3. Navigation bara changes
+4. Users can Log out
+5. Users can Follow & unfollow
+6. About me has following page
+7. My page shows displayName
+8. Cheeps are shown
+9. Deleting users
+10. Users can Sending cheeps
+11. Sending cheeps ae safe from xss attacks
+12. Users can Delete cheeps
+13. About me page exists
+14. Page arrows works
+15. Users can searching for user
 
 # Ethics
 
