@@ -34,16 +34,16 @@ Here comes a description of our domain model.
 ## How to make _Chirp!_ work locally (Louise)
 
 ## How to run test suite locally (Nikki)
-To run the test suite, the program does *not* need to be running locally in the background. Then running the test suite can be done in two ways, depending on if make installed on you local computer.
+To run the test suite, the program does *not* need to be running locally in the background. Then running the test suite can be done in two ways, depending on if make is installed on you local computer.
 If it is installed, running the command `make test` from the root directory will start the test suite.
 Alternatively if make is not installed, the command `dotnet test` from the root directory will start the test suite.
 
 The test suite comprises of (Insert number) tests. There are 3 types of tests in the suite:
-1. Unit tests: Tests a singular function, class or fealt.
+1. Unit tests: Tests a singular function, class, or field.
 2. Integration tests: Tests the interplay between classes and functions.
-3. End to end tests: Tests the end produced as interacted with by the user. This is done though playwright
+3. End to end tests: Tests the end product as interacted with by the user. This is done though playwright
 
-Here is a breaf list of what is being tested
+Here is a breath list of what is being tested
 
 ##### Author Repository
 1. Creating authors
