@@ -1,2 +1,0 @@
-This file is here so that git recognizes that this directory should exist.
-Feel free to delete this file if you add something to this directory.

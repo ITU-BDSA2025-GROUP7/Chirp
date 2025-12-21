@@ -13,9 +13,25 @@ numbersections: true
 
 # Design and Architecture of _Chirp!_
 
-## Domain model (Nikki)
+## Domain model
 
-Here comes a description of our domain model.
+The database for the project is an SQLite database that's using Entity Framework Core as an object-relational mapper,
+allowing the creation of a domain model containing classes that can be used as table withing the database while also allowing the use of these classes in the code.
+
+The domain model of Chip consists of a couple of different classes. The two main classes are `Author` and `Cheep`.
+
+`Author` represents a user in the program. It contains all relevant information about the user such as *UserName*, *DisplayName*, *Email*, *PasswordHash*, and a list of all cheeps that the author wrote.
+Much of the functionality is inherited from `IdentityUser` as part of ASP.NET Identity.
+This allows the use of functionality from ASP.NET identity such as support for registration, login page, as well as offloading some of the security concerns to Dotnet.
+An author can also follow another author. This is done using the `FollowRelation` class. It contains the *Follower*, the *Followed* and a unique id representing the FollowRelation, allowing for a many-to-many relation between authors.
+The reason for creating a separate class was to maximise the normal form of the database.
+The course *Introduction to database systems* taught that it was best to achieve this by spitting the functionality of authors following each other into a separate table.
+In hindsight, it would have been just as valid to add a field `public List<Author> Follows` to `Author` as EF Core separates the list into a separate table behind the screens.
+
+`Cheep` represents a message from a user. It contains relevant information such as the author who wrote it, what time it was written, the text message itself and a unique Id.
+
+Bellow is shown a UML diagram depicting the structure of the domain model. Note that only relevant fields of `IdentityUser` is shown.
+![](.\images\DomainModel.png)
 
 ## Architecture — In the small (Kris)
 
@@ -33,7 +49,7 @@ Here comes a description of our domain model.
 
 ## How to make _Chirp!_ work locally (Louise)
 
-## How to run test suite locally (Nikki)
+## How to run test suite locally
 To run the test suite, the program does *not* need to be running locally in the background. Then running the test suite can be done in two ways, depending on if make is installed on you local computer.
 If it is installed, running the command `make test` from the root directory will start the test suite.
 Alternatively if make is not installed, the command `dotnet test` from the root directory will start the test suite.
