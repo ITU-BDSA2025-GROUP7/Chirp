@@ -46,7 +46,7 @@ Bellow is shown a UML diagram depicting the structure of the domain model. Note 
 ## Build, test, release, and deployment
 
 The processes of Building, testing, releasing and deploying are relatively simple and always follows the same pattern making them simple to automate.
-For this reason, there has been added a total of 3 GitBub actions to automate these processes. The actions are as follows: *BuildAndTest*, *Publish*, and *Deploy*
+For this reason, there has been added a total of 3 GitBub actions to automate these processes. The actions are as follows: *BuildAndTest*, *Release*, and *Deploy*
 Each GitHub has it's own triger that activate the action. These differ from each action.
 
 ### Build And Test
@@ -61,10 +61,10 @@ It then runes the tests.
 If there was a problem with any of the steps involved, then the action wil *fail* and a potential pull request will be marked as not suitable for merging.
 The action is illustrated in the UML activity diagram below.
 
-![](.\images\BuildAndTest.png)]
+![](.\images\BuildAndTest.png)
 
-### Publish
-The purpose of the Publish action is to publish the program and then make a GitHub release using the published program.
+### Release
+The purpose of the Release action is to publish the program and then make a GitHub release using the published program.
 
 It's activated when a push is made with a tag that fits the regex expression `v[0-9]+.[0-9]+.[0-9]+`
 It firsts runes what's equivalent to the *BuildAndTest* action, testing that all tests pass before preceding.
