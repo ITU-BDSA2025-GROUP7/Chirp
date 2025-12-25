@@ -45,6 +45,10 @@ Bellow is shown a UML diagram depicting the structure of the domain model. Note 
 
 ## Build, test, release, and deployment (Nikki)
 
+![](.\images\BuildAndTest.png)]
+![](.\images\Publish.png)]
+![](.\images\Deploy.png)]
+
 ## Team work (Kris)
 
 ## How to make _Chirp!_ work locally (Louise)
