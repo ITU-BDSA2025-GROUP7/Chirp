@@ -43,10 +43,46 @@ Bellow is shown a UML diagram depicting the structure of the domain model. Note 
 
 # Process
 
-## Build, test, release, and deployment (Nikki)
+## Build, test, release, and deployment
+
+The processes of Building, testing, releasing and deploying are relatively simple and always follows the same pattern making them simple to automate.
+For this reason, there has been added a total of 3 GitBub actions to automate these processes. The actions are as follows: *BuildAndTest*, *Publish*, and *Deploy*
+Each GitHub has it's own triger that activate the action. These differ from each action.
+
+### Build And Test
+The purpose of the BuildAndTest action is, as the name implies, to insure the the project is always buildable and that each test passes.
+The integration with GitHub makes this action highly useful as the action can be ran on a pull request,
+and GitHub will point out any compiler waning as well as not allowing the pull request to be accepted if some of the tests does not pass.
+
+The action is activated whenever a push og pull request is made (the tag ignore does not work. I need to fix this)
+After the action has sucessfuly build the project, then it will download playwright.
+This is because the *ubuntu-latest* machine that the action is ran from doesn't already have playwright installed, and it's necessary to run some of the tests.
+It then runes the tests.
+If there was a problem with any of the steps involved, then the action wil *fail* and a potential pull request will be marked as not suitable for merging.
+The action is illustrated in the UML activity diagram below.
 
 ![](.\images\BuildAndTest.png)]
+
+### Publish
+The purpose of the Publish action is to publish the program and then make a GitHub release using the published program.
+
+It's activated when a push is made with a tag that fits the regex expression `v[0-9]+.[0-9]+.[0-9]+`
+It firsts runes what's equivalent to the *BuildAndTest* action, testing that all tests pass before preceding.
+Once this is done, the action can publish the program. It is published 3 times, once for windows, mac, and linux.
+The published program does not contain the database required to run the program. For this reason the database is also copied to each of the published programs.
+After this is done the program can be ziped and released
+
+The action is illustrated in the UML activity diagram below.
+
 ![](.\images\Publish.png)]
+
+### Deploy
+The purpose of the Deploy action is to deploy the program form GitHub onto Azure, making the program publicly assessable from the website.
+The code for the action is based on the code provided by Azure when creating a new webapp.
+It is activated whenever a push to main happens, insuring that the program live on azure is always up to date with the current state of main.
+
+The action is illustrated in the UML activity diagram below.
+
 ![](.\images\Deploy.png)]
 
 ## Team work (Kris)
