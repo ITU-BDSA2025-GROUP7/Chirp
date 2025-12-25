@@ -54,7 +54,7 @@ The purpose of the BuildAndTest action is, as the name implies, to insure the th
 The integration with GitHub makes this action highly useful as the action can be ran on a pull request,
 and GitHub will point out any compiler waning as well as not allowing the pull request to be accepted if some of the tests does not pass.
 
-The action is activated whenever a push og pull request is made (the tag ignore does not work. I need to fix this)
+The action is activated whenever a push or pull request is made.
 After the action has sucessfuly build the project, then it will download playwright.
 This is because the *ubuntu-latest* machine that the action is ran from doesn't already have playwright installed, and it's necessary to run some of the tests.
 It then runes the tests.
