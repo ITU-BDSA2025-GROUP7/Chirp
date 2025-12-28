@@ -31,6 +31,11 @@ Here comes a description of our domain model.
 ## Architecture of deployed application (Louis)
 
 ## User activities (Hassan)
+The diagram below illustrates what the typical journey of an unauthorized user may look like.
+
+![Unauthorized-activity-diagram](.\images\Unauthorized-diagram-chirp.jpg "A activity diagram for the unauthorized of Chirp!")
+
+
 
 ## Sequence of functionality/calls trough _Chirp!_ (My)
 
