@@ -1,5 +1,5 @@
 ﻿
-name: Publish
+name: Release
 
 on:
   push:
@@ -30,8 +30,13 @@ jobs:
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 9.0.x
+      - name: download-playwright
+        run: pwsh ./tests/PlaywrightTests/bin/Debug/net9.0/playwright.ps1 install
       - name: Test
-        run: dotnet test -e ASPNETCORE_ENVIRONMENT=Test --no-build --verbosity normal
+        run: |
+          export authenticationGitHubClientId="${{ secrets.GITHUBCLIENTID }}"
+          export authenticationGitHubClientSecret="${{ secrets.GITHUBCLIENTSECRET }}"
+          dotnet test -e ASPNETCORE_ENVIRONMENT=Development --no-build --verbosity normal
 
   publish:
     runs-on: ubuntu-latest

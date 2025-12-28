@@ -447,6 +447,9 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
         await Expect(Page.Locator("h2")).ToContainTextAsync("Helge's Timeline");
     }
 
+    /**
+     * There are messages in the messagelist
+     */
     [Test]
     public async Task PostAreShown() {
         await Page.GotoAsync(_serverUrl);
@@ -455,6 +458,9 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
            .ToContainTextAsync("Starbuck now is what we hear the worst.");
     }
 
+    /**
+     * Users timeline shows the users posts
+     */
     [Test]
     public async Task AuthorTimelineNotLoggedIn() {
         await Page.GotoAsync(_serverUrl + "Helge");
@@ -522,7 +528,7 @@ public class PlayWrightTests : PageTest, IClassFixture<EndToEndWebApplicationFac
            .ToBeVisibleAsync();
 
         await Page.GetByRole(AriaRole.Button, new() { Name = "Forget me!" }).ClickAsync();
-        
+
         await Expect(Page.GetByRole(AriaRole.Heading, new() { Name = "Icon1Chirp!" }))
            .ToBeVisibleAsync();
 
