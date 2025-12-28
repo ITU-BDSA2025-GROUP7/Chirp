@@ -31,11 +31,13 @@ Here comes a description of our domain model.
 ## Architecture of deployed application (Louis)
 
 ## User activities (Hassan)
-The diagram below illustrates what the typical journey of an unauthorized user may look like.
+The diagram below illustrates what the typical journey of an unauthorized user may look like. where the initial node is opening the application and the final node is loggin in, on the login page.
 
-![Unauthorized-activity-diagram](.\images\Unauthorized-diagram-chirp.jpg "A activity diagram for the unauthorized of Chirp!")
+![Unauthorized-activity-diagram](.\images\Unauthorized-activity-diagram.png "A activity diagram for the unauthorized users of Chirp!")
 
+The diagram below illustrates what the typical journey of an authorized user may look like. The initial node represents loggin into the account, and the final node is loging out which can also be done by delete the account.
 
+![Authorized-activity-diagram](.\images\Authorized-activity-diagram.png "A activity diagram for the authorized users of Chirp!")
 
 ## Sequence of functionality/calls trough _Chirp!_ (My)
 
