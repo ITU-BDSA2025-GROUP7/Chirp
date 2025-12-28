@@ -20,10 +20,11 @@ Here comes a description of our domain model.
 ## Architecture — In the small (Kris)
 
 ## Architecture of deployed application (Louis)
-The application is deployed to an application server on Microsoft Azure
-[here](https://bdsagroup7chirprazor-buhcfwanakgyaabx.germanywestcentral-01.azurewebsites.net/),
-but it can be run locally as well, in which case your own device would represent the application
-server.
+The application is deployed to an application server owned by the vendor Microsoft Azure
+at https://bdsagroup7chirprazor-buhcfwanakgyaabx.germanywestcentral-01.azurewebsites.net/.
+
+The following deployment diagram shows the most relevant (out of several hundred) artifacts which
+are included as part of the composite `.net-app` artifact that is deployed to the application server.
 
 ![Deployment diagram](images\deployment.png)
 
