@@ -39,15 +39,43 @@ server.
 
 ## How to make _Chirp!_ work locally (Louis)
 
-### Dependencies
+### Setup
+#### Dependencies
 
 The application requires you to have installed [.NET 9.0](https://dotnet.microsoft.com/en-us/download)
 or later.
-You will be prompted to install any other missing dependencies.
+Any other missing dependencies should be automatically installed when building/running the programme.
 
-### Startup
+#### User secrets
+For the programme to work at all, a "user secret" related to GitHub authentication must be set.\
+Two values, a _client ID_ and a _client secret_, need to be obtained directly from
+[GitHub](https://www.github.com) through their interface for [registrering a new OAuth app](
+https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/authenticating-to-the-rest-api-with-an-oauth-app).\
+When prompted, you can set the "Homepage URL" to `http://localhost:5273/`,
+and the "Authorization call-back URL" to `http://localhost:5273/signin-github`.
 
-To build and start the programme on an available port, execute the following command:
+Execute the following console commands (omitting the optional portion in brackets if
+already standing in the `src/Chirp.Web` directory). Replace `<client ID>` and `<client secret>` with
+the respective values.
+```
+dotnet user-secrets set "authenticationGitHubClientId" <client ID> [--project src/Chirp.Web]
+```
+```
+dotnet user-secrets set "authenticationGitHubClientSecret" <client secret> [--project src/Chirp.Web]
+```
+
+If anything goes wrong, the user secret settings can be reset by executing the following commands in order:
+```
+dotnet user-secrets clear [--project src/Chirp.Web]
+```
+
+```
+dotnet user-secrets init [--project src/Chirp.Web]
+```
+
+### Run
+To build and start the programme on an available port, execute the following command in a terminal
+emulator while standing in the project root:
 
 ```
 dotnet run --project src/Chirp.Web
