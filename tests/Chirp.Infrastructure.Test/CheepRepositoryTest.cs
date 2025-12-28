@@ -31,57 +31,6 @@ public class CheepRepositoryTest {
         _context.SaveChanges();
     }
 
-    [Theory]
-    [InlineData("Helge", "ropf@itu.dk")]
-    [InlineData("Adrian", "adho@itu.dk")]
-    public async Task RequiredAuthorsExist(string name, string email) {
-        // Test they exist as Authors in the underlying database.
-        Author? author = (from user in _context.Authors
-                          where user.UserName == name
-                          orderby user.DisplayName
-                          select user).ToList()
-                                      .Single();
-
-        Assert.Equal(name, author.DisplayName);
-        Assert.Equal(email, author.Email);
-        Assert.Equal(name, author.UserName);
-        Assert.Equal(author.Email?.ToUpper(), author.NormalizedEmail);
-        Assert.Equal(author.UserName?.ToUpper(), author.NormalizedUserName);
-        Assert.True(author.EmailConfirmed);
-
-        // Test they exist and are found as AuthorDTOs.
-        List<AuthorDTO> authors = await _authorRepository.GetAuthorByUserName(name);
-        AuthorDTO authorDTO = authors.Single();
-        Assert.Equal(name, authorDTO.DisplayName);
-        Assert.Equal(name, authorDTO.UserName);
-    }
-
-    [Fact]
-    public async Task CheepsDeletedWithAuthor() {
-        var author = new Author { DisplayName = "DisappearingSoon", Email = "test@itu.dk", UserName = "test@itu.dk" };
-        var cheep = new Cheep {
-            CheepId = 90000,
-            Author = author,
-            Text = "This is a cheep",
-            TimeStamp = DateTime.Now
-        };
-        author.Cheeps.Add(cheep);
-
-        Assert.DoesNotContain(author, _context.Authors);
-        Assert.DoesNotContain(cheep, _context.Cheeps);
-
-        _context.Authors.Add(author);
-        await _context.SaveChangesAsync();
-
-        Assert.Contains(author, _context.Authors);
-        Assert.Contains(cheep, _context.Cheeps);
-
-        _context.Authors.Remove(author);
-        await _context.SaveChangesAsync();
-
-        Assert.DoesNotContain(author, _context.Authors);
-        Assert.DoesNotContain(cheep, _context.Cheeps);
-    }
 
     /** Test that there is only cheeps from the selected author when getcheepsfromauthor is called
     and that it doesn't crash if the author doesn't exist
@@ -192,64 +141,10 @@ public class CheepRepositoryTest {
         Assert.Equivalent(cheeps1, cheepsWeird);
     }
 
-    [Fact]
-    public async Task CreateAuthorTest() {
-        string name, email;
-        name = "Barton Cooper";
-        email = "cooper@copper.com";
-        await _authorRepository.CreateAuthor(name, email);
-        var query = (from author in _context.Authors
-                     where author.DisplayName == name
-                     select author);
-        Author actualAuthor = await query.FirstAsync();
-        Assert.Equal(email, actualAuthor.Email);
-    }
 
-    [Fact]
-    public async Task AuthorReusingEmailTest() {
-        string name1, name2, email;
-        name1 = "Barton Cooper";
-        name2 = "Bar2n Cooper";
-        email = "cooper@copper.com";
-        await _authorRepository.CreateAuthor(name1, email);
-        await Assert.ThrowsAsync<DbUpdateException>(() => _authorRepository.CreateAuthor(
-                                                        name2, email));
-    }
-
-    [Fact]
-    public async Task AuthorSameNameTest() {
-        const string name = "Barton Cooper";
-        string username = name.Replace(" ", "");
-        const string email1 = "TheCakeMaster@copper.com";
-        const string email2 = "muffinEnjoyer@copper.com";
-        await _authorRepository.CreateAuthor(name, email1);
-        await Assert.ThrowsAsync<DbUpdateException>(() => _authorRepository.CreateAuthor(
-                                                        name, email2));
-        List<AuthorDTO> bartons = await _authorRepository.GetAuthor(username);
-        Assert.Equal(name, bartons.Single().DisplayName);
-        Assert.Equal(username, bartons.Single().UserName);
-    }
-
-    [Fact]
-    public async Task NoKnownAuthorTest() {
-        List<AuthorDTO> authorsFound =
-            await _authorRepository.GetAuthor("ThisNameorEmailDoesNotExist");
-        Assert.Empty(authorsFound);
-    }
-
-    [Fact]
-    public async Task AuthorBlankName() {
-        string name, email;
-        name = "";
-        email = "cooper@copper.com";
-        await _authorRepository.CreateAuthor(name, email);
-        var query = (from author in _context.Authors
-                     where author.DisplayName == ""
-                     select author);
-        Author actualAuthor = query.Single();
-        Assert.NotNull(actualAuthor);
-    }
-
+    /**
+     * It's possible to retrieve a users cheeps based on the author.cheep
+     */
     [Fact]
     public async Task CheepOwnershipTest() {
         AuthorDTO authorDTO = (await _authorRepository.GetAuthor("WendellBallan")).Single();
@@ -362,6 +257,25 @@ public class CheepRepositoryTest {
                                          where cheep.Text == message
                                          select cheep);
         Assert.Empty(queryBefore);
+    }
+
+    /**
+     * Tests that creating cheeps are safe from SQL attacks
+     */
+    [Fact]
+    public async Task SqlInjection() {
+        // arrange
+        List<AuthorDTO> authors = await _authorRepository.GetAuthor("WendellBallan");
+        Assert.NotEmpty(authors);
+        string dangerusMessage = "Danger!'); drop table Cheeps; --";
+        DateTime date = DateTime.Parse("2023-08-02 13:13:45");
+        Author? user = GetAuthorFromDatabase(authors.Single());
+
+        // act
+        await  _cheepRepository.CreateCheep(user!, dangerusMessage, date);
+
+        // assert
+        Assert.NotEmpty(await _cheepRepository.GetAllCheepsFromUserName(authors.First().UserName!));
     }
 
     /**

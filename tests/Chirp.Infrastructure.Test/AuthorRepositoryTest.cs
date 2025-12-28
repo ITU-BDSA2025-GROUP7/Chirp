@@ -3,14 +3,21 @@ using Chirp.Core.Domain_Model;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Xunit;
+using Xunit.Abstractions;
+using static Chirp.Core.ICheepRepository;
 
 namespace Chirp.Infrastructure.Test;
 
 public class AuthorRepositoryTest {
     private readonly ChirpDBContext _context;
     private SqliteConnection _connection;
+    private ICheepRepository _cheepRepository;
     private IAuthorRepository _authorRepository;
-    public AuthorRepositoryTest() {
+    private readonly ITestOutputHelper _testOutputHelper;
+
+    public AuthorRepositoryTest(ITestOutputHelper testOutputHelper) {
+        _testOutputHelper = testOutputHelper;
+
         _connection = new SqliteConnection("DataSource=:memory:");
         _connection.Open();
         var options = new DbContextOptionsBuilder<ChirpDBContext>()
@@ -19,6 +26,7 @@ public class AuthorRepositoryTest {
         _context = new ChirpDBContext(options);
         _context.Database.EnsureCreated();
 
+        _cheepRepository = new CheepRepository(_context);
         _authorRepository = new AuthorRepository(_context);
 
         DbInitializer.SeedDatabase(_context);
@@ -231,6 +239,319 @@ public class AuthorRepositoryTest {
         Assert.False(AFollowBAfter);
     }
 
+    [Theory]
+    [InlineData("Helge", "ropf@itu.dk")]
+    [InlineData("Adrian", "adho@itu.dk")]
+    public async Task RequiredAuthorsExist(string name, string email) {
+        // Test they exist as Authors in the underlying database.
+        Author? author = (from user in _context.Authors
+                          where user.UserName == name
+                          orderby user.DisplayName
+                          select user).ToList()
+                                      .Single();
+
+        Assert.Equal(name, author.DisplayName);
+        Assert.Equal(email, author.Email);
+        Assert.Equal(name, author.UserName);
+        Assert.Equal(author.Email?.ToUpper(), author.NormalizedEmail);
+        Assert.Equal(author.UserName?.ToUpper(), author.NormalizedUserName);
+        Assert.True(author.EmailConfirmed);
+
+        // Test they exist and are found as AuthorDTOs.
+        List<AuthorDTO> authors = await _authorRepository.GetAuthorByUserName(name);
+        AuthorDTO authorDTO = authors.Single();
+        Assert.Equal(name, authorDTO.DisplayName);
+        Assert.Equal(name, authorDTO.UserName);
+    }
+
+    /**
+     * Tests that deleting an author also deletes their cheeps
+     */
+    [Fact]
+    public async Task CheepsDeletedWithAuthor() {
+        var author = new Author { DisplayName = "DisappearingSoon", Email = "test@itu.dk", UserName = "test@itu.dk" };
+        var cheep = new Cheep {
+            CheepId = 90000,
+            Author = author,
+            Text = "This is a cheep",
+            TimeStamp = DateTime.Now
+        };
+        author.Cheeps.Add(cheep);
+
+        Assert.DoesNotContain(author, _context.Authors);
+        Assert.DoesNotContain(cheep, _context.Cheeps);
+
+        _context.Authors.Add(author);
+        await _context.SaveChangesAsync();
+
+        Assert.Contains(author, _context.Authors);
+        Assert.Contains(cheep, _context.Cheeps);
+
+        _context.Authors.Remove(author);
+        await _context.SaveChangesAsync();
+
+        Assert.DoesNotContain(author, _context.Authors);
+        Assert.DoesNotContain(cheep, _context.Cheeps);
+    }
+
+    /**
+    * Tests creating an author
+    */
+    [Fact]
+    public async Task CreateAuthorTest() {
+        string name, email;
+        name = "Barton Cooper";
+        email = "cooper@copper.com";
+        await _authorRepository.CreateAuthor(name, email);
+        var query = (from author in _context.Authors
+                     where author.DisplayName == name
+                     select author);
+        Author actualAuthor = await query.FirstAsync();
+        Assert.Equal(email, actualAuthor.Email);
+    }
+
+    /**
+     * Cannot create 2 authors with same email
+     */
+    [Fact]
+    public async Task AuthorReusingEmailTest() {
+        string name1, name2, email;
+        name1 = "Barton Cooper";
+        name2 = "Bar2n Cooper";
+        email = "cooper@copper.com";
+        await _authorRepository.CreateAuthor(name1, email);
+        await Assert.ThrowsAsync<DbUpdateException>(() => _authorRepository.CreateAuthor(
+                                                        name2, email));
+    }
+
+    /**
+     * Cannot have multiple users with same username
+     */
+    [Fact]
+    public async Task AuthorSameNameTest() {
+        const string name = "Barton Cooper";
+        string username = name.Replace(" ", "");
+        const string email1 = "TheCakeMaster@copper.com";
+        const string email2 = "muffinEnjoyer@copper.com";
+        await _authorRepository.CreateAuthor(name, email1);
+        await Assert.ThrowsAsync<DbUpdateException>(() => _authorRepository.CreateAuthor(
+                                                        name, email2));
+        List<AuthorDTO> bartons = await _authorRepository.GetAuthor(username);
+        Assert.Equal(name, bartons.Single().DisplayName);
+        Assert.Equal(username, bartons.Single().UserName);
+    }
+
+    /**
+     * Tests that retriving a author that does not exist, gives an empty list
+     */
+    [Fact]
+    public async Task NoKnownAuthorTest() {
+        List<AuthorDTO> authorsFound =
+            await _authorRepository.GetAuthor("ThisNameorEmailDoesNotExist");
+        Assert.Empty(authorsFound);
+    }
+
+    /**
+    * the name "" is valid
+    */
+    [Fact]
+    public async Task AuthorBlankName() {
+        string name, email;
+        name = "";
+        email = "cooper@copper.com";
+        await _authorRepository.CreateAuthor(name, email);
+        var query = (from author in _context.Authors
+                     where author.DisplayName == ""
+                     select author);
+        Author actualAuthor = query.Single();
+        Assert.NotNull(actualAuthor);
+    }
+
+    /** Asserts that the GetOwnAndFollowedCheeps returns an empty list if an Author
+     * has no cheeps of their own nor any people they follow. */
+    [Fact]
+    public async Task PrivateTimelineNoOwnCheepsNoFollowedCheeps() {
+        await _authorRepository.CreateAuthor("Ms Mute and Deaf", "mad@test.dk");
+        List<AuthorDTO> users = await _authorRepository.GetAuthor("mad@test.dk");
+        AuthorDTO user = users.Single();
+
+        List<AuthorDTO> followed = await _authorRepository.Following(user.UserName);
+        Assert.Single(followed);
+
+        List<CheepDTO> cheeps = await _cheepRepository.GetCheepsFromFollowed(user.UserName);
+        Assert.Empty(cheeps);
+    }
+
+    /** Asserts that if GetOwnAndFollowedCheeps returns a list containing exactly the author's
+     * own cheeps if they do not follow any authors.
+     */
+    [Fact]
+    public async Task PrivateTimelineNoFollowedCheeps() {
+        await _authorRepository.CreateAuthor("Ms Mute and Deaf", "mad@test.dk");
+        List<AuthorDTO> users = await _authorRepository.GetAuthor("mad@test.dk");
+        AuthorDTO user = users.Single();
+
+        List<AuthorDTO> followed = await _authorRepository.Following(user.UserName);
+        Assert.Single(followed);
+        Author? a = GetAuthorFromDatabase(user);
+        await _cheepRepository.CreateCheep(a!, "Test message", DateTime.Now);
+
+        List<CheepDTO> cheeps = await _cheepRepository.GetCheepsFromFollowed(user.UserName);
+        Assert.Single(cheeps);
+    }
+
+    /**
+     * New users follow themselves
+     */
+    [Fact]
+    public async Task NewAuthorFollowsOnlySelf() {
+        await _authorRepository.CreateAuthor("Ms Deaf", "mad@test.dk");
+        List<AuthorDTO> users = await _authorRepository.GetAuthor("mad@test.dk");
+        AuthorDTO user = users.Single();
+        Assert.Equal(user, (await _authorRepository.Following(user.UserName)).Single());
+    }
+
+    /** Asserts that, if an author has no cheeps but follows one author,
+      * the result of GetOwnAndFollowedCheeps is equal to a list of that followed author's
+      * cheeps.
+      */
+    [Fact]
+    public async Task PrivateTimelineNoOwnCheepsOneFollowedAuthor() {
+        // Create a new user account, and ensure it now exists.
+        await _authorRepository.CreateAuthor("Ms Mute", "mad@test.dk");
+        AuthorDTO user = (await _authorRepository.GetAuthor("mad@test.dk")).Single();
+        Assert.Empty(await _cheepRepository.GetCheepsFromUserName(user.UserName!, 1));
+
+        // Select a different user account to follow, making sure it has cheeps.
+        AuthorDTO toFollow =
+            (await _authorRepository.GetAuthor("Jacqualine.Gilcoine@gmail.com")).Single();
+        List<CheepDTO> cheepsFromFollowed =
+            await _cheepRepository.GetCheepsFromUserName(toFollow.UserName!, 1);
+        Assert.NotEmpty(cheepsFromFollowed);
+
+        // Follow the secondary user account, and ensure this has occurred successfully.
+        await _authorRepository.Follow(user, toFollow);
+        List<AuthorDTO> following = await _authorRepository.Following(user.UserName);
+        Assert.Equal(user, following.First());
+        Assert.Equal(toFollow, following[1]);
+
+        // Assert that the list of cheeps is exactly equal to the list of cheeps from the one
+        // follower.
+        List<CheepDTO> timelineCheeps = await _cheepRepository.GetCheepsFromFollowed(user.UserName, 1);
+        Assert.Equal(cheepsFromFollowed, timelineCheeps);
+    }
+
+    /** Asserts that, if an author has no cheeps but follows several authors,
+     * the result of GetOwnAndFollowedCheeps is equal to a sorted list of those followed authors'
+     * cheeps.
+     */
+    [Fact]
+    public async Task PrivateTimelineNoOwnCheepsMultipleFollowedAuthors() {
+        // Create a new user account, and ensure it now exists.
+        await _authorRepository.CreateAuthor("Ms Mute", "mad@test.dk");
+        AuthorDTO user = (await _authorRepository.GetAuthor("mad@test.dk")).Single();
+
+        // Follow these three authors in the seeded database
+        List<string> emails = [
+            "Jacqualine.Gilcoine@gmail.com",
+            "Roger+Histand@hotmail.com",
+            "Luanna-Muro@ku.dk",
+        ];
+        List<CheepDTO> cheepsFromFollowed = [];
+        foreach (string email in emails) {
+            AuthorDTO author = (await _authorRepository.GetAuthor(email)).Single();
+            await _authorRepository.Follow(user, author);
+            cheepsFromFollowed.AddRange(
+                await _cheepRepository.GetAllCheepsFromUserName(author.UserName));
+        }
+
+        // Sort the combined list of cheeps from followers so that they are mixed together and
+        // ordered by timestamp (CheepDTO implements IComparable<CheepDTO>).
+        cheepsFromFollowed.Sort();
+
+        // Assert that the list of cheeps is exactly equal to the list of cheeps from the followers.
+        // Does so by comparing 32-cheep subsections of the former to pages retrieved of the latter.
+        // Make sure there's a point to the loop.
+        Assert.True(cheepsFromFollowed.Count > CHEEPS_PER_PAGE);
+        _testOutputHelper.WriteLine(cheepsFromFollowed.Count.ToString());
+        int timelineCheepCount = 0;
+
+        int totalPages = cheepsFromFollowed.Count / CHEEPS_PER_PAGE;
+        if (cheepsFromFollowed.Count % CHEEPS_PER_PAGE != 0) {
+            totalPages++;
+        }
+
+        for (int i = 0; i < totalPages; i++) {
+            List<CheepDTO> cheeps = await _cheepRepository.GetCheepsFromFollowed(user.UserName, i + 1);
+            timelineCheepCount += cheeps.Count;
+            int lowerBound = i * CHEEPS_PER_PAGE;
+            int upperBound = lowerBound + cheeps.Count;
+            Assert.Equal(cheepsFromFollowed[lowerBound..upperBound], cheeps);
+        }
+
+        // Mostly to feel a little more confident that above loop works correctly.
+        Assert.Equal(cheepsFromFollowed.Count, timelineCheepCount);
+    }
+
+    /**
+     * Tests that a new author has no cheeps created by them
+     */
+    [Fact]
+    public async Task NewAuthorHasNoCheeps() {
+        await _authorRepository.CreateAuthor("Ms Mute", "mad@test.dk");
+        List<AuthorDTO> users = await _authorRepository.GetAuthor("mad@test.dk");
+        AuthorDTO user = users.Single();
+        Assert.Empty(await _cheepRepository.GetCheepsFromUserName(user.UserName, 1));
+    }
+
+    /**
+     * Author has valid Username even if they only specified
+     */
+    [Fact]
+    public async Task NewAuthorHasNonNullUserName() {
+        await _authorRepository.CreateAuthor("Ms HasAName", "mad@test.dk");
+        List<AuthorDTO> users = await _authorRepository.GetAuthor("mad@test.dk");
+        AuthorDTO user = users.Single();
+        Assert.NotNull(user.UserName);
+        Assert.NotEmpty(user.UserName); // Assert that it is not blank
+    }
+
+    /**
+     * Tests that an author can follow multiple authors
+     */
+    [Fact]
+    public async Task FollowMultiplePeople() {
+        // Create a new user account, and ensure it now exists.
+        await _authorRepository.CreateAuthor("Ms Mute", "mad@test.dk");
+        List<AuthorDTO> users = await _authorRepository.GetAuthor("mad@test.dk");
+        AuthorDTO user = users.Single();
+
+        List<string> authors = [
+            "Jacqualine.Gilcoine@gmail.com",
+            "Roger+Histand@hotmail.com",
+            "Luanna-Muro@ku.dk",
+        ];
+        List<AuthorDTO> authorsToFollow = [];
+        // Add several authors, making sure they each have cheeps.
+        foreach (string email in authors) {
+            List<AuthorDTO> toBeFollowed = await _authorRepository.GetAuthor(email);
+            authorsToFollow.Add(toBeFollowed.Single());
+
+            string username = authorsToFollow.Last().UserName;
+            List<CheepDTO> cheepsFromFollowed = await _cheepRepository.GetCheepsFromUserName(username, 1);
+            Assert.NotEmpty(cheepsFromFollowed);
+
+            await _authorRepository.Follow(user, authorsToFollow.Last());
+        }
+
+        List<AuthorDTO> following = await _authorRepository.Following(user.UserName);
+        Assert.Equal(authors.Count + 1, following.Count);
+        foreach (AuthorDTO author in authorsToFollow) {
+            Assert.Contains(author, following);
+        }
+    }
+
+
     /**
      * Tests if email validation can correctly determen weather a given string is a valid email
      */
@@ -253,5 +574,43 @@ public class AuthorRepositoryTest {
         Assert.Equal(shouldBeValid, result);
     }
 
+    /** Tests that we can create an AuthorDTO based on an Author and have the correct */
+    [Fact]
+    private void CreateAuthorDTOFromAuthor() {
+        var a = Author.Create("Display name", "em@ail.com");
+        var derived = new AuthorDTO(a);
+        Assert.Equal(a.DisplayName, derived.DisplayName);
+        Assert.Equal(a.UserName, derived.UserName);
+    }
+    /** Tests that AuthorDTOs are compared by value rather than reference,
+     * since AuthorDTOs are structs derived from Author.
+     */
+    [Fact]
+    private void AuthorDTOEqualityByValue() {
+        var a = new AuthorDTO("Display name", "User name");
+        var b = new AuthorDTO("Display name", "User name");
+        Assert.Equal(a, b);
+        Assert.Equal(a.GetHashCode(), b.GetHashCode());
+    }
 
+    /** Test that AuthorDTO's default comparison is by display name, not
+     * username, */
+    [Fact]
+    private void AuthorDTOOrderedByDisplayName() {
+        var first = new AuthorDTO("A", "B");
+        var second = new AuthorDTO("B", "A");
+        var sameAsFirst = new AuthorDTO("A", "C");
+        Assert.Equal(-1, first.CompareTo(second));
+        Assert.Equal(1, second.CompareTo(first));
+        Assert.Equal(0, first.CompareTo(sameAsFirst));
+    }
+
+    /** Get an Author from the database. AuthorRepository returns an
+     * AuthorDTO, so we do it manually like this for the tests instead. */
+    private Author? GetAuthorFromDatabase(AuthorDTO authorDTO) {
+        return (from author in _context.Authors
+                where author.UserName == authorDTO.UserName
+                orderby author.DisplayName
+                select author).Single();
+    }
 }
