@@ -34,7 +34,7 @@ public class UserTimelineModel : CheepTimelineModel {
 
             if (_signInManager.IsSignedIn(User) &&
                 authorSource == await _userManager.GetUserAsync(User)) {
-                await _authorService.Follow(Author.UserName, Author.UserName);
+                await _authorService.Follow(Author, Author);
                 TotalPageCount =
                     PageCount(await _cheepService.CheepCountFromFollowed(Author.UserName));
                 PageNr = ParsePageNr(Request);
