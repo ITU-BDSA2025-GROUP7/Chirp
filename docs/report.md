@@ -28,7 +28,7 @@ Here comes a description of our domain model.
 The Chirp application contains a bunch of different calls, between various parts of the application.
 The diagram below shows the calls made when an unauthorized user visits the page.
 
-![img](docs/images/rootSequenceDiagram.jpg)
+![img](docs/images/rootSequenceDiagram.png)
 *Diagram ??. Sequence diagram of the calls made when the unauthorized user goes to the root.*
 
 Starting when an unauthorized user goes to the root endpoint of the application. In this case the public timeline.
