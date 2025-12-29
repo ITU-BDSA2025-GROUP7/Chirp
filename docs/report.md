@@ -10,14 +10,14 @@ author:
 numbersections: true
 ---
 # Introduction (Hassan)
-This report documents the process and the product of group 7's work from the course Analysis, Design and Software Architecture in 2025 at the IT University of copenhagen. The final product can be found at the [Github repository](https://github.com/ITU-BDSA2025-GROUP7/Chirp). An azure hosted [Website](bdsagroup7chirprazor-buhcfwanakgyaabx.germanywestcentral-01.azurewebsites.net) with the final product will also be available temporarily. Group 7 consists of 5 people who have all contributed to the final product and it's documentation:
+This report documents the process and the product of group 7's work from the course Analysis, Design and Software Architecture in 2025 at the IT University of copenhagen. The final product can be found at the [Github repository](https://github.com/ITU-BDSA2025-GROUP7/Chirp). An azure hosted [Website](https://bdsagroup7chirprazor-buhcfwanakgyaabx.germanywestcentral-01.azurewebsites.net/) with the final product will also be available temporarily. Group 7 consists of 5 people who have all contributed to the final product and it's documentation:
 - Nikki Skarsholm Risager <nris@itu.dk>
 - Louis Falk Knudsen <lofk@itu.dk>
 - Hassan Hamoud Al Wakiel <halw@itu.dk>
 - Kristoffer Mejborn Eliasson <krme@itu.dk>
 - Mette My Gabelgaard <mmga@itu.dk>
 
-With Eduard Kamburjan as the course manager and Sven Matthias Peldszus as a teacher. The following sections documents the final product, the decisions that were made.
+With Eduard Kamburjan as the course manager and Sven Matthias Peldszus as a teacher. The following sections documents the final product, and the decisions that were made.
 
 
 # Design and Architecture of _Chirp!_
@@ -54,13 +54,13 @@ are included as part of the composite `.net-app` artifact that is deployed to th
 ![Deployment diagram](images\deployment.png)
 
 ## User activities (Hassan)
-The diagram below illustrates what the typical journey of an unauthorized user may look like. where the initial node is opening the application and the final node is loggin in, on the login page.
+The diagram below illustrates what the typical journey of an unauthorized user may look like, where the goal of the user is logging into the application. where the initial node is opening the application and the final node is loggin in, on the login page.
 
-![Unauthorized-activity-diagram](.\images\Unauthorized-activity-diagram.png "A activity diagram for the unauthorized users of Chirp!")
+![Unauthorized-activity-diagram](.\images\unauthorized-activity-diagram.png "A activity diagram for the unauthorized users of Chirp!")
 
 The diagram below illustrates what the typical journey of an authorized user may look like. The initial node represents loggin into the account, and the final node is loging out which can also be done by delete the account.
 
-![Authorized-activity-diagram](.\images\Authorized-activity-diagram.png "A activity diagram for the authorized users of Chirp!")
+![Authorized-activity-diagram](.\images\authorized-activity-diagram.png "A activity diagram for the authorized users of Chirp!")
 
 ## Sequence of functionality/calls trough _Chirp!_ (My)
 
