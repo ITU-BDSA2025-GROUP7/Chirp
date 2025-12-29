@@ -122,9 +122,7 @@ public abstract class CheepTimelineModel : PageModel {
     }
 
     public async Task<IActionResult> OnPostFollowAsync(string? authorA, string? authorB) {
-        AuthorDTO follower =  new AuthorDTO("", authorA);
-        AuthorDTO followed = new AuthorDTO("", authorB);
-        await _authorService.Follow(follower, followed);
+        await _authorService.Follow(authorA!, authorB!);
         return RedirectToPage();
     }
 

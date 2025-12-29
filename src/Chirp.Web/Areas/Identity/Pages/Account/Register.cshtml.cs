@@ -9,7 +9,6 @@ using System.Text.Encodings.Web;
 using Chirp.Core;
 using Microsoft.AspNetCore.Authentication;
 using Chirp.Core.Domain_Model;
-using Chirp.Infrastructure;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -25,7 +24,7 @@ namespace Chirp.Web.Areas.Identity.Pages.Account {
         private readonly ILogger<RegisterModel> _logger;
         private readonly IEmailSender _emailSender;
         private readonly ICheepRepository _cheepRepository;
-        private readonly IAuthorService _authorService;
+        private readonly IAuthorRepository _authorRepository;
 
         public RegisterModel(
             UserManager<Author> userManager,
@@ -34,7 +33,7 @@ namespace Chirp.Web.Areas.Identity.Pages.Account {
             ILogger<RegisterModel> logger,
             IEmailSender emailSender,
             ICheepRepository cheepRepository,
-            IAuthorService authorService) {
+            IAuthorRepository authorRepository) {
             _userManager = userManager;
             _userStore = userStore;
             _emailStore = GetEmailStore();
@@ -42,7 +41,7 @@ namespace Chirp.Web.Areas.Identity.Pages.Account {
             _logger = logger;
             _emailSender = emailSender;
             _cheepRepository = cheepRepository;
-            _authorService = authorService;
+            _authorRepository = authorRepository;
         }
 
         /// <summary>
@@ -150,7 +149,7 @@ namespace Chirp.Web.Areas.Identity.Pages.Account {
                 _logger.LogInformation("User created a new account with password.");
 
                 var userDTO = new AuthorDTO(user);
-                await _authorService.Follow(userDTO, userDTO);
+                await _authorRepository.Follow(userDTO, userDTO);
                 string userId = await _userManager.GetUserIdAsync(user);
                 string code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                 code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));

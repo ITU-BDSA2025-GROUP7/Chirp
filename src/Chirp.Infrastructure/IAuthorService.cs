@@ -8,7 +8,7 @@ public interface IAuthorService {
 
     public Task<bool> IsFollowing(string authorA, string authorB);
 
-    public Task Follow(AuthorDTO follower, AuthorDTO followed);
+    public Task Follow(string authorA, string authorB);
 
     public Task Unfollow(string follower, string followed);
 
