@@ -60,7 +60,7 @@ The diagram below illustrates what the typical journey of an unauthorized user m
 
 The diagram below illustrates what the typical journey of an authorized user may look like. The initial node represents logging into the account, and the final node is logging out which can also be done by delete the account.
 
-![Authorized-activity-diagram](./images/authorized-activity-diagram.png "A activity diagram for the authorized users of Chirp!")
+![Authorized-activity-diagram](./images/Authorized-activity-diagram.png "A activity diagram for the authorized users of Chirp!")
 
 ## Sequence of functionality/calls trough _Chirp!_ (My)
 
