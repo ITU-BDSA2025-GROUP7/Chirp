@@ -51,16 +51,16 @@ at https://bdsagroup7chirprazor-buhcfwanakgyaabx.germanywestcentral-01.azurewebs
 The following deployment diagram shows the most relevant (out of several hundred) artifacts which
 are included as part of the composite `.net-app` artifact that is deployed to the application server.
 
-![Deployment diagram](images\deployment.png)
+![Deployment diagram](./images/deployment.png)
 
 ## User activities (Hassan)
 The diagram below illustrates what the typical journey of an unauthorized user may look like, where the goal of the user is logging into the application. where the initial node is opening the application and the final node is logging in, on the login page.
 
-![Unauthorized-activity-diagram](.\images\unauthorized-activity-diagram.png "A activity diagram for the unauthorized users of Chirp!")
+![Unauthorized-activity-diagram](./images/unauthorized-activity-diagram.png "A activity diagram for the unauthorized users of Chirp!")
 
 The diagram below illustrates what the typical journey of an authorized user may look like. The initial node represents logging into the account, and the final node is logging out which can also be done by delete the account.
 
-![Authorized-activity-diagram](.\images\authorized-activity-diagram.png "A activity diagram for the authorized users of Chirp!")
+![Authorized-activity-diagram](./images/authorized-activity-diagram.png "A activity diagram for the authorized users of Chirp!")
 
 ## Sequence of functionality/calls trough _Chirp!_ (My)
 
@@ -104,7 +104,7 @@ If there was a problem with any of the steps involved, then the action will fail
 
 The action is illustrated in the UML activity diagram below.
 
-![](.\images\BuildAndTest.png)
+![](./images/BuildAndTest.png)
 
 ### Release
 The purpose of the *Release* action is to automate the process of making an GitHub release.
@@ -117,7 +117,7 @@ After this is done, alle 3 programs can be zipped and released
 
 The action is illustrated in the UML activity diagram below.
 
-![](.\images\Release.png)
+![](./images/Release.png)
 
 ### Deploy
 The purpose of the *Deploy* action is to deploy the program form GitHub onto Azure, making the program publicly assessable from the website.
@@ -127,7 +127,7 @@ It's activated whenever something is a pushed to main, insuring that the program
 
 The action is illustrated in the UML activity diagram below.
 
-![](.\images\Deploy.png)]
+![](./images/Deploy.png)
 
 ## Team work (Kris)
 
