@@ -67,7 +67,7 @@ The diagram below illustrates what the typical journey of an authorized user may
 The Chirp application contains a bunch of different calls, between various parts of the application.
 The diagram below shows the calls made when an unauthorized user visits the page.
 
-![img](docs/images/rootSequenceDiagram.png)
+![img](./images/rootSequenceDiagram.png)
 *Diagram ??. Sequence diagram of the calls made when the unauthorized user goes to the root.*
 
 Starting when an unauthorized user goes to the root endpoint of the application. In this case the public timeline.
@@ -117,7 +117,7 @@ After this is done, alle 3 programs can be zipped and released
 
 The action is illustrated in the UML activity diagram below.
 
-![](.\images\Release.png)]
+![](.\images\Release.png)
 
 ### Deploy
 The purpose of the *Deploy* action is to deploy the program form GitHub onto Azure, making the program publicly assessable from the website.
