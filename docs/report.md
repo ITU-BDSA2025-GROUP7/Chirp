@@ -67,7 +67,7 @@ The diagram below illustrates what the typical journey of an authorized user may
 The Chirp application contains a bunch of different calls, between various parts of the application.
 The diagram below shows the calls made when an unauthorized user visits the page.
 
-![img](docs/images/rootSequenceDiagram.png)
+![img](./images/rootSequenceDiagram.png)
 *Diagram ??. Sequence diagram of the calls made when the unauthorized user goes to the root.*
 
 Starting when an unauthorized user goes to the root endpoint of the application. In this case the public timeline.
@@ -117,7 +117,7 @@ After this is done, alle 3 programs can be zipped and released
 
 The action is illustrated in the UML activity diagram below.
 
-![](.\images\Release.png)]
+![](.\images\Release.png)
 
 ### Deploy
 The purpose of the *Deploy* action is to deploy the program form GitHub onto Azure, making the program publicly assessable from the website.
@@ -186,9 +186,15 @@ order to interact with the web application. Depending on your terminal emulator,
 click the link to do so directly.
 
 ## How to run test suite locally
-To run the test suite, the program does *not* need to be running locally in the background. Then running the test suite can be done in two ways, depending on if make is installed on you local computer.
-If it is installed, running the command `make test` from the root directory will start the test suite.
-Alternatively if make is not installed, the command `dotnet test` from the root directory will start the test suite.
+To run the test suite, the program does *not* need to be running locally in the background. Then running the test suite can be done in two ways, depending on if Make is installed on you local computer.
+If it is installed, running this command from the root directory will start the test suite:
+```
+make test
+```
+Alternatively if Make is not installed, running the following command from the root directory will start the test suite:
+```
+dotnet test
+```
 
 The test suite comprises of (Insert number) tests. There are 3 types of tests in the suite:
 1. Unit tests: Tests a singular function, class, or field.
