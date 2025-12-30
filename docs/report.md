@@ -10,7 +10,7 @@ author:
 numbersections: true
 ---
 # Introduction (Hassan)
-This report documents the process and the product of group 7's work from the course Analysis, Design and Software Architecture in 2025 at the IT University of copenhagen. The final product can be found at the [Github repository](https://github.com/ITU-BDSA2025-GROUP7/Chirp). An azure hosted [Website](https://bdsagroup7chirprazor-buhcfwanakgyaabx.germanywestcentral-01.azurewebsites.net/) with the final product will also be available temporarily. Group 7 consists of 5 people who have all contributed to the final product and it's documentation:
+This report documents the process and the product of group 7's work from the course Analysis, Design and Software Architecture in 2025 at the IT University of copenhagen. The final product named *Chirp!* can be found at the [GitHub repository](https://github.com/ITU-BDSA2025-GROUP7/Chirp). An azure hosted [Website](https://bdsagroup7chirprazor-buhcfwanakgyaabx.germanywestcentral-01.azurewebsites.net/) with the final product will also be available temporarily. Group 7 consists of 5 people who have all contributed to the final product and it's documentation:
 - Nikki Skarsholm Risager <nris@itu.dk>
 - Louis Falk Knudsen <lofk@itu.dk>
 - Hassan Hamoud Al Wakiel <halw@itu.dk>
@@ -25,9 +25,9 @@ With Eduard Kamburjan as the course manager and Sven Matthias Peldszus as a teac
 ## Domain model
 
 The database for the project is an SQLite database that's using Entity Framework Core as an object-relational mapper,
-allowing the creation of a domain model containing classes that can be used as table withing the database while also allowing the use of these classes in the code.
+allowing the creation of a domain model containing classes that can be used as tables within the database while also allowing the use of these classes in the code.
 
-The domain model of Chip consists of a couple of different classes. The two main classes are `Author` and `Cheep`.
+The domain model of Chirp! consists of a couple of different classes. The two main classes are `Author` and `Cheep`.
 
 `Author` represents a user in the program. It contains all relevant information about the user such as *UserName*, *DisplayName*, *Email*, *PasswordHash*, and a list of all cheeps that the author wrote.
 Much of the functionality is inherited from `IdentityUser` as part of ASP.NET Identity.
@@ -54,10 +54,13 @@ are included as part of the composite `.net-app` artifact that is deployed to th
 ![Deployment diagram](./images/deployment.png)
 
 ## User activities (Hassan)
-The diagram below illustrates what the typical journey of an unauthorized user may look like, where the goal of the user is logging into the application. where the initial node is opening the application and the final node is logging in, on the login page.
+In Chirp!, users can do many actions such as logging in, writing cheeps, following other users and much more.
+
+The diagram below illustrates what the typical journey of an unauthorized user may look like, where the goal of the user is logging into the application. The initial node represents opening the application and the final node is logging in using the login page.
 
 ![Unauthorized-activity-diagram](./images/unauthorized-activity-diagram.png "A activity diagram for the unauthorized users of Chirp!")
 
+Authorized users can do a lot more activities than unauthorized.
 The diagram below illustrates what the typical journey of an authorized user may look like. The initial node represents logging into the account, and the final node is logging out which can also be done by delete the account.
 
 ![Authorized-activity-diagram](./images/Authorized-activity-diagram.png "A activity diagram for the authorized users of Chirp!")
@@ -72,24 +75,23 @@ The diagram below shows the calls made when an unauthorized user visits the page
 
 Starting when an unauthorized user goes to the root endpoint of the application. In this case the public timeline.
 
-The fact that the user goes to the public timeline, sends a GET request to the public timeline which is handled on the ``PublicModel``.
+Whenever a user attempts to retrieve the public timeline page, they send a GET request to the public timeline which is handled on the ``PublicModel``.
 The method ``GetCheeps()``is called on the ``CheepService``,
-which calls the one in the ``CheepRepository``, this one fetches the cheeps from the database.
-In the diagram that is denoted by SELECT cheeps, which is not the complete select statement, since
-we take pagination into account for fetching cheeps, but on the diagram we care about the intent not the complete statement.
+which calls the method of the same name on ``CheepRepository``. The repository fetches the cheeps from the database.
+In the diagram that is denoted by SELECT cheeps, which is not the full SQL statement. The full statement takes  pagination and ordering into account for fetching cheeps.
+On the diagram, the full statement was left out for simplicity.
 
 
-The ``GetCheeps`` methods are all asynchronous and therefore they return ``Task<List<CheepDTO>`` instead of just a list of cheep data transfer objects.
-That the UI can render.
-It all ends with the http message 200, meaning ok, this is the standard response when a request is successful.
+The ``GetCheeps`` methods are all asynchronous and therefore return ``Task<List<CheepDTO>``. These can be converted into ``List<CheepDTO>`` using the ``await`` keyword. The list can then be used to render the UI.
+In the end, the client resives an http response message with the code 200, meaning ok along with the html page.
 
 # Process
 
 ## Build, test, release, and deployment
 
-The processes of Building, testing, releasing and deploying are relatively simple and always follow the same pattern making them simple to automate.
+The processes of building, testing, releasing and deploying are relatively simple and always follow the same pattern making them simple to automate.
 For this reason, there has been added a total of 3 GitHub actions to automate these processes. The actions are as follows: *BuildAndTest*, *Release*, and *Deploy*.
-Each GitHub action has its own trigger that activates the action. These differ from each action.
+Each GitHub action has a trigger that activates the action. These differ from each action.
 
 ### Build And Test
 The purpose of the *BuildAndTest* action is, as the name implies, to ensure that the project is always buildable and that each test passes.
@@ -186,7 +188,7 @@ order to interact with the web application. Depending on your terminal emulator,
 click the link to do so directly.
 
 ## How to run test suite locally
-To run the test suite, the program does *not* need to be running locally in the background. Then running the test suite can be done in two ways, depending on if Make is installed on your local computer.
+To run the test suite, the program does *not* need to be running locally in the background. Running the test suite can be done in two ways, depending on if Make is installed on your local computer.
 If it is installed, running this command from the root directory will start the test suite:
 ```
 make test
@@ -196,16 +198,16 @@ Alternatively if Make is not installed, running the following command from the r
 dotnet test
 ```
 
-The test suite comprises of (Insert number) tests. There are 3 types of tests in the suite:
+The test suite consists of 111 tests. There are 3 types of tests in the suite:
 1. Unit tests: Tests a singular function, class, or field.
 2. Integration tests: Tests the interplay between classes and functions.
-3. End to end tests: Tests the product as interacted with by the user. This is done though playwright
+3. End-to-end tests: Tests the product as interacted with by the user. This is done though playwright
 
-Here is a breath list of what is being tested
+Here is a brief list of what is being tested
 
 ##### Author Repository
 1. Creating authors
-2. Following behaves as expected
+2. Following authors
 3. Retrieving Authors
 4. Deleting Authors
 5. AuthorDTO works as expected
@@ -217,21 +219,21 @@ Here is a breath list of what is being tested
 3. Cheep timestamps are correct
 4. Creating cheeps
 5. Cheep content
-6. SQL-injection safe
+6. Safe from SQL-injection
 7. Retrieving cheeps from user that follows another, also retrieves the followed user
 
 ##### Playwright tests
 1. User can log in
 2. User can register
-3. Navigation bara changes
-4. Users can Log out
-5. Users can Follow & unfollow
+3. Navigation bar changes
+4. Users can log out
+5. Users can follow & unfollow
 6. About me has following page
 7. My page shows displayName
 8. Cheeps are shown
 9. Deleting users
-10. Users can Sending cheeps
-11. Sending cheeps ae safe from XSS attacks
+10. Users can send cheeps
+11. Sending cheeps are safe from XSS attacks
 12. Users can Delete cheeps
 13. About me page exists
 14. Page arrows work
