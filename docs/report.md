@@ -25,9 +25,9 @@ With Eduard Kamburjan as the course manager and Sven Matthias Peldszus as a teac
 ## Domain model
 
 The database for the project is an SQLite database that's using Entity Framework Core as an object-relational mapper,
-allowing the creation of a domain model containing classes that can be used as tables withing the database while also allowing the use of these classes in code.
+allowing the creation of a domain model containing classes that can be used as tables within the database while also allowing the use of these classes in the code.
 
-The domain model of Chip! consists of a couple of different classes. The two main classes are `Author` and `Cheep`.
+The domain model of Chirp! consists of a couple of different classes. The two main classes are `Author` and `Cheep`.
 
 `Author` represents a user in the program. It contains all relevant information about the user such as *UserName*, *DisplayName*, *Email*, *PasswordHash*, and a list of all cheeps that the author wrote.
 Much of the functionality is inherited from `IdentityUser` as part of ASP.NET Identity.
@@ -78,7 +78,7 @@ Starting when an unauthorized user goes to the root endpoint of the application.
 Whenever a user attempts to retrieve the public timeline page, they send a GET request to the public timeline which is handled on the ``PublicModel``.
 The method ``GetCheeps()``is called on the ``CheepService``,
 which calls the method of the same name on ``CheepRepository``. The repository fetches the cheeps from the database.
-In the diagram that is denoted by SELECT cheeps, which is not the full SQL statement. The full statement take pagination and ordering into account for fetching cheeps.
+In the diagram that is denoted by SELECT cheeps, which is not the full SQL statement. The full statement takes  pagination and ordering into account for fetching cheeps.
 On the diagram, the full statement was left out for simplicity.
 
 
