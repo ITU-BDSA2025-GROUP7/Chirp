@@ -226,7 +226,7 @@ Here is a brief list of what is being tested
 1. User can log in
 2. User can register
 3. Navigation bar changes
-4. Users can Llg out
+4. Users can log out
 5. Users can follow & unfollow
 6. About me has following page
 7. My page shows displayName
