@@ -33,13 +33,13 @@ The domain model of Chip consists of a couple of different classes. The two main
 Much of the functionality is inherited from `IdentityUser` as part of ASP.NET Identity.
 This allows the use of functionality from ASP.NET identity such as support for registration, login page, as well as offloading some of the security concerns to Dotnet.
 An author can also follow another author. This is done using the `FollowRelation` class. It contains the *Follower*, the *Followed* and a unique id representing the FollowRelation, allowing for a many-to-many relation between authors.
-The reason for creating a separate class was to maximise the normal form of the database.
+The reason for creating a separate class was to maximize the normal form of the database.
 The course *Introduction to database systems* taught that it was best to achieve this by spitting the functionality of authors following each other into a separate table.
-In hindsight, it would have been just as valid to add a field `public List<Author> Follows` to `Author` as EF Core separates the list into a separate table behind the screens.
+In hindsight, it would have been just as valid to add a field `public List<Author> Follows` to `Author` as EF Core separates the list into a separate table behind the scenes.
 
 `Cheep` represents a message from a user. It contains relevant information such as the author who wrote it, what time it was written, the text message itself and a unique Id.
 
-Bellow is shown a UML diagram depicting the structure of the domain model. Note that only relevant fields of `IdentityUser` is shown.
+Below is shown a UML diagram depicting the structure of the domain model. Note that only the relevant fields of `IdentityUser` are shown.
 ![](.\images\DomainModel.png)
 
 ## Architecture — In the small (Kris)
@@ -51,16 +51,16 @@ at https://bdsagroup7chirprazor-buhcfwanakgyaabx.germanywestcentral-01.azurewebs
 The following deployment diagram shows the most relevant (out of several hundred) artifacts which
 are included as part of the composite `.net-app` artifact that is deployed to the application server.
 
-![Deployment diagram](images\deployment.png)
+![Deployment diagram](./images/deployment.png)
 
 ## User activities (Hassan)
-The diagram below illustrates what the typical journey of an unauthorized user may look like, where the goal of the user is logging into the application. where the initial node is opening the application and the final node is loggin in, on the login page.
+The diagram below illustrates what the typical journey of an unauthorized user may look like, where the goal of the user is logging into the application. where the initial node is opening the application and the final node is logging in, on the login page.
 
-![Unauthorized-activity-diagram](.\images\unauthorized-activity-diagram.png "A activity diagram for the unauthorized users of Chirp!")
+![Unauthorized-activity-diagram](./images/unauthorized-activity-diagram.png "A activity diagram for the unauthorized users of Chirp!")
 
-The diagram below illustrates what the typical journey of an authorized user may look like. The initial node represents loggin into the account, and the final node is loging out which can also be done by delete the account.
+The diagram below illustrates what the typical journey of an authorized user may look like. The initial node represents logging into the account, and the final node is logging out which can also be done by delete the account.
 
-![Authorized-activity-diagram](.\images\authorized-activity-diagram.png "A activity diagram for the authorized users of Chirp!")
+![Authorized-activity-diagram](./images/Authorized-activity-diagram.png "A activity diagram for the authorized users of Chirp!")
 
 ## Sequence of functionality/calls trough _Chirp!_ (My)
 
@@ -87,9 +87,9 @@ It all ends with the http message 200, meaning ok, this is the standard response
 
 ## Build, test, release, and deployment
 
-The processes of Building, testing, releasing and deploying are relatively simple and always follows the same pattern making them simple to automate.
-For this reason, there has been added a total of 3 GitBub actions to automate these processes. The actions are as follows: *BuildAndTest*, *Release*, and *Deploy*.
-Each GitHub action has its own trigger that activate the action. These differ from each action.
+The processes of Building, testing, releasing and deploying are relatively simple and always follow the same pattern making them simple to automate.
+For this reason, there has been added a total of 3 GitHub actions to automate these processes. The actions are as follows: *BuildAndTest*, *Release*, and *Deploy*.
+Each GitHub action has its own trigger that activates the action. These differ from each action.
 
 ### Build And Test
 The purpose of the *BuildAndTest* action is, as the name implies, to ensure that the project is always buildable and that each test passes.
@@ -104,20 +104,20 @@ If there was a problem with any of the steps involved, then the action will fail
 
 The action is illustrated in the UML activity diagram below.
 
-![](.\images\BuildAndTest.png)
+![](./images/BuildAndTest.png)
 
 ### Release
 The purpose of the *Release* action is to automate the process of making an GitHub release.
 
 It's activated when a push is made with a tag that fits the regex expression `v[0-9]+.[0-9]+.[0-9]+`
 It firsts runs what's equivalent to the *BuildAndTest* action, testing that all tests pass before proceeding.
-Once this is done, the action can publish the program. It is published 3 times, once for windows, mac, and linux.
-The published program does not contain the database required to run the program. For this reason the database is also copied to each of the published programs.
+Once this is done, the action can publish the program. It is published 3 times, once for Windows, Mac, and Linux.
+The published program does not contain the database required to run the program. For this reason, the database is also copied to each of the published programs.
 After this is done, alle 3 programs can be zipped and released
 
 The action is illustrated in the UML activity diagram below.
 
-![](.\images\Release.png)
+![](./images/Release.png)
 
 ### Deploy
 The purpose of the *Deploy* action is to deploy the program form GitHub onto Azure, making the program publicly assessable from the website.
@@ -127,7 +127,7 @@ It's activated whenever something is a pushed to main, insuring that the program
 
 The action is illustrated in the UML activity diagram below.
 
-![](.\images\Deploy.png)]
+![](./images/Deploy.png)
 
 ## Team work (Kris)
 
@@ -138,12 +138,12 @@ The action is illustrated in the UML activity diagram below.
 
 The application requires you to have installed [.NET 9.0](https://dotnet.microsoft.com/en-us/download)
 or later.
-Any other missing dependencies should be automatically installed when building/running the programme.
+Any other missing dependencies should be automatically installed when building/running the program.
 
 #### User secrets
-For the programme to work at all, a "user secret" related to GitHub authentication must be set.\
+For the program to work at all, a "user secret" related to GitHub authentication must be set.\
 Two values, a _client ID_ and a _client secret_, need to be obtained directly from
-[GitHub](https://www.github.com) through their interface for [registrering a new OAuth app](
+[GitHub](https://www.github.com) through their interface for [registering a new OAuth app](
 https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/authenticating-to-the-rest-api-with-an-oauth-app).\
 When prompted, you can set the "Homepage URL" to `http://localhost:5273/`,
 and the "Authorization call-back URL" to `http://localhost:5273/signin-github`.
@@ -168,7 +168,7 @@ dotnet user-secrets init [--project src/Chirp.Web]
 ```
 
 ### Run
-To build and start the programme on an available port, execute the following command in a terminal
+To build and start the program on an available port, execute the following command in a terminal
 emulator while standing in the project root:
 
 ```
@@ -186,7 +186,7 @@ order to interact with the web application. Depending on your terminal emulator,
 click the link to do so directly.
 
 ## How to run test suite locally
-To run the test suite, the program does *not* need to be running locally in the background. Then running the test suite can be done in two ways, depending on if Make is installed on you local computer.
+To run the test suite, the program does *not* need to be running locally in the background. Then running the test suite can be done in two ways, depending on if Make is installed on your local computer.
 If it is installed, running this command from the root directory will start the test suite:
 ```
 make test
@@ -199,7 +199,7 @@ dotnet test
 The test suite comprises of (Insert number) tests. There are 3 types of tests in the suite:
 1. Unit tests: Tests a singular function, class, or field.
 2. Integration tests: Tests the interplay between classes and functions.
-3. End to end tests: Tests the end product as interacted with by the user. This is done though playwright
+3. End to end tests: Tests the product as interacted with by the user. This is done though playwright
 
 Here is a breath list of what is being tested
 
@@ -231,11 +231,11 @@ Here is a breath list of what is being tested
 8. Cheeps are shown
 9. Deleting users
 10. Users can Sending cheeps
-11. Sending cheeps ae safe from xss attacks
+11. Sending cheeps ae safe from XSS attacks
 12. Users can Delete cheeps
 13. About me page exists
-14. Page arrows works
-15. Users can searching for user
+14. Page arrows work
+15. Users can search for users
 
 # Ethics
 
