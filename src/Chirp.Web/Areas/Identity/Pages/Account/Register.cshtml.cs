@@ -25,7 +25,7 @@ namespace Chirp.Web.Areas.Identity.Pages.Account {
         private readonly ILogger<RegisterModel> _logger;
         private readonly IEmailSender _emailSender;
         private readonly ICheepRepository _cheepRepository;
-        private readonly IAuthorRepository _authorRepository;
+        private readonly IAuthorService _authorService;
 
         public RegisterModel(
             UserManager<Author> userManager,
@@ -34,7 +34,7 @@ namespace Chirp.Web.Areas.Identity.Pages.Account {
             ILogger<RegisterModel> logger,
             IEmailSender emailSender,
             ICheepRepository cheepRepository,
-            IAuthorRepository authorRepository) {
+            IAuthorService authorService) {
             _userManager = userManager;
             _userStore = userStore;
             _emailStore = GetEmailStore();
@@ -42,7 +42,7 @@ namespace Chirp.Web.Areas.Identity.Pages.Account {
             _logger = logger;
             _emailSender = emailSender;
             _cheepRepository = cheepRepository;
-            _authorRepository = authorRepository;
+            _authorService = authorService;
         }
 
         /// <summary>
@@ -150,7 +150,7 @@ namespace Chirp.Web.Areas.Identity.Pages.Account {
                 _logger.LogInformation("User created a new account with password.");
 
                 var userDTO = new AuthorDTO(user);
-                await _authorRepository.Follow(userDTO, userDTO);
+                await _authorService.Follow(userDTO, userDTO);
                 string userId = await _userManager.GetUserIdAsync(user);
                 string code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                 code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
