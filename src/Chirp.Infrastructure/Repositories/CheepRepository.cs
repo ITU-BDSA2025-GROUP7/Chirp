@@ -4,8 +4,9 @@ using Chirp.Core.Domain_Model;
 
 namespace Chirp.Infrastructure;
 
-public class CheepRepository : ICheepRepository {
+public class CheepRepository : ICheepRepository{
     private ChirpDBContext _dbContext;
+    private ICheepRepository _cheepRepositoryImplementation;
 
     public int TotalCheepCount { get; private set; }
 

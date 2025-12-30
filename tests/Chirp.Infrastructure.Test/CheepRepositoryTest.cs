@@ -1,6 +1,6 @@
 using System.Text;
 using Chirp.Core;
-using static Chirp.Core.ICheepRepository;
+using static Chirp.Infrastructure.ICheepRepository;
 using Chirp.Core.Domain_Model;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;

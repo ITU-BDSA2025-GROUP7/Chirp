@@ -142,3 +142,26 @@ Here is a breath list of what is being tested
 ## License (My)
 
 ## LLMs, ChatGPT, CoPilot, and others (Kris)
+We have used the free version of ChatGPT in a limited scope during development. To gather the groups
+thoughts on the topic an informal interview was used to guide the conversation around important
+topics about AI use and its role in the project. Most of the team have had some prior experience
+when using AI. ChatGPT was in all but one case used in a way similar to google, for looking up
+information on problems the team was facing. The output of ChatGPT was then used as a basis for what
+to look into, statements made by the AI were compared to what other students and sources had to say
+about the subject. In one case when writing a test, the output of ChatGPT was so evidently the
+solution that we were confident copying the line of code produced was good. This came after writing
+many tests without the use of ChatGPT.
+
+Overall each team member of the group are skeptical that AI use is particularly helpful overall,
+each member who have used AI have generally had a low amount of confidence that the details of the
+AI was correct. Furthermore, even when correct on a specific topic, team members report that other
+prompts relating to the same topic might not necessarily produce correct information. Team members
+also did not find AI to be any more helpful than other sources of information, it at best served as
+a compliment to lecture slides, text books, official documentation, online guides,
+other students and TAs.
+
+Finally, several of the team members reported dissatisfaction with dealing with AI. One reported
+that it was less enjoyable than dealing with coding problems directly. Another member reported that
+the existence of AI tools itself robbed them of some of the joy of programming, that you feel like
+you're being inefficient if you don't use it, but that using it removes the creative problem-solving
+aspect of programming.
