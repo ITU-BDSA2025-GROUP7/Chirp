@@ -131,7 +131,38 @@ The action is illustrated in the UML activity diagram below.
 
 ![](./images/Deploy.png)
 
-## Team work (Kris)
+## Team work (Nikki)
+The teamwork in the group has been one of good communication.
+Before the project work began, a meeting was held to discuss how the group work should be carried out.
+Here it was agreed to hold 2 meeting each week. Both after a lecture where access to TA's was available.
+It was also discussed whether each member would prefer working in groups or alone, along with expectations for working in the weekends and while on vacation.
+An agreement was made that whenever someone was done with their issue, they would make a pull request.
+The pull request would be reviewed by a member not associated with the creation of the pull request.
+When handling a pull request, the reviewer should review based on code quality, the requirements for fixing the issue, along with sufficient testing.
+It was agreed that if a feature was not sufficiently tested, then the feature was assumed to be non-functional and therefore could not be approved.
+This resulted in higher test coverage and less faulty code.
+
+The purpose of the meetings would be to discuss how much progress has been made since last meeting,
+discuss and create new issues based on the lecture notes, delegate the issues to the group members, and discuss any potential collaboration between groupmates.
+The work on the project would then be carried out in between meetings, allowing for flexible working hours.
+
+
+Below is shown the GitHub project board shortly before handing in the report. It contains issues that are marked as either complete, in progress or to-do.
+
+![](./images/ProjectBoard.png)
+
+Most of the issues are done. The four issues that are left in to-do are all bug fixes or quality of life improvements. These are:
+- A bug where the authentication cookie of a logged-in user is still alive in the browser even after deleting the user. This can be replicated by switching branches where the user does not exist in one of the branches. Thereby *'deleting'* the user by switching branches.
+- A bug where registering a user with no `DisplayName` will cause an issue, because the `DisplayName` is equal to the `Username` when `DisplayName` is blank. `Username` and `DisplayName` does not have the same restraints, this can leave the user with an illegal `DisplayName`.
+- There are no error message displayed to the user if, for some reason, a Cheep failed to be sent.
+- An issue making it impossible to have multiple .cs files that contain PlaywrightTests.
+
+It has been chosen not to complete the above issues, due to time constraints and that the issues do not massively affect the end user.
+
+Below is a diagram showing the process from creation of an issue, to completing the issue. Starting from receiving a task from the lecturer or from finding a bug in the program:
+
+![](./images/HandelingIssues.png)
+If any step of the diagram proved difficult, like if a lecture note task was ambiguous or a feature was particularly hard to write tests for, help from TA's proved useful.
 
 ## How to make _Chirp!_ work locally (Louis)
 
