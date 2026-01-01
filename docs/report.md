@@ -24,8 +24,6 @@ With Eduard Kamburjan as the course manager and Sven Matthias Peldszus as a teac
 
 ## Domain model
 
-[//]: <> (A comment to test the new workflow action.)
-
 The database for the project is an SQLite database that's using Entity Framework Core as an object-relational mapper,
 allowing the creation of a domain model containing classes that can be used as tables within the database while also allowing the use of these classes in the code.
 
@@ -45,7 +43,8 @@ Below is shown a UML diagram depicting the structure of the domain model. Note t
 ![](.\images\DomainModel.png)
 
 ## Architecture — In the small (Kris)
-![OnionArchitecture.png](images/OnionArchitecture.png)
+
+![](images/OnionArchitecture.png "Onion architecture")
 The application is constructed in concentric layers using the domain model as a center. Each layer
 can has dependencies from layers below it, but not above it.
 - **The Domain Layer:** This layer contains the classes described in the Domain model section. The layer also contains the `DTO` classes `AuthorDTO` and `CheepDTO` that our repositories and services use.
@@ -62,26 +61,26 @@ at https://bdsagroup7chirprazor-buhcfwanakgyaabx.germanywestcentral-01.azurewebs
 The following deployment diagram shows the most relevant (out of several hundred) artifacts which
 are included as part of the composite `.net-app` artifact that is deployed to the application server.
 
-![Deployment diagram](./images/deployment.png)
+![](./images/deployment.png "Deployment diagram")
 
 ## User activities (Hassan)
 In Chirp!, users can do many actions such as logging in, writing cheeps, following other users and much more.
 
 The diagram below illustrates what the typical journey of an unauthorized user may look like, where the goal of the user is logging into the application. The initial node represents opening the application and the final node is logging in using the login page.
 
-![Unauthorized-activity-diagram](./images/unauthorized-activity-diagram.png "A activity diagram for the unauthorized users of Chirp!")
+![](./images/unauthorized-activity-diagram.png "An activity diagram for the unauthorized users of Chirp!")
 
 Authorized users can do a lot more activities than unauthorized.
 The diagram below illustrates what the typical journey of an authorized user may look like. The initial node represents logging into the account, and the final node is logging out which can also be done by delete the account.
 
-![Authorized-activity-diagram](./images/Authorized-activity-diagram.png "A activity diagram for the authorized users of Chirp!")
+![](./images/Authorized-activity-diagram.png "An activity diagram for the authorized users of Chirp!")
 
 ## Sequence of functionality/calls trough _Chirp!_ (My)
 
 The Chirp application contains a bunch of different calls, between various parts of the application.
 The diagram below shows the calls made when an unauthorized user visits the page.
 
-![img](./images/rootSequenceDiagram.png)
+![](./images/rootSequenceDiagram.png)
 *Diagram ??. Sequence diagram of the calls made when the unauthorized user goes to the root.*
 
 Starting when an unauthorized user goes to the root endpoint of the application. In this case the public timeline.
