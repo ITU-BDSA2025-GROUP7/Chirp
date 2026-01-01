@@ -10,7 +10,9 @@ public class PublicModel : CheepTimelineModel {
     public PublicModel(ICheepService cheepService, IAuthorService authorService,
                        UserManager<Author> userManager, ILogger<PublicModel> logger)
         : base(cheepService, authorService, logger, userManager) { }
-
+/**
+ * Gets the cheeps for the public timeline
+ */
     public async Task<IActionResult> OnGet() {
         TotalPageCount = PageCount(_cheepService.TotalCheepCount);
         PageNr = ParsePageNr(Request);
