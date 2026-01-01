@@ -16,8 +16,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses:
-          actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Execute pandoc
         run: |
@@ -30,7 +29,6 @@ jobs:
           path: "docs/2025_itubdsa_group_7_report.pdf"
 
       - name: Commit generated file
-        uses: actions/checkout@v6
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
