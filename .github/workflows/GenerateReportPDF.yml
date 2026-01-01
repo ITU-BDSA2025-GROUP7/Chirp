@@ -12,7 +12,8 @@ jobs:
   GenerateReportPDF:
     runs-on: ubuntu-latest
     defaults:
-      working-directory: ./docs
+      run:
+        working-directory: ./docs
     steps:
       - name: Checkout repository
         uses:
