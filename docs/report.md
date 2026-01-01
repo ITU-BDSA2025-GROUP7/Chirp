@@ -24,6 +24,8 @@ With Eduard Kamburjan as the course manager and Sven Matthias Peldszus as a teac
 
 ## Domain model
 
+[//]: <> (Comment to test the new workflow action.)
+
 The database for the project is an SQLite database that's using Entity Framework Core as an object-relational mapper,
 allowing the creation of a domain model containing classes that can be used as tables within the database while also allowing the use of these classes in the code.
 
