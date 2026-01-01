@@ -1,13 +1,12 @@
-name: Generate report on pull request
+name: Generate report on pull requests
 
 on:
+  workflow_dispatch:
   pull_request:
     branches:
       - '**'
-    paths:
-      - 'docs/**'
-      - '!docs/2025_itubdsa_group_7_report.pdf'
-jobs:
+
+  jobs:
   generate-report:
     runs-on: ubuntu-latest
     defaults:
