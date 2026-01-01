@@ -17,4 +17,4 @@ jobs:
     steps:
       - uses: docker://pandoc/core:3.8
         with:
-          args: docs/report.pdf -o docs/2025_itubdsa_group_7_report.pdf
+          args: "docs/report.pdf -o docs/2025_itubdsa_group_7_report.pdf"
