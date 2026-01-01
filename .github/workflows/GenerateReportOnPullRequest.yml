@@ -4,6 +4,8 @@ on:
   pull_request:
     branches:
       - '**'
+    paths:
+      - 'docs/**'
 jobs:
   generate-report:
     runs-on: ubuntu-latest
