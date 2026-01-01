@@ -96,3 +96,8 @@ move to the `docs` directory, then execute the following command:
 ```
 pandoc report.md -o 2025_itubdsa_group_7_report.pdf
 ```
+
+If you're standing in the root folder, you can instead execute:
+```
+make generate
+```
