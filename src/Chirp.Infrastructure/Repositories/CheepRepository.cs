@@ -4,6 +4,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Chirp.Infrastructure.Repositories;
 
+/**
+ * This class acts as the interface in witch to interact with Cheeps in the database
+ */
 public class CheepRepository : ICheepRepository{
     private ChirpDBContext _dbContext;
 
@@ -14,6 +17,9 @@ public class CheepRepository : ICheepRepository{
         TotalCheepCount = _dbContext.Cheeps.Count();
     }
 
+    /**
+     * Retrives the amount of cheeps an Author with the given username has posted
+     */
     public async Task<int> CheepCountFromUserName(string username) {
         return await _dbContext.Cheeps.CountAsync(cheep => cheep.Author.UserName == username);
     }
@@ -28,6 +34,9 @@ public class CheepRepository : ICheepRepository{
         return await QueryCheepsFromFollowedAuthors(username).CountAsync();
     }
 
+    /**
+     * Returns all cheep from authors that Username follows.
+     */
     private IQueryable<CheepDTO> QueryCheepsFromFollowedAuthors(string username) {
         return (from cheep in _dbContext.Cheeps
                 join follow in _dbContext.FollowRelations
