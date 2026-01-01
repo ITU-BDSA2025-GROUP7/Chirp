@@ -5,9 +5,6 @@ on:
   push:
     branches:
       - '**'
-  pull_request:
-    branches:
-      - '**'
 jobs:
   GenerateReportPDF:
     runs-on: ubuntu-latest
@@ -27,13 +24,16 @@ jobs:
           pandoc report.md -o 2025_itubdsa_group_7_report.pdf
 
       - name: Upload result to Artifact storage
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
-          name: report
+          name: Report.zip
           path: "docs/2025_itubdsa_group_7_report.pdf"
 
-      - name: Download artifact to codebase
-        uses: actions/download-artifact@v4
-        with:
-          name: report
-          path: docs
+      - name: Commit generated file
+        uses: actions/checkout@v6
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "2025_itubdsa_group_7_report.pdf"
+          git commit -m "Generated report PDF."
+          git push
