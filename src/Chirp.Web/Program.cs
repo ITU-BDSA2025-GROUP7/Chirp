@@ -1,6 +1,7 @@
 using Chirp.Core;
 using Chirp.Core.Domain_Model;
 using Chirp.Infrastructure;
+using Chirp.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 

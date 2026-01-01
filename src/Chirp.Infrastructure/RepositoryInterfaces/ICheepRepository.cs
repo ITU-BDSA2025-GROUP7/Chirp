@@ -1,6 +1,7 @@
 using Chirp.Core.Domain_Model;
 
-namespace Chirp.Core;
+namespace Chirp.Infrastructure;
+using Chirp.Core;
 
 public interface ICheepRepository {
     /// The number of cheeps to display on each page.

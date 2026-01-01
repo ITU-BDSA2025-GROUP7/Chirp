@@ -7,6 +7,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Security.Claims;
 using Chirp.Core;
 using Chirp.Core.Domain_Model;
+using Chirp.Infrastructure;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
