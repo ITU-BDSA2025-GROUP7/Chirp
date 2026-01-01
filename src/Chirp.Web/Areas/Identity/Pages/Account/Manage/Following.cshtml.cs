@@ -18,7 +18,9 @@ public class Following : PageModel {
         _authorService = authorService;
         FollowRelations = new List<FollowRelation>();
     }
-
+    /**
+     * Sets the followrelations so the right follow/unfollow labels can be shown.
+     */
     public async Task<IActionResult> OnGetAsync() {
         Author? user = await _userManager.GetUserAsync(User);
         if (user?.UserName != null) {
@@ -30,6 +32,9 @@ public class Following : PageModel {
         return Page();
     }
 
+/**
+ * Removes a follow relation. when the unfollow button is clicked
+ */
     public async Task<IActionResult> OnPostUnfollowAsync(string? authorA, string? authorB) {
         if (authorA != null && authorB != null) {
             await _authorService.Unfollow(authorB, authorA);
