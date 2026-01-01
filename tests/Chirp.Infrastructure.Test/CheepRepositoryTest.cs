@@ -2,6 +2,7 @@ using System.Text;
 using Chirp.Core;
 using static Chirp.Infrastructure.ICheepRepository;
 using Chirp.Core.Domain_Model;
+using Chirp.Infrastructure.Repositories;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Xunit;

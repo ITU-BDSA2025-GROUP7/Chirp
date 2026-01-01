@@ -1,5 +1,6 @@
 using Chirp.Core;
 using Chirp.Core.Domain_Model;
+using Chirp.Infrastructure.Repositories;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Xunit;

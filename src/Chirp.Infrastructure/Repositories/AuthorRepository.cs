@@ -1,10 +1,9 @@
 using System.Text.RegularExpressions;
-
-namespace Chirp.Infrastructure;
-
 using Chirp.Core;
 using Chirp.Core.Domain_Model;
 using Microsoft.EntityFrameworkCore;
+
+namespace Chirp.Infrastructure.Repositories;
 
 public class AuthorRepository : IAuthorRepository {
     private ChirpDBContext _dbContext;
