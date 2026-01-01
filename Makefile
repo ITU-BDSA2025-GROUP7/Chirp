@@ -56,3 +56,8 @@ dbUpdate:
 
 format:
 	dotnet format --exclude src/Chirp.Infrastructure/Migrations
+
+docs/2025_itubdsa_group_7_report.pdf: docs/report.md docs/images/** docs/diagrams/**
+	cd docs && pandoc report.md -o 2025_itubdsa_group_7_report.pdf
+
+generate: docs/2025_itubdsa_group_7_report.pdf
