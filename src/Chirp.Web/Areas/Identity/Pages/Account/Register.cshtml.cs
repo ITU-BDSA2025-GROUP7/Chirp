@@ -46,29 +46,28 @@ namespace Chirp.Web.Areas.Identity.Pages.Account {
         }
 
         /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///      The model containing data from the user used in the registration process
         /// </summary>
         [BindProperty]
         public InputModel Input { get; set; }
 
         /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     The URL to return to
         /// </summary>
         public string ReturnUrl { get; set; }
 
         /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     List of the externalLogins
         /// </summary>
         public IList<AuthenticationScheme> ExternalLogins { get; set; }
 
         /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///      The model containing data from the user used in the register process
         /// </summary>
         public class InputModel {
+            /// <summary>
+            ///   The userName that was written
+            /// </summary>
             [Required]
             [DataType(DataType.Text)]
             [StringLength(256,
@@ -76,7 +75,9 @@ namespace Chirp.Web.Areas.Identity.Pages.Account {
                           MinimumLength = 4)]
             [Display(Name = "Username")]
             public string UserName { get; set; }
-
+            /// <summary>
+            ///   The DisplayName that was written
+            /// </summary>
             [DataType(DataType.Text)]
             [StringLength(256,
                           ErrorMessage = "The {0} must be between {2} and {1} characters long.",
@@ -85,8 +86,7 @@ namespace Chirp.Web.Areas.Identity.Pages.Account {
             public string DisplayName { get; set; } = "";
 
             /// <summary>
-            ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-            ///     directly from your code. This API may change or be removed in future releases.
+            ///   The email that was written
             /// </summary>
             [Required]
             [EmailAuthentication(
@@ -98,8 +98,7 @@ namespace Chirp.Web.Areas.Identity.Pages.Account {
             public string Email { get; set; }
 
             /// <summary>
-            ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-            ///     directly from your code. This API may change or be removed in future releases.
+            ///     The password that was written
             /// </summary>
             [Required]
             [StringLength(100, ErrorMessage =
@@ -110,24 +109,28 @@ namespace Chirp.Web.Areas.Identity.Pages.Account {
             public string Password { get; set; }
 
             /// <summary>
-            ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-            ///     directly from your code. This API may change or be removed in future releases.
+            ///   The password that was written in the confirm password box
             /// </summary>
             [Required]
             [DataType(DataType.Password)]
             [Display(Name = "Confirm password")]
             [Compare("Password",
                      ErrorMessage = "The password and confirmation password do not match.")]
+
             public string ConfirmPassword { get; set; }
         }
 
-
+        /**
+         * Sets the potential externalLogins, so they can be shown to the user.
+         */
         public async Task OnGetAsync(string returnUrl = null) {
             ReturnUrl = returnUrl;
             ExternalLogins =
                 (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
         }
-
+        /**
+         * Registers the user.
+         */
         public async Task<IActionResult> OnPostAsync(string returnUrl = null) {
             returnUrl ??= Url.Content("~/");
             ExternalLogins =
@@ -184,7 +187,9 @@ namespace Chirp.Web.Areas.Identity.Pages.Account {
             // If we got this far, something failed, redisplay form
             return Page();
         }
-
+        /**
+         * Creates a new Author.
+         */
         private Author CreateUser() {
             try {
                 return Activator.CreateInstance<Author>();
@@ -195,7 +200,9 @@ namespace Chirp.Web.Areas.Identity.Pages.Account {
                     $"override the register page in /Areas/Identity/Pages/Account/Register.cshtml");
             }
         }
-
+        /**
+         * Retrieves the emailStore, if it is configured in the userManager.
+         */
         private IUserEmailStore<Author> GetEmailStore() {
             if (!_userManager.SupportsUserEmail) {
                 throw new NotSupportedException(
