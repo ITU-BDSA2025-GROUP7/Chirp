@@ -1,6 +1,8 @@
-namespace Chirp.Core;
+using Chirp.Core.Domain_Model;
 
-using Domain_Model;
+namespace Chirp.Infrastructure;
+
+using Chirp.Core;
 
 public interface IAuthorRepository {
     public Task CreateAuthor(string name, string email);

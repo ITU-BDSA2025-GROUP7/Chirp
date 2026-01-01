@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using Chirp.Infrastructure;
+using Chirp.Infrastructure.Repositories;
 
 namespace Chirp.Web;
 

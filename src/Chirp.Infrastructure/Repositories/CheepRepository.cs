@@ -1,10 +1,10 @@
-using Microsoft.EntityFrameworkCore;
 using Chirp.Core;
 using Chirp.Core.Domain_Model;
+using Microsoft.EntityFrameworkCore;
 
-namespace Chirp.Infrastructure;
+namespace Chirp.Infrastructure.Repositories;
 
-public class CheepRepository : ICheepRepository {
+public class CheepRepository : ICheepRepository{
     private ChirpDBContext _dbContext;
 
     public int TotalCheepCount { get; private set; }
