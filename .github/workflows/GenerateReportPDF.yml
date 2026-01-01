@@ -46,5 +46,4 @@ jobs:
           git add 2025_itubdsa_group_7_report.pdf
           git commit -m "Generated report PDF."
           git push
-        with:
-          working-directory: ./docs
+        working-directory: ./docs
