@@ -5,6 +5,9 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Chirp.Infrastructure.Repositories;
 
+/**
+ * This class acts as the interface in witch to interact with Authors in the database
+ */
 public class AuthorRepository : IAuthorRepository {
     private ChirpDBContext _dbContext;
 
@@ -45,6 +48,9 @@ public class AuthorRepository : IAuthorRepository {
         return await query.ToListAsync();
     }
 
+    /**
+     * helper function that returns the author using its representing authorDTO.
+     */
     private Author? FindAuthor(AuthorDTO authorDTO) {
         return (from author in _dbContext.Authors
                 where author.UserName == authorDTO.UserName
@@ -84,7 +90,21 @@ public class AuthorRepository : IAuthorRepository {
     }
 
     /**
-     * Returns true if breaks rules
+     * Returns true if a new FollowRelation between follower and followed would break one of the following rules
+     * <list type="bullet">
+     * <item>
+     * <description>the follower must exist</description>
+     * </item>
+     *
+     * <item>
+     * <description>the followed must exist</description>
+     * </item>
+     *
+     * <item>
+     * <description>follower must not already follow followed</description>
+     * </item>
+     *
+     * </list>
      */
     private async Task<bool> IsFollowRelationInvalid(AuthorDTO follower, AuthorDTO followed) {
         return !_dbContext.Authors.Any(author => author.UserName == follower.UserName) ||
@@ -105,7 +125,7 @@ public class AuthorRepository : IAuthorRepository {
     }
 
     /**
-     * this is borderline unreadable, but it just gets all Authors which `follower` follows
+     *  returns all Authors which `follower` follows
      */
     public async Task<List<AuthorDTO>> Following(string follower) {
         return await (from user in _dbContext.FollowRelations
