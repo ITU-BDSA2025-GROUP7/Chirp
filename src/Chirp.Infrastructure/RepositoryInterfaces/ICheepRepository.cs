@@ -35,5 +35,8 @@ public interface ICheepRepository {
     /** The total number of cheeps in the database. Updated whenever a cheep is added or removed. */
     int TotalCheepCount { get; }
 
+    /**
+     * Deletes a cheep from the database
+     */
     public Task DeleteCheep(CheepDTO cheep);
 }
