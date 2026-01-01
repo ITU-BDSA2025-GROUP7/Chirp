@@ -17,14 +17,11 @@ jobs:
       contents: read
 
     steps:
-      - uses: actions/checkout@v6
-      - run: |
+      - name: Checkout repository
+        uses: actions/checkout@v6
+      - name: Execute pandoc
+        run: |
           pandoc report.md -o 2025_itubdsa_group_7_report.pdf
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add "2025_itubdsa_group_7_report.pdf"
-          git commit -m "Generated report PDF."
-          git push
       - name: Upload result to Artifact storage
         uses: actions/upload-artifact@v6
         with:
