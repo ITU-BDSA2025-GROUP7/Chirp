@@ -60,6 +60,3 @@ src/Chirp.CSVDBService/.azure
 
 # individual user setting sould not be added
 Chirp.sln.DotSettings.user
-
-# The automatically-generated report PDF
-docs/2025_itubdsa_group_7_report.pdf
