@@ -25,5 +25,5 @@ jobs:
       - name: Upload result to Artifact storage
         uses: actions/upload-artifact@v6
         with:
-          name: Report.zip
+          name: Report
           path: "docs/2025_itubdsa_group_7_report.pdf"
