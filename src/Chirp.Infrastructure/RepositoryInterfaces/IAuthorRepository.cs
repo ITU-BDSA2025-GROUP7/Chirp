@@ -5,41 +5,60 @@ namespace Chirp.Infrastructure;
 using Chirp.Core;
 
 public interface IAuthorRepository {
+
+    /**
+     * Creates an author with name and email, generates a random pasword
+     * Also saves the author to the database.
+     * This method is only used for testing.
+     */
     public Task CreateAuthor(string name, string email);
 
     /**
-     * recognizes the string as a name or email and calls the relevant GetAuthor method
+     * Uses the identifier to retrive the user.
+     * If the identifier is an email, then it find the user using
+     * <see cref="GetAuthorByEmail"/>. If not then it tries to find the user using <see cref="GetAuthorByUserName"/>.
      */
     public Task<List<AuthorDTO>> GetAuthor(string identifier);
 
     /**
-     * Function used in GetAuthor if its argument is recognized as an Email.
+     * Returns all Authors that has the given email.
      */
     public Task<List<AuthorDTO>> GetAuthorByEmail(string email);
 
     /**
-     * Function used in GetAuthor if its argument is recognized as a name.
+     * Returns all Authors that have the given UserName.
      */
     public Task<List<AuthorDTO>> GetAuthorByUserName(string username);
 
+    /**
+     * Makes follower(AuthorA) follow followed(AuthorB)
+     */
     public Task Follow(AuthorDTO follower, AuthorDTO followed);
 
     /**
-     * Deletes a follow relation
+     * Makes follower unfollow the followed user by deleting the follow relation
      */
     public Task Unfollow(AuthorDTO follower, AuthorDTO followed);
 
+    /**
+     * returns all FollowRelations where `follower` is follower
+     */
     public Task<List<FollowRelation>> GetFollowRelations(string follower);
 
+    /**
+     *  Eeturns all Authors which `follower` follows
+     */
     public Task<List<AuthorDTO>> Following(string follower);
 
     /**
-     * Creates a follow relation, and adds a reference of the followed to follower
+     * Makes follower(AuthorA) follow followed(AuthorB)
+     * overload function for <see cref=" Follow(AuthorDTO follower, AuthorDTO followed)"/>
      */
     public Task Follow(string follower, string followed);
 
     /**
-     * Removes a follow relation if `follower` and `followed` are not identical.
+     * Makes follower unfollow the followed user by deleting the follow relation.
+     * overload function for <see cref="Unfollow(AuthorDTO follower, AuthorDTO followed)"/>
      */
     public Task Unfollow(string follower, string followed);
 
