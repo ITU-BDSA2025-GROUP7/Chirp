@@ -11,20 +11,18 @@ on:
 jobs:
   GenerateReportPDF:
     runs-on: ubuntu-latest
+    defaults:
+      working-directory: ./docs
     steps:
       - name: Checkout repository
         uses:
           actions/checkout@v5
-      - name: Change directory
-        run:
-          cd docs
       - name: Execute pandoc
         uses: docker://pandoc/core:3.8
         with:
           args: "report.md -o 2025_itubdsa_group_7_report.pdf"
-
       - name: Upload result to Artifact storage
         uses: actions/upload-artifact@v4
         with:
           name: report
-          path: docs/2025_itubdsa_group_7_report.pdf
+          path: 2025_itubdsa_group_7_report.pdf
