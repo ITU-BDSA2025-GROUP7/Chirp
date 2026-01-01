@@ -31,3 +31,9 @@ jobs:
         with:
           name: report
           path: "docs/2025_itubdsa_group_7_report.pdf"
+
+      - name: Download artifact to codebase
+        uses: actions/download-artifact@v4
+        with:
+          name: report
+          path: docs
