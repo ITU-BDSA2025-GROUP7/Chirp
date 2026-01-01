@@ -14,11 +14,17 @@ public class Cheep : IComparable<Cheep> {
     public DateTime TimeStamp { get; set; }
     public required Author Author { get; set; }
 
+    /**
+     * Returns a DateTime comparison of the given Cheep's TimeStamp with this cheep's TimeStamp
+     */
     public int CompareTo(Cheep? other) {
         if (other == null) return 1;
         return TimeStamp.CompareTo(other.TimeStamp) * -1;
     }
 
+    /**
+     * Implementation that overrides the default behavior of the Object.toString method.
+     */
     public override string ToString() {
         return Author.DisplayName + ": " + Text + '\n';
     }
