@@ -10,7 +10,7 @@ author:
 numbersections: true
 ---
 # Introduction
-This report documents the process and the product of group 7's work from the course Analysis, Design and Software Architecture in 2025 at the IT University of Copenhagen. The final product named *Chirp!* can be found at the [GitHub repository](https://github.com/ITU-BDSA2025-GROUP7/Chirp). The application is hosted on Azure and is available [*here*](https://bdsagroup7chirprazor-buhcfwanakgyaabx.germanywestcentral-01.azurewebsites.net/). Group 7 consists of 5 people who have all contributed to the final product and its documentation:
+This report documents the process and the product of group 7's work from the course Analysis, Design and Software Architecture in 2025 at the IT University of Copenhagen. The final product named *Chirp!* can be found at the GitHub repository [*here*](https://github.com/ITU-BDSA2025-GROUP7/Chirp). The application is hosted on Azure and is available [*here*](https://bdsagroup7chirprazor-buhcfwanakgyaabx.germanywestcentral-01.azurewebsites.net/). Group 7 consists of 5 people who have all contributed to the final product and its documentation:
 
 - Nikki Skarsholm Risager <nris@itu.dk>
 - Louis Falk Knudsen <lofk@itu.dk>
@@ -62,7 +62,7 @@ The application uses Razor pages for the application, which lets us use .cshtml 
 ## Architecture of deployed application
 The application is deployed to an application server owned by the vendor Microsoft Azure
 at \
-https://bdsagroup7chirprazor-buhcfwanakgyaabx.germanywestcentral-01.azurewebsites.net/.
+*https://bdsagroup7chirprazor-buhcfwanakgyaabx.germanywestcentral-01.azurewebsites.net/*.
 
 The following deployment diagram shows the most relevant (out of several hundred) artifacts which
 are included as part of the composite `.net-app` artifact that is deployed to the application server.
@@ -201,14 +201,14 @@ This was because work on other courses made trunk based development difficult.
 ### Setup
 #### Dependencies
 
-The application requires you to have installed [.NET 9.0](https://dotnet.microsoft.com/en-us/download)
+The application requires you to have installed [*.NET 9.0*](https://dotnet.microsoft.com/en-us/download)
 or later.
 Any other missing dependencies should be automatically installed when building/running the program.
 
 #### User secrets
 For the program to work locally, a "user secret" related to GitHub authentication must be set.\
 Two values, a _client ID_ and a _client secret_, need to be obtained directly from
-GitHub through their interface for [registering a new OAuth app](
+GitHub through their interface for [*registering a new OAuth app*](
 https://docs.github.com/en/apps/oauth-apps/building-oauth-apps/authenticating-to-the-rest-api-with-an-oauth-app).\
 When prompted, you can set the "Homepage URL" to `http://localhost:5273/`,
 and the "Authorization call-back URL" to `http://localhost:5273/signin-github`.
