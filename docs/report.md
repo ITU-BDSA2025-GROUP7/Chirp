@@ -191,7 +191,7 @@ Below is a diagram showing the process from the creation to completion of an iss
 Starting from receiving a task from the lecturer or from finding a bug in the program:
 
 ![](./images/HandelingIssues.png) \
-*Diagram 11. Illustrates the process of creating and handling issues*
+*Diagram 11. Illustrates the process of creating and handling issues. See appendix for larger version*
 
 
 If any step of the diagram proved difficult, like if a lecture note task was ambiguous or a feature was particularly hard to write tests for, help from TA's proved useful.
@@ -271,7 +271,7 @@ The test suite consists of 111 tests. There are three types of tests in the suit
 
 Here is a brief list of what is being tested
 
-##### Author Repository
+##### Author Repository {-}
 
 1. Creating authors
 2. Following authors
@@ -280,7 +280,7 @@ Here is a brief list of what is being tested
 5. AuthorDTO works as expected
 6. CheepDTO works as expected
 
-##### Cheep Repository
+##### Cheep Repository {-}
 
 1. Retrieving Cheeps
 2. Retrieving pages of cheeps
@@ -290,7 +290,7 @@ Here is a brief list of what is being tested
 6. Safe from SQL-injection
 7. Retrieving cheeps from user that follows another, also retrieves the followed user
 
-##### Playwright tests
+##### Playwright tests {-}
 
 1. User can log in
 2. User can register
@@ -349,3 +349,8 @@ that it was less enjoyable than dealing with coding problems directly. Another m
 the existence of AI tools itself robbed them of some of the joy of programming, that you feel like
 you're being inefficient if you don't use it, but that using it removes the creative problem-solving
 aspect of programming.
+
+# Appendix
+
+![](images/HandelingIssuesRotated.png) \
+*Diagram 11. Illustrates the process of creating and handling issues*
