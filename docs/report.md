@@ -60,6 +60,8 @@ Each layer can depend on layers below it, but not above it.
 
 The application uses Razor pages for the application, which lets us use .cshtml files for the frontend. The `PageModel` class provides similar functionality to the Code-behind model in `System.Web.UI` to write C# code for the .cshtml pages. For user validation and authorization the ASP.NET Core Identity framework was used, the code for which can be found in the `Chirp.Web.Areas` folder. The Identity framework is used to implement the various functionality described later in the User activities section.
 
+<div style="page-break-after: always"></div>
+
 ## Architecture of deployed application
 The application is deployed to an application server owned by the vendor Microsoft Azure
 at \
