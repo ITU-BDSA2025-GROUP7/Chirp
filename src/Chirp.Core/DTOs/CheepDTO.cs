@@ -14,6 +14,10 @@ public class CheepDTO : IComparable<CheepDTO> {
         AuthorUserName = authorUserName ?? authorDisplayName;
     }
 
+    /**
+     * Returns the int result of a DateTime comparison between the TimeStamp of the given CheepDTO
+     * and this CheepDTO.
+     */
     public int CompareTo(CheepDTO? other) {
         if (other == null) return 1;
         return DateTime.Compare(DateTime.Parse(TimeStamp),

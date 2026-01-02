@@ -87,3 +87,17 @@ make format
 GitHub workflows enforce a few rules for the repository:
 1. Pull requests cannot be accepted unless all tests pass.
 2. All releases must have a tag in the format v\<major>.\<minor>.\<patch>, e.g. v1.0.4.
+
+## Report
+The report is located in the `docs` directory.
+
+To compile the report to PDF using [Pandoc](https://pandoc.org/installing.html),
+move to the `docs` directory, then execute the following command:
+```
+pandoc report.md -o 2025_itubdsa_group_7_report.pdf
+```
+
+If you're standing in the root folder, you can instead execute:
+```
+make generate
+```
