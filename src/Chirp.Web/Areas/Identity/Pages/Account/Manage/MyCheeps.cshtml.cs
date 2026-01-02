@@ -18,7 +18,9 @@ public class MyCheepsModel : CheepTimelineModel {
         _signInManager = signInManager;
 
     }
-
+    /**
+     * Gets the cheeps written by the user that is logged in.
+     */
     public async Task<IActionResult> OnGet() {
         Author? author = await _userManager.GetUserAsync(User);
         string? username = author?.UserName;

@@ -21,30 +21,30 @@ namespace Chirp.Web.Areas.Identity.Pages.Account.Manage {
         }
 
         /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///    The userName
         /// </summary>
         public string Username { get; set; }
 
         /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///  a message of the status of the processes
         /// </summary>
         [TempData]
         public string StatusMessage { get; set; }
 
         /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     Contains the input written by the user
         /// </summary>
         [BindProperty]
         public InputModel Input { get; set; }
 
         /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     Contains the input written by the user
         /// </summary>
         public class InputModel {
+
+            /**
+             * The DisplayName that was written
+             */
             [Required]
             [DataType(DataType.Text)]
             [Display(Name = "Display Name")]
@@ -54,14 +54,16 @@ namespace Chirp.Web.Areas.Identity.Pages.Account.Manage {
             public string DisplayName { get; set; }
 
             /// <summary>
-            ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-            ///     directly from your code. This API may change or be removed in future releases.
+            ///   The phonenumber written
             /// </summary>
             [Phone]
             [DataType(DataType.PhoneNumber)]
             [Display(Name = "Phone number")]
             public string PhoneNumber { get; set; }
         }
+        /**
+         * loads the username and phone number to be displayed
+         */
 
         private async Task LoadAsync(Author user) {
             Username = await _userManager.GetUserNameAsync(user);
@@ -72,7 +74,9 @@ namespace Chirp.Web.Areas.Identity.Pages.Account.Manage {
                 PhoneNumber = phoneNumber
             };
         }
-
+        /**
+         * Finds the user and loads info to be displayed.
+         */
         public async Task<IActionResult> OnGetAsync() {
             Author user = await _userManager.GetUserAsync(User);
             if (user == null) {
@@ -82,7 +86,9 @@ namespace Chirp.Web.Areas.Identity.Pages.Account.Manage {
             await LoadAsync(user);
             return Page();
         }
-
+        /**
+         * Updates information about the user, if the input has changed.
+         */
         public async Task<IActionResult> OnPostAsync() {
             Author user = await _userManager.GetUserAsync(User);
             if (user == null) {

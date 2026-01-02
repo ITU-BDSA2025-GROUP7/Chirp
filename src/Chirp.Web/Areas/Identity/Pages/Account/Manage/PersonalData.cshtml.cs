@@ -22,7 +22,9 @@ namespace Chirp.Web.Areas.Identity.Pages.Account.Manage
             _userManager = userManager;
             _logger = logger;
         }
-
+        /**
+         * Gets the logged-in user.
+         */
         public async Task<IActionResult> OnGet()
         {
             var user = await _userManager.GetUserAsync(User);

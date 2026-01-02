@@ -21,6 +21,9 @@ public class UserTimelineModel : CheepTimelineModel {
         _signInManager = signInManager;
     }
 
+    /**
+ * Gets the cheeps for the user timeline, meaning the ones by the user, and the people they follow.
+ */
     public async Task<IActionResult> OnGet([FromRoute] string author) {
         Author? authorSource = await _userManager.FindByNameAsync(author);
         if (authorSource == null) {
@@ -51,7 +54,9 @@ public class UserTimelineModel : CheepTimelineModel {
 
         return Page();
     }
-
+    /**
+     * Formats the header with the username
+     */
     private static string FormatPageHeader(AuthorDTO author) {
         if (author.DisplayName.EndsWith('s')) {
             return $"{author.DisplayName}' Timeline";

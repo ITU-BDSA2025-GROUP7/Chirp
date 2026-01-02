@@ -47,44 +47,40 @@ namespace Chirp.Web.Areas.Identity.Pages.Account {
         }
 
         /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///  The model containing data from the user used in the login process
         /// </summary>
         [BindProperty]
         public InputModel Input { get; set; }
 
         /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///   Name off the ExternalLogin Provider e.g. GitHub
         /// </summary>
         public string ProviderDisplayName { get; set; }
 
         /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     The URL to return to.
         /// </summary>
         public string ReturnUrl { get; set; }
 
         /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///     A message to contain errors.
         /// </summary>
         [TempData]
         public string ErrorMessage { get; set; }
 
         /// <summary>
-        ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-        ///     directly from your code. This API may change or be removed in future releases.
+        ///    The model containing data from the user used in the login process
         /// </summary>
         public class InputModel {
             /// <summary>
-            ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
-            ///     directly from your code. This API may change or be removed in future releases.
+            ///     The users Email
             /// </summary>
             [Required]
             [EmailAddress]
             public string Email { get; set; }
-
+            /// <summary>
+            ///     The users UserName
+            /// </summary>
             [Required]
             [DataType(DataType.Text)]
             [StringLength(256,
@@ -93,6 +89,9 @@ namespace Chirp.Web.Areas.Identity.Pages.Account {
             [Display(Name = "Username")]
             public string UserName { get; set; }
 
+            /// <summary>
+            ///     The name the user want displayed.
+            /// </summary>
             [DataType(DataType.Text)]
             [StringLength(256,
                           ErrorMessage = "The {0} must be between {2} and {1} characters long.",
@@ -100,9 +99,14 @@ namespace Chirp.Web.Areas.Identity.Pages.Account {
             [Display(Name = "Display Name")]
             public string DisplayName { get; set; } = "";
         }
-
+        /**
+         * Redirects to the login page
+         */
         public IActionResult OnGet() => RedirectToPage("./Login");
-
+        /**
+        * Initiates the login process by challenging the externalProvider.
+         * This redirects to the external provider, which will afterwards return to the callback handler.
+        */
         public IActionResult OnPost(string provider, string returnUrl = null) {
             // Request a redirect to the external login provider.
             string redirectUrl = Url.Page("./ExternalLogin", pageHandler: "Callback",
@@ -111,7 +115,9 @@ namespace Chirp.Web.Areas.Identity.Pages.Account {
                 _signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl);
             return new ChallengeResult(provider, properties);
         }
-
+        /**
+         * Handles the callback from the externalLogin provider, and signs the user in. if no user exist, one will be created
+         */
         public async Task<IActionResult> OnGetCallbackAsync(string returnUrl = null,
                                                             string remoteError = null) {
             returnUrl = returnUrl ?? Url.Content("~/");
@@ -155,7 +161,9 @@ namespace Chirp.Web.Areas.Identity.Pages.Account {
 
             return Page();
         }
-
+        /**
+         * Finds the externalLoginInfo if possible, and continues the signin process, otherwise redirects to Login.
+         */
         public async Task<IActionResult> OnPostConfirmationAsync(string returnUrl = null) {
             returnUrl = returnUrl ?? Url.Content("~/");
             // Get the information about the user from the external login provider
@@ -172,7 +180,9 @@ namespace Chirp.Web.Areas.Identity.Pages.Account {
             return Page();
         }
 
-
+        /**
+         * Returns the InputModel consisting of Email, UserName and DisplayName from the ExternalLoginInfo.
+         */
         private InputModel GetInputFromInfo(ExternalLoginInfo info) {
             Input = new InputModel {
                 Email = info.Principal.FindFirstValue(ClaimTypes.Email) ??
@@ -187,7 +197,9 @@ namespace Chirp.Web.Areas.Identity.Pages.Account {
             return Input;
         }
 
-
+        /**
+         * Creates a new Author and signs them in using the externalLogin.
+         */
         private async Task<IActionResult>
             CreateAndSignIn(ExternalLoginInfo info, string returnUrl) {
             // create
@@ -233,7 +245,9 @@ namespace Chirp.Web.Areas.Identity.Pages.Account {
             // register page (externallogin.cshtml) - looks like register
             return Page();
         }
-
+        /**
+         * Creates a new Author.
+         */
         private Author CreateUser() {
             try {
                 return Activator.CreateInstance<Author>();
@@ -244,7 +258,9 @@ namespace Chirp.Web.Areas.Identity.Pages.Account {
                     $"override the external login page in /Areas/Identity/Pages/Account/ExternalLogin.cshtml");
             }
         }
-
+        /**
+         * Retrieves the emailStore, if it is configured in the userManager.
+         */
         private IUserEmailStore<Author> GetEmailStore() {
             if (!_userManager.SupportsUserEmail) {
                 throw new NotSupportedException(

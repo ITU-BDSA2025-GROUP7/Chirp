@@ -105,7 +105,9 @@ public abstract class CheepTimelineModel : PageModel {
             pageNr = 1; // if parsing failed, set page number to 1 as requested by session_05 1.b
         return pageNr;
     }
-
+    /**
+     * Creates a new cheep by the logged in author, when one is submitted.
+     */
     public async Task<IActionResult> OnPostAsync() {
         if (ModelState.IsValid && User.Identity?.Name != null) {
             Author? author = await _userManager.FindByNameAsync(User.Identity.Name);
@@ -116,21 +118,30 @@ public abstract class CheepTimelineModel : PageModel {
 
         return RedirectToPage();
     }
-
+    /**
+     * Checks if an author follows another.
+     */
     public async Task<bool> IsFollowing(string authorA, string authorB) {
         return await _authorService.IsFollowing(authorA, authorB);
     }
-
+    /**
+     * Makes an author follow another author
+     */
     public async Task<IActionResult> OnPostFollowAsync(string? authorA, string? authorB) {
         await _authorService.Follow(authorA!, authorB!);
         return RedirectToPage();
     }
+    /**
+     * makes an author unfollow another author
+     */
 
     public async Task<IActionResult> OnPostUnfollowAsync(string? authorA, string? authorB) {
         await _authorService.Unfollow(authorA!, authorB!);
         return RedirectToPage();
     }
-
+/**
+ * Deletes the cheep to which the delete button belongs.
+ */
     public async Task<IActionResult> OnPostDeleteCheepAsync(string? username, string? text,
                                                             string? timestamp) {
         _logger.LogCritical("OnDeleteCheep");
