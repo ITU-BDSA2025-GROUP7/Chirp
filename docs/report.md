@@ -41,7 +41,8 @@ In hindsight, it would have been just as valid to add a field `public List<Autho
 `Cheep` represents a message from a user. It contains relevant information such as the author who wrote it, what time it was written, the text message itself and a unique Id.
 
 Below is shown a UML diagram depicting the structure of the domain model. Note that only the relevant fields of `IdentityUser` are shown.
-![](.\images\DomainModel.png)
+
+![](.\images\DomainModel.png) \
 *Diagram 1. Displays the domain model of the program.*
 
 ## Architecture — In the small
